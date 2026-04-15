@@ -1,0 +1,529 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #f5f6fa;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 240px;
+            height: 100vh;
+            background: #0b1b3f;
+            position: fixed;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(-100%);
+            transition: 0.3s;
+        }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+        .sidebar-top {
+            padding-top: 20px;
+        }
+
+        .sidebar h5 {
+            padding: 0 20px;
+            margin-bottom: 20px;
+        }
+
+        /* NAV LINKS */
+        .nav-item {
+            display: block;
+            padding: 12px 20px;
+            color: #cfd4e0;
+            text-decoration: none;
+            margin: 5px 10px;
+            border-radius: 8px;
+        }
+
+            .nav-item:hover,
+            .nav-item.active {
+                background: #1a2b5f;
+                color: white;
+            }
+
+        /* FOOTER */
+        .sidebar-footer {
+            margin-top: auto; 
+            padding: 20px 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* PROFILE */
+        .profile-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* LOGOUT BUTTON */
+        .logout-btn {
+            display: block;
+            padding: 12px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            color: red;
+            text-align: center;
+            text-decoration: none;
+        }
+
+            .logout-btn:hover {
+                background: #eee;
+            }
+
+        /* MAIN */
+        .main {
+            margin-left: 0;
+            transition: 0.3s;
+        }
+
+            .main.shift {
+                margin-left: 240px;
+            }
+
+        /* HEADER */
+        .header {
+            height: 60px;
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* CONTENT */
+        .content {
+            padding: 20px;
+        }
+
+        /* NOTIFICATIONS */
+        .notif-box {
+            width: 300px;
+        }
+
+        .notif-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .showroom-filter {
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            background: white;
+            font-size: 14px;
+            min-width: 220px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+
+            /* hover */
+            .showroom-filter:hover {
+                border-color: #999;
+            }
+
+            /* focus */
+            .showroom-filter:focus {
+                outline: none;
+                border-color: #d4a100;
+                box-shadow: 0 0 0 2px rgba(212,161,0,0.2);
+            }
+
+        .chart-container {
+            height: 220px;
+            position: relative;
+        }
+        @RenderSection("Styles", required: false)
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+        <!-- TOP -->
+        <div class="sidebar-top">
+            <h5>Showroom Portal</h5>
+
+            <a href="/Admins/Dashboard/Index" class="nav-item active">
+                <i class="fa fa-home me-2"></i> Dashboard
+            </a>
+
+            <a href="/Admins/Reports/Index" class="nav-item">
+                <i class="fa fa-chart-line me-2"></i> Reports
+            </a>
+
+            <a href="/Admins/Account/Profile" class="nav-item">
+                <i class="fa fa-user me-2"></i> Account
+            </a>
+        </div>
+
+        <!-- BOTTOM -->
+        <div class="sidebar-footer">
+
+            <div class="profile-box">
+                <div class="avatar">
+                    @Context.Session.GetString("AdminName")?.Substring(0, 1)
+                </div>
+
+                <div>
+                    <strong>@Context.Session.GetString("AdminName")</strong><br />
+                    <small class="text-muted">Administrator</small>
+                </div>
+            </div>
+
+            <a href="/Admins/Account/Logout" class="logout-btn">
+                <i class="fa fa-sign-out-alt me-2"></i> Logout
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- HEADER -->
+        <div class="header">
+
+            <div>
+                <i class="fa fa-bars" onclick="toggleSidebar()" style="cursor:pointer;"></i>
+                <strong class="ms-2">Showroom Portal</strong>
+            </div>
+
+            <div class="header-right">
+
+                <!-- Bell -->
+                <div class="dropdown position-relative">
+                    <i class="fa fa-bell" data-bs-toggle="dropdown" style="cursor:pointer;"></i>
+
+                    @if (ViewBag.UnreadCount != null && ViewBag.UnreadCount > 0)
+                    {
+                        <span style="
+                    position:absolute;
+                    top:2px;
+                    right:2px;
+                    width:8px;
+                    height:8px;
+                    background:red;
+                    border-radius:50%;">
+                        </span>
+                    }
+
+                    <div class="dropdown-menu dropdown-menu-end p-2 notif-box">
+                        <div class="d-flex justify-content-between mb-2">
+                            <strong>Notifications</strong>
+                            <a href="/Admins/Dashboard/MarkAllRead" style="font-size:12px;">Mark all read</a>
+                        </div>
+
+                        @if (ViewBag.Notifications != null)
+                        {
+                            foreach (var n in (List<DatabaseModel.Models.Notification>)ViewBag.Notifications)
+                            {
+                                <div class="notif-item">
+                                    <strong>@n.Type</strong><br />
+                                    <small>@n.Message</small><br />
+                                    <small class="text-muted">
+                                        @(n.CreatedAt?.ToString("dd/MM/yyyy HH:mm"))
+                                    </small>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <!--  USER INFO  -->
+                <div class="d-flex align-items-center gap-2">
+
+                    <div class="text-end">
+                        <strong>@Context.Session.GetString("AdminName")</strong><br />
+                        <small class="text-muted">Administrator</small>
+                    </div>
+
+                    <div class="avatar">
+                        @Context.Session.GetString("AdminName")?.Substring(0, 1)
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            @RenderBody()
+        </div>
+
+    </div>
+<!-- ========== AI CHAT WIDGET ========== -->
+
+<button id="chat-toggle-btn" onclick="toggleChat()" title="AI Assistant"
+        style="position:fixed; bottom:24px; right:24px; z-index:9999;
+               width:56px; height:56px; border-radius:50%; border:none;
+               background:#2563eb; color:white; font-size:24px;
+               box-shadow:0 4px 16px rgba(0,0,0,0.2); cursor:pointer;">
+    💬
+</button>
+
+<div id="chat-panel"
+     style="display:none; position:fixed; bottom:96px; right:24px; z-index:9999;
+            width:360px; max-height:560px; border-radius:16px;
+            box-shadow:0 8px 32px rgba(0,0,0,0.2); border:1px solid #e5e7eb;
+            background:white; flex-direction:column; overflow:hidden;">
+
+    <!-- Header-->
+    <div style="background:#2563eb; color:white; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <div style="font-weight:600; font-size:14px;">🤖 Showroom Assistant</div>
+            <div style="font-size:11px; opacity:0.8;">Ask in Arabic or English</div>
+        </div>
+        <button onclick="toggleChat()" title="Close"
+                style="background:transparent; border:none; color:white; cursor:pointer; font-size:18px;">
+            ✕
+        </button>
+    </div>
+
+    <!-- Messages -->
+    <div id="chat-messages"
+         style="flex:1; overflow-y:auto; padding:16px; min-height:300px; max-height:400px; display:flex; flex-direction:column; gap:10px;">
+        <div id="welcome-msg" style="font-size:13px; color:#6b7280; text-align:center; padding-top:16px;">
+            مرحباً! / Hello!<br />
+            I'm your Showroom Assistant.<br />
+            Ask me anything about visitor data.
+        </div>
+    </div>
+
+    <!-- Input row -->
+    <div style="border-top:1px solid #e5e7eb; padding:10px; display:flex; gap:8px; background:white; align-items:center;">
+        <div style="flex:1; position:relative;">
+            <input id="chat-input" type="text" placeholder="Type a question..."
+                   onkeydown="if(event.key==='Enter') sendMessage()"
+                   oninput="toggleClearBtn()"
+                   style="width:100%; padding:8px 32px 8px 12px; border:1px solid #d1d5db;
+                          border-radius:8px; font-size:13px; outline:none; box-sizing:border-box;" />
+            <!-- X button to clear what is typed -->
+            <button id="clear-input-btn" onclick="clearInput()" title="Clear"
+                    style="display:none; position:absolute; right:8px; top:50%; transform:translateY(-50%);
+                           background:none; border:none; cursor:pointer; color:#9ca3af; font-size:14px; padding:0;">
+                ✕
+            </button>
+        </div>
+        <button onclick="sendMessage()" id="send-btn"
+                style="background:#2563eb; color:white; border:none; border-radius:8px;
+                       padding:8px 14px; cursor:pointer; font-size:14px; flex-shrink:0;">
+            ➤
+        </button>
+    </div>
+</div>
+
+<script>
+   
+    let messages = [];
+    let isOpen = false;
+    let isLoading = false;
+    let abortController = null;
+
+    function toggleChat() {
+        isOpen = !isOpen;
+        const panel = document.getElementById('chat-panel');
+        panel.style.display = isOpen ? 'flex' : 'none';
+        document.getElementById('chat-toggle-btn').innerText = isOpen ? '✕' : '💬';
+
+        if (isOpen) {
+            document.getElementById('chat-input').focus();
+        } else {
+            // Reset to fresh state every time you close
+            if (abortController) abortController.abort();
+            isLoading = false;
+            messages = [];
+            document.getElementById('chat-input').value = '';
+            document.getElementById('clear-input-btn').style.display = 'none';
+            document.getElementById('chat-messages').innerHTML =
+                `<div id="welcome-msg" style="font-size:13px;color:#6b7280;text-align:center;padding-top:16px;">
+                    مرحباً! / Hello!<br/>I'm your Showroom Assistant.<br/>Ask me anything about visitor data.
+                 </div>`;
+        }
+    }
+
+    function clearInput() {
+        document.getElementById('chat-input').value = '';
+        document.getElementById('clear-input-btn').style.display = 'none';
+        document.getElementById('chat-input').focus();
+    }
+
+    function toggleClearBtn() {
+        const val = document.getElementById('chat-input').value;
+        document.getElementById('clear-input-btn').style.display = val ? 'block' : 'none';
+    }
+
+    function isArabic(text) {
+        return /[\u0600-\u06FF]/.test(text);
+    }
+
+    function appendMessage(role, text) {
+        const welcome = document.getElementById('welcome-msg');
+        if (welcome) welcome.remove();
+
+        const box = document.getElementById('chat-messages');
+        const div = document.createElement('div');
+        div.style.display = 'flex';
+        div.style.alignItems = 'flex-end';
+        div.style.gap = '6px';
+        div.style.justifyContent = role === 'user' ? 'flex-end' : 'flex-start';
+
+        if (role === 'assistant') {
+            const avatar = document.createElement('div');
+            avatar.innerText = '🤖';
+            avatar.style.fontSize = '18px';
+            avatar.style.flexShrink = '0';
+            div.appendChild(avatar);
+        }
+
+        const bubble = document.createElement('div');
+        bubble.style.maxWidth = '80%';
+        bubble.style.padding = '10px 14px';
+        bubble.style.borderRadius = role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px';
+        bubble.style.fontSize = '13px';
+        bubble.style.whiteSpace = 'pre-wrap';
+        bubble.style.lineHeight = '1.6';
+        bubble.style.direction = isArabic(text) ? 'rtl' : 'ltr';
+        bubble.style.boxShadow = '0 1px 4px rgba(0,0,0,0.08)';
+        bubble.style.background = role === 'user' ? '#2563eb' : '#f3f4f6';
+        bubble.style.color = role === 'user' ? 'white' : '#111827';
+        bubble.innerText = text || '';
+
+        div.appendChild(bubble);
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+        return bubble;
+    }
+
+    async function sendMessage() {
+        if (isLoading) return;
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        if (!text) return;
+        input.value = '';
+        document.getElementById('clear-input-btn').style.display = 'none';
+
+        // Add user message to local state and UI
+        messages.push({ role: 'user', content: text });
+        appendMessage('user', text);
+
+        // Typing indicator
+        const typingDiv = document.createElement('div');
+        typingDiv.id = 'typing-indicator';
+        typingDiv.style.cssText = 'display:flex;align-items:center;gap:6px;';
+        typingDiv.innerHTML = `<span style="font-size:18px">🤖</span>
+            <div style="background:#f3f4f6;padding:10px 14px;border-radius:18px 18px 18px 4px;display:flex;gap:4px;align-items:center;">
+                <span style="width:7px;height:7px;border-radius:50%;background:#9ca3af;display:inline-block;animation:pulse 1s infinite;"></span>
+                <span style="width:7px;height:7px;border-radius:50%;background:#9ca3af;display:inline-block;animation:pulse 1s infinite 0.2s;"></span>
+                <span style="width:7px;height:7px;border-radius:50%;background:#9ca3af;display:inline-block;animation:pulse 1s infinite 0.4s;"></span>
+            </div>`;
+        document.getElementById('chat-messages').appendChild(typingDiv);
+        document.getElementById('chat-messages').scrollTop = 999999;
+
+        isLoading = true;
+        document.getElementById('send-btn').innerText = '...';
+        abortController = new AbortController();
+
+        typingDiv.remove();
+        const aiBubble = appendMessage('assistant', '');
+        let fullReply = '';
+
+        try {
+            // Send full conversation history — no ConversationId, no DB
+            const response = await fetch('/AI/SendMessage', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messages }),
+                signal: abortController.signal
+            });
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop();
+
+                for (const line of lines) {
+                    if (!line.startsWith('data: ')) continue;
+                    const chunk = line.slice(6);
+                    if (chunk && chunk !== '[DONE]') {
+                        fullReply += chunk;
+                        aiBubble.innerText = fullReply;
+                        aiBubble.style.direction = isArabic(fullReply) ? 'rtl' : 'ltr';
+                        document.getElementById('chat-messages').scrollTop = 999999;
+                    }
+                }
+            }
+
+            // Save AI reply to local state so next message has full context
+            messages.push({ role: 'assistant', content: fullReply });
+
+        } catch (e) {
+            if (e.name !== 'AbortError') {
+                aiBubble.innerText = 'Sorry, something went wrong. Please try again.';
+            }
+        } finally {
+            isLoading = false;
+            document.getElementById('send-btn').innerText = '➤';
+        }
+    }
+</script>
+<!-- ========== END AI CHAT WIDGET ========== -->
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('show');
+            document.querySelector('.main').classList.toggle('shift');
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!--Chart-->
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

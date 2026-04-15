@@ -1,0 +1,243 @@
+﻿@model DatabaseModel.Models.Visitor
+
+@{
+    Layout = "~/Areas/Admins/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<div class="mb-3">
+   <a href="/Admins/Reports/Index?tab=@ViewBag.Tab" class="text-decoration-none">
+        ← Back to Reports
+    </a>
+</div>
+
+@if (TempData["msg"] != null)
+{
+    <div id="successMsg" class="alert alert-success">
+        @TempData["msg"]
+    </div>
+}
+
+<div class="row align-items-start">
+
+    <!-- LEFT CARD -->
+    <div class="col-md-4">
+
+        <div class="p-4 text-white"
+             style="background:#0b1b3f; border-radius:12px;">
+
+            <div class="text-center mb-3">
+                <div style="width:70px;height:70px;background:gold;border-radius:50%;
+                            display:flex;align-items:center;justify-content:center;
+                            margin:auto;font-weight:bold;">
+                    @Model.Name.Substring(0, 1)
+                </div>
+
+                <h5 class="mt-3">@Model.Name</h5>
+
+                <span class="badge bg-secondary">New Customer</span>
+            </div>
+
+            <hr />
+
+            <p><i class="bi bi-telephone"></i> @Model.Phone</p>
+            <p><i class="bi bi-calendar"></i> @Model.VisitedAt?.ToString("dd/MM/yyyy")</p>
+            <p><i class="bi bi-clock"></i> @Model.VisitedAt?.ToString("HH:mm")</p>
+
+            <hr />
+
+            <div>
+                <strong>Lead Score</strong>
+                <div class="progress mt-2">
+                    <div class="progress-bar bg-warning"
+                         style="width:@Model.Score%">
+                    </div>
+                </div>
+                <small>@Model.Score/100</small>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="col-md-8">
+
+        <div class="d-flex justify-content-between">
+            <h5>Visit Details</h5>
+
+            <button class="btn btn-outline-dark btn-sm"
+                    onclick="enableEdit()">
+                <i class="bi bi-pencil"></i> Edit Record
+            </button>
+        </div>
+
+        <hr />
+
+        @if (ViewBag.Tab == "missed")
+        {
+            <!--MISSED EDIT ONLY -->
+
+            <form method="post" action="/Admins/Reports/UpdateMissed">
+
+                <input type="hidden" name="Id" value="@Model.Id" />
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label>Status</label>
+                        <select name="FollowUpStatus" class="form-select">
+                            <option value="pending" selected="@(Model.FollowUpStatus == "pending")">Pending</option>
+                            <option value="contacted" selected="@(Model.FollowUpStatus == "contacted")">Contacted</option>
+                            <option value="not_interested" selected="@(Model.FollowUpStatus == "not_interested")">Not Interested</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Assigned Salesperson</label>
+                        <select name="SalespersonId" class="form-select">
+                            <option value="">Unassigned</option>
+
+                            @foreach (var sp in ViewBag.Salespersons)
+                            {
+                                <option value="@sp.Id"
+                                        selected="@(Model.SalespersonId == sp.Id)">
+                                    @sp.Name
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label>Notes</label>
+                        <textarea name="Notes" class="form-control">@Model.Notes</textarea>
+                    </div>
+
+                </div>
+
+                <div class="mt-3">
+                    <button class="btn btn-dark">Save Changes</button>
+                </div>
+
+            </form>
+        }
+        else
+        {
+            <!-- DAILY EDIT ONLY -->
+
+            <form method="post" action="/Admins/Reports/Details">
+
+                <input type="hidden" name="Id" value="@Model.Id" />
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-2">
+                        <label>Full Name</label>
+                        <input name="Name" value="@Model.Name"
+                               class="form-control editable" disabled />
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                        <label>Phone</label>
+                        <input name="Phone" value="@Model.Phone"
+                               class="form-control editable" disabled />
+                    </div>
+
+                    <div class="col-md-12 mb-2">
+                        <label>Email</label>
+                        <input name="Email" value="@Model.Email"
+                               class="form-control editable" disabled />
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                        <label>Showroom</label>
+                        <select name="ShowroomId" class="form-select editable" disabled>
+                            @foreach (var s in ViewBag.Showrooms)
+                            {
+                                <option value="@s.Id" selected="@(s.Id == Model.ShowroomId)">
+                                    @s.Name
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                        <label>Product</label>
+                        <select name="ProductId" class="form-select editable" disabled>
+                            <option value="">Select product</option>
+
+                            @foreach (var p in ViewBag.Products)
+                            {
+                                <option value="@p.Id" selected="@(p.Id == Model.ProductId)">
+                                    @p.Name
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                        <label>Follow-up Status</label>
+                        <select name="FollowUpStatus" class="form-select editable" disabled>
+                            <option value="pending" selected="@(Model.FollowUpStatus == "pending")">Pending</option>
+                            <option value="contacted" selected="@(Model.FollowUpStatus == "contacted")">Contacted</option>
+                            <option value="not_interested" selected="@(Model.FollowUpStatus == "not_interested")">Not Interested</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                        <label>Lead Score</label>
+                        <input name="Score" value="@Model.Score"
+                               class="form-control editable" disabled />
+                    </div>
+
+                    <div class="col-md-12 mb-2">
+                        <label>Notes</label>
+                        <textarea name="Notes"
+                              class="form-control editable"
+                              disabled>@Model.Notes</textarea>
+                    </div>
+
+                </div>
+
+                <div class="mt-3 d-none" id="editButtons">
+                    <button type="submit" class="btn btn-dark">
+                        Save Changes
+                    </button>
+
+                    <a href="/Admins/Reports/Details/@Model.Id"
+                       class="btn btn-light">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
+        }
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <script>
+        function enableEdit() {
+            document.querySelectorAll('.editable').forEach(e => {
+                e.removeAttribute('disabled');
+            });
+
+            document.getElementById('editButtons').classList.remove('d-none');
+        }
+    </script>
+
+    <script>
+        setTimeout(() => {
+            let msg = document.getElementById("successMsg");
+            if (msg) {
+                msg.style.transition = "0.5s";
+                msg.style.opacity = "0";
+                setTimeout(() => msg.remove(), 500);
+            }
+        }, 2000);
+    </script>
+}

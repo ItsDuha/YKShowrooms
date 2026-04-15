@@ -1,0 +1,72 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container text-center mt-5">
+
+    <div class="card shadow-sm mx-auto" style="max-width:500px; border-radius:15px;">
+        <div class="card-body">
+
+            <h4 class="fw-bold">Rate your experience</h4>
+            <p class="text-muted">We value your feedback</p>
+
+            <form method="post">
+                <div class="text-danger mb-2">
+                    @Html.ValidationSummary(true)
+                </div>
+                <input type="hidden" name="visitorId" value="@ViewBag.VisitorId" />
+
+                <!-- ⭐ Stars -->
+                <div class="mb-4">
+                    <span class="star" data-value="1">☆</span>
+                    <span class="star" data-value="2">☆</span>
+                    <span class="star" data-value="3">☆</span>
+                    <span class="star" data-value="4">☆</span>
+                    <span class="star" data-value="5">☆</span>
+                </div>
+
+                <input type="hidden" name="rating" id="rating" />
+
+                <!-- Comment -->
+                <div class="mb-3">
+                    <textarea name="comment" class="form-control" placeholder="Tell us about your experience..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-dark w-100">
+                    Submit Feedback
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .star {
+        font-size: 30px;
+        cursor: pointer;
+        color: gray;
+    }
+
+    .star.selected {
+        color: gold;
+    }
+</style>
+
+<script>
+    const stars = document.querySelectorAll('.star');
+    const ratingInput = document.getElementById('rating');
+
+    stars.forEach((star, index) => {
+        star.addEventListener('click', () => {
+            ratingInput.value = index + 1;
+
+            stars.forEach((s, i) => {
+                s.textContent = i <= index ? "★" : "☆";
+                s.style.color = i <= index ? "gold" : "gray";
+            });
+        });
+    });
+</script>

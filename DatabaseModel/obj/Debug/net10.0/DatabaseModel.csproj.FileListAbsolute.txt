@@ -1,0 +1,14 @@
+C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\DatabaseModel\bin\Debug\net10.0\DatabaseModel.deps.json
+C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\DatabaseModel\bin\Debug\net10.0\DatabaseModel.runtimeconfig.json
+C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\DatabaseModel\bin\Debug\net10.0\DatabaseModel.dll
+C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\DatabaseModel\bin\Debug\net10.0\DatabaseModel.pdb
+C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\DatabaseModel\obj\Debug\net10.0\DatabaseModel.csproj.AssemblyReference.cache
+C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\DatabaseModel\obj\Debug\net10.0\DatabaseModel.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\DatabaseModel\obj\Debug\net10.0\DatabaseModel.AssemblyInfoInputs.cache
+C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\DatabaseModel\obj\Debug\net10.0\DatabaseModel.AssemblyInfo.cs
+C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\DatabaseModel\obj\Debug\net10.0\DatabaseModel.csproj.CoreCompileInputs.cache
+C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\DatabaseModel\obj\Debug\net10.0\DatabaseModel.dll
+C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\DatabaseModel\obj\Debug\net10.0\refint\DatabaseModel.dll
+C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\DatabaseModel\obj\Debug\net10.0\DatabaseModel.pdb
+C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\DatabaseModel\obj\Debug\net10.0\DatabaseModel.genruntimeconfig.cache
+C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\DatabaseModel\obj\Debug\net10.0\ref\DatabaseModel.dll

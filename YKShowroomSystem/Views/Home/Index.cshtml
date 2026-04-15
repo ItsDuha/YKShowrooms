@@ -1,0 +1,154 @@
+﻿@model DatabaseModel.Models.Visitor
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Showrooms Service";
+}
+
+<style>
+    body {
+        background: #f5f6f8;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .logo {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #0b1b3f;
+        border-radius: 50%;
+        margin: auto;
+        position: relative;
+    }
+
+        .logo::after {
+            content: "";
+            width: 12px;
+            height: 12px;
+            background: gold;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+</style>
+
+<div class="container">
+    <div class="text-danger">
+        @Html.ValidationSummary(false)
+    </div>
+    <!-- HEADER -->
+    <div class="text-center mt-4">
+        <div class="logo"></div>
+
+        <h2 class="fw-bold mt-3">Showrooms Service</h2>
+        <p class="text-muted">Welcome to Showrooms Service</p>
+    </div>
+
+    <!-- CARD -->
+    <div class="card shadow-sm mt-4 mx-auto" style="max-width:500px; border-radius:15px;">
+        <div class="card-body">
+
+            <h5 class="fw-semibold">Check In</h5>
+            <hr />
+
+            <form method="post">
+
+                <div class="row g-3">
+
+                    <!-- Name -->
+                    <div class="col-md-6">
+                        <label class="form-label">Full Name</label>
+                        <input asp-for="Name" class="form-control" placeholder="John Doe" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="col-md-6">
+                        <label class="form-label">Phone Number</label>
+                        <input asp-for="Phone" class="form-control" placeholder="+973 12345678" />
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="col-md-6">
+                        <label class="form-label">Email (Optional)</label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <!-- CPR -->
+                    <div class="col-md-6">
+                        <label class="form-label">CPR Number</label>
+                        <input asp-for="Cpr" class="form-control" />
+                        <span asp-validation-for="Cpr" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Showroom -->
+                    <div class="col-md-6">
+                        <label class="form-label">Showroom</label>
+                        <select asp-for="ShowroomId" class="form-select">
+                            <option value="0">Select a showroom</option>
+                            @foreach (var s in ViewBag.Showrooms)
+                            {
+                                <option value="@s.Id">@s.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="ShowroomId" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Product -->
+                    <div class="col-md-6">
+                        <label class="form-label">Car Model of Interest</label>
+                        <select asp-for="ProductId" class="form-select">
+                            <option value="">Not sure yet</option>
+                            @foreach (var p in ViewBag.Products)
+                            {
+                                <option value="@p.Id">@p.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Salesperson -->
+                    <div class="col-md-12">
+                        <label class="form-label">Assigned Salesperson</label>
+                        <select asp-for="SalespersonId" class="form-select">
+                            <option value="">Select a salesperson (optional)</option>
+                            @foreach (var sp in ViewBag.Salespersons)
+                            {
+                                <option value="@sp.Id">@sp.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Language -->
+                    <div class="col-md-12">
+                        <label class="form-label">Preferred Language</label>
+                        <select asp-for="Language" class="form-select">
+                            <option value="en">English</option>
+                            <option value="ar">العربية</option>
+                        </select>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="col-md-12">
+                        <label class="form-label">Notes (Optional)</label>
+                        <textarea asp-for="Notes" class="form-control" placeholder="Any specific requirements?"></textarea>
+                    </div>
+
+                </div>
+
+                <button type="submit" class="btn btn-dark w-100 mt-4">
+                    Complete Check-in
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

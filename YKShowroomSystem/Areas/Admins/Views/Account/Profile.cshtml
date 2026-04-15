@@ -1,0 +1,109 @@
+﻿@model DatabaseModel.Models.Admin
+@{
+    Layout = "~/Areas/Admins/Views/Shared/_Layout.cshtml";
+}
+
+<h3 class="mb-4 fw-bold">Account Settings</h3>
+
+<div class="row">
+
+    <!-- LEFT CARD -->
+    <div class="col-md-4">
+
+        <div class="card p-4 text-center shadow-sm">
+
+            <div class="big-avatar mx-auto mb-3">
+                @Context.Session.GetString("AdminName")?.Substring(0, 1)
+            </div>
+
+            <h5 class="fw-bold">@Context.Session.GetString("AdminName")</h5>
+            <p class="text-muted">System Administrator</p>
+
+            <a href="/Admins/Account/Logout" class="btn btn-danger w-100 mt-3">
+                <i class="fa fa-sign-out-alt me-2"></i> Sign Out
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- RIGHT CARD -->
+    <div class="col-md-8">
+
+        <div class="card p-4 shadow-sm">
+
+            <h5 class="fw-bold">Profile Details</h5>
+            <p class="text-muted">Your personal information and settings</p>
+
+            <hr />
+
+            <!-- NAME -->
+            <div class="d-flex align-items-center mb-3">
+                <div class="icon-box me-3"><i class="fa fa-user"></i></div>
+                <div>
+                    <small class="text-muted">Full Name</small><br />
+                    <strong>@Context.Session.GetString("AdminName")</strong>
+                </div>
+            </div>
+
+            <!-- EMAIL -->
+            <div class="d-flex align-items-center mb-3">
+                <div class="icon-box me-3"><i class="fa fa-envelope"></i></div>
+                <div>
+                    <small class="text-muted">Email Address</small><br />
+                    <strong>@Context.Session.GetString("AdminEmail")</strong>
+                </div>
+            </div>
+
+            <!-- ROLE -->
+            <div class="d-flex align-items-center mb-3">
+                <div class="icon-box me-3"><i class="fa fa-shield-alt"></i></div>
+                <div>
+                    <small class="text-muted">Role</small><br />
+                    <strong>Administrator</strong><br />
+                    <small class="text-muted">Full access to all showrooms and reports.</small>
+                </div>
+            </div>
+
+            <hr />
+
+            <!-- CREATED -->
+            <div class="d-flex align-items-center">
+                <div class="icon-box me-3"><i class="fa fa-calendar"></i></div>
+                <div>
+                    <small class="text-muted">Account Created</small><br />
+                    <strong>@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</strong>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+
+    .big-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border: 4px solid gold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        background: #eee;
+    }
+
+    .icon-box {
+        width: 45px;
+        height: 45px;
+        background: #f1f3f6;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+</style>

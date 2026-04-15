@@ -1,0 +1,300 @@
+﻿@{
+    Layout = "~/Areas/Admins/Views/Shared/_Layout.cshtml";
+}
+
+<h5>Dashboard</h5>
+
+<div class="d-flex justify-content-end mb-4">
+
+    <form method="get">
+
+        <select name="showroomId" class="showroom-filter" onchange="this.form.submit()">
+
+            <option value="0">All Showrooms</option>
+
+            @foreach (var s in ViewBag.Showrooms)
+            {
+                if (ViewBag.SelectedShowroom == s.Id)
+                {
+                    <option value="@s.Id" selected>@s.Name</option>
+                }
+                else
+                {
+                    <option value="@s.Id">@s.Name</option>
+                }
+            }
+
+        </select>
+
+    </form>
+
+</div>
+
+<div class="row mb-4">
+
+    <!-- TODAY -->
+    <div class="col-md-3">
+        <div class="card p-3 shadow-sm">
+            <small>Today's Walk-ins</small>
+            <h2>@ViewBag.TodayCount</h2>
+            <small class="text-muted">Customers checked in today</small>
+        </div>
+    </div>
+
+    <!-- WEEK -->
+    <div class="col-md-3">
+        <div class="card p-3 shadow-sm">
+            <small>This Week</small>
+            <h2>@ViewBag.WeekCount</h2>
+            <small class="text-muted">Since start of this week</small>
+        </div>
+    </div>
+
+    <!-- AVG SCORE -->
+    <div class="col-md-3">
+        <div class="card p-3 shadow-sm">
+            <small>Avg Lead Score</small>
+            <h2>@ViewBag.AvgScore <small>/100</small></h2>
+            <small class="text-muted">Across all visitors</small>
+        </div>
+    </div>
+
+    <!-- MONTH -->
+    <div class="col-md-3">
+        <div class="card p-3 shadow-sm">
+            <small>This Month</small>
+            <h2>@ViewBag.MonthCount</h2>
+            <small class="text-muted">Since 1st of this month</small>
+        </div>
+    </div>
+
+</div>
+
+<div class="card p-3 mb-4 shadow-sm">
+
+    <div class="d-flex justify-content-between mb-2">
+        <div>
+            <strong>Walk-in Trends</strong><br />
+            <small class="text-muted">Last 30 days — from customer check-in records</small>
+        </div>
+
+        <select id="trendMode" class="form-select w-auto">
+            <option value="day">By Day</option>
+            <option value="hour">By Hour</option>
+        </select>
+    </div>
+
+    <canvas id="trendChart" height="100"></canvas>
+
+</div>
+
+
+<div class="card p-3 mb-4 shadow-sm">
+
+    <div class="mb-2">
+        <strong>Leads by Car Model</strong><br />
+        <small class="text-muted">Most popular car models based on visitor interest</small>
+    </div>
+
+    <canvas id="modelChart" height="120"></canvas>
+
+</div>
+
+<div class="card p-3 shadow-sm">
+
+    <strong>Follow-up Status</strong>
+
+    <div class="chart-container">
+        <canvas id="statusChart"></canvas>
+    </div>
+
+</div>
+
+<div class="card p-3 shadow-sm">
+
+    <strong>Visitor Type</strong>
+
+    <div class="chart-container">
+        <canvas id="visitorChart"></canvas>
+    </div>
+
+</div>
+
+<div class="card p-3 shadow-sm">
+
+    <strong>Peak Hours</strong>
+    <small class="text-muted d-block mb-2">
+        Walk-in volume by hour — all time
+    </small>
+
+    <div class="chart-container">
+        <canvas id="peakChart"></canvas>
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <!--Walk-Ins-->
+    <script>
+        const dayLabels = @Html.Raw(Json.Serialize(ViewBag.DailyLabels));
+        const dayData = @Html.Raw(Json.Serialize(ViewBag.DailyCounts));
+
+        const hourLabels = @Html.Raw(Json.Serialize(ViewBag.HourLabels));
+        const hourData = @Html.Raw(Json.Serialize(ViewBag.HourCounts));
+
+        let chart;
+
+        function createChart(labels, data) {
+            if (chart) chart.destroy();
+
+            const ctx = document.getElementById('trendChart').getContext('2d');
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        borderColor: '#1f2a44',
+                        backgroundColor: 'transparent',
+                        tension: 0.4,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // default load
+        createChart(dayLabels, dayData);
+
+        // toggle
+        document.getElementById('trendMode').addEventListener('change', function () {
+            if (this.value === 'day') {
+                createChart(dayLabels, dayData);
+            } else {
+                createChart(hourLabels, hourData);
+            }
+        });
+    </script>
+    <!--Leads by Car Model-->
+    <script>
+        const modelLabels = @Html.Raw(Json.Serialize(ViewBag.ModelLabels));
+        const modelData = @Html.Raw(Json.Serialize(ViewBag.ModelCounts));
+
+        const ctxModel = document.getElementById('modelChart').getContext('2d');
+
+        new Chart(ctxModel, {
+            type: 'bar',
+            data: {
+                labels: modelLabels,
+                datasets: [{
+                    data: modelData,
+                    backgroundColor: '#1f2a44',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y', //  horizontal bars
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+    <!--Follow-up Status-->
+    <script>
+        const statusData = [
+            @ViewBag.NotInterested,
+            @ViewBag.Pending,
+            @ViewBag.Contacted
+        ];
+
+        const ctxStatus = document.getElementById('statusChart').getContext('2d');
+
+        new Chart(ctxStatus, {
+            type: 'doughnut',
+            data: {
+                labels: ['Not Interested', 'Pending', 'Contacted'],
+                datasets: [{
+                    data: statusData,
+                    backgroundColor: [
+                        '#1f2a44', // dark
+                        '#f5b301', // gold
+                        '#6c7a91'  // gray
+                    ]
+                }]
+            },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+        });
+    </script>
+    <!--Visitor Type-->
+    <script>
+        const visitorData = [
+            @ViewBag.ReturningVisitors,
+            @ViewBag.NewVisitors
+        ];
+
+        const ctxVisitor = document.getElementById('visitorChart').getContext('2d');
+
+        new Chart(ctxVisitor, {
+            type: 'doughnut',
+            data: {
+                labels: ['Returning', 'New'],
+                datasets: [{
+                    data: visitorData,
+                    backgroundColor: [
+                        '#1f2a44', // dark
+                        '#f5b301'  // gold
+                    ]
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+    <!--Peak Hours-->
+    <script>
+        const peakLabels = @Html.Raw(Json.Serialize(ViewBag.PeakLabels));
+        const peakData = @Html.Raw(Json.Serialize(ViewBag.PeakCounts));
+
+        const ctxPeak = document.getElementById('peakChart').getContext('2d');
+
+        new Chart(ctxPeak, {
+            type: 'bar',
+            data: {
+                labels: peakLabels,
+                datasets: [{
+                    data: peakData,
+                    backgroundColor: '#f5b301', // gold
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+}

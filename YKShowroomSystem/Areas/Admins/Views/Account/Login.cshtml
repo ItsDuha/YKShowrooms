@@ -1,0 +1,94 @@
+﻿@model YKShowroomSystem.Areas.Admins.Models.LoginViewModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!--BOOTSTRAP -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <title>Login</title>
+</head>
+
+<body>
+
+    <div class="d-flex justify-content-center align-items-center vh-100" style="background:#0b1b3f;">
+
+        <div class="card p-4 shadow-sm" style="width:400px; border-radius:15px;">
+
+            <!-- HEADER -->
+            <div class="text-center mb-3">
+                <div class="logo mx-auto mb-2"></div>
+                <h4 class="fw-bold">Showroom Portal</h4>
+                <p class="text-muted">Sign in to manage showrooms</p>
+            </div>
+
+            <form method="post">
+
+                <div class="mb-2">
+                    <input asp-for="Email" class="form-control" placeholder="admin@example.com" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-2">
+                    <input asp-for="Password" type="password" class="form-control" placeholder="Password" />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                @if (ViewBag.Error != null)
+                {
+                    <div class="text-danger mb-2">@ViewBag.Error</div>
+                }
+
+                <button type="submit" class="btn w-100 mt-2" style="background:gold;">
+                    Sign In
+                </button>
+
+            </form>
+
+            <p class="text-center mt-3">
+                Need an account?
+                <a href="/Admins/Account/Register">Register</a>
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- BOOTSTRAP JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        .logo {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #0b1b3f;
+            border-radius: 50%;
+            position: relative;
+        }
+
+            .logo::after {
+                content: "";
+                width: 10px;
+                height: 10px;
+                background: gold;
+                border-radius: 50%;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%,-50%);
+            }
+    </style>
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+
+</body>
+</html>
