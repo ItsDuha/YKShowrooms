@@ -150,25 +150,34 @@
 
             const ctx = document.getElementById('trendChart').getContext('2d');
 
-            chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        borderColor: '#1f2a44',
-                        backgroundColor: 'transparent',
-                        tension: 0.4,
-                        pointRadius: 4
-                    }]
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    borderColor: '#1f2a44',
+                    backgroundColor: 'transparent',
+                    tension: 0.4,
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
                 },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false }
+                scales: {         
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                            precision: 0
+                        }
                     }
                 }
-            });
+            }
+        });
         }
 
         // default load
@@ -201,9 +210,18 @@
                 }]
             },
             options: {
-                indexAxis: 'y', //  horizontal bars
+                indexAxis: 'y',
                 plugins: {
                     legend: { display: false }
+                },
+                scales: {          
+                    x: {      
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                            precision: 0
+                        }
+                    }
                 }
             }
         });

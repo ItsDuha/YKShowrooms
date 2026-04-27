@@ -230,3 +230,4 @@ C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\YKShowroomSystem\bin\Debu
 C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\YKShowroomSystem\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
 C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\YKShowroomSystem\obj\Debug\net10.0\YKShowroomSystem.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\YKShowroomSystem\bin\Debug\net10.0\OpenAI.dll
+C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\YKShowroomSystem\obj\Debug\net10.0\YKShowroomSystem.sourcelink.json
