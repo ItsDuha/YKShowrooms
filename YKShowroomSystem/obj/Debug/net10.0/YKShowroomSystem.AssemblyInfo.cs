@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("YKShowroomSystem")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+70378ac47cb9467d94c41ed9ae2da9c6837858b6")]
 [assembly: System.Reflection.AssemblyProductAttribute("YKShowroomSystem")]
 [assembly: System.Reflection.AssemblyTitleAttribute("YKShowroomSystem")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
