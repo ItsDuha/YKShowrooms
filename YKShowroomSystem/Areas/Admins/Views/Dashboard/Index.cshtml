@@ -2,15 +2,14 @@
     Layout = "~/Areas/Admins/Views/Shared/_Layout.cshtml";
 }
 
-<h5>Dashboard</h5>
-
+<h5 id="txt-page-title">Dashboard</h5>
 <div class="d-flex justify-content-end mb-4">
 
     <form method="get">
 
         <select name="showroomId" class="showroom-filter" onchange="this.form.submit()">
 
-            <option value="0">All Showrooms</option>
+            <option value="0" id="txt-all-showrooms">All Showrooms</option>
 
             @foreach (var s in ViewBag.Showrooms)
             {
@@ -35,52 +34,52 @@
     <!-- TODAY -->
     <div class="col-md-3">
         <div class="card p-3 shadow-sm">
-            <small>Today's Walk-ins</small>
-            <h2>@ViewBag.TodayCount</h2>
-            <small class="text-muted">Customers checked in today</small>
+            <small id="txt-today-walkins">Today's Walk-ins</small>
+<h2>@ViewBag.TodayCount</h2>
+<small class="text-muted" id="txt-customers-today">Customers checked in today</small>
         </div>
     </div>
 
     <!-- WEEK -->
     <div class="col-md-3">
         <div class="card p-3 shadow-sm">
-            <small>This Week</small>
-            <h2>@ViewBag.WeekCount</h2>
-            <small class="text-muted">Since start of this week</small>
+            <small id="txt-this-week">This Week</small>
+<h2>@ViewBag.WeekCount</h2>
+<small class="text-muted" id="txt-since-week">Since start of this week</small>
         </div>
     </div>
 
     <!-- AVG SCORE -->
     <div class="col-md-3">
         <div class="card p-3 shadow-sm">
-            <small>Avg Lead Score</small>
-            <h2>@ViewBag.AvgScore <small>/100</small></h2>
-            <small class="text-muted">Across all visitors</small>
+            <small id="txt-avg-score">Avg Lead Score</small>
+<h2>@ViewBag.AvgScore <small>/100</small></h2>
+<small class="text-muted" id="txt-across-all">Across all visitors</small>
         </div>
     </div>
 
     <!-- MONTH -->
-    <div class="col-md-3">
-        <div class="card p-3 shadow-sm">
-            <small>This Month</small>
-            <h2>@ViewBag.MonthCount</h2>
-            <small class="text-muted">Since 1st of this month</small>
-        </div>
+    <!-- MONTH -->
+<div class="col-md-3">
+    <div class="card p-3 shadow-sm">
+        <small id="txt-this-month">This Month</small>
+        <h2>@ViewBag.MonthCount</h2>
+        <small class="text-muted" id="txt-since-month">Since 1st of this month</small>
     </div>
+</div>
 
 </div>
 
 <div class="card p-3 mb-4 shadow-sm">
-
     <div class="d-flex justify-content-between mb-2">
         <div>
-            <strong>Walk-in Trends</strong><br />
-            <small class="text-muted">Last 30 days — from customer check-in records</small>
+            <strong id="txt-walk-trends">Walk-in Trends</strong><br />
+            <small class="text-muted" id="txt-last30">Last 30 days — from customer check-in records</small>
         </div>
 
         <select id="trendMode" class="form-select w-auto">
-            <option value="day">By Day</option>
-            <option value="hour">By Hour</option>
+            <option value="day" id="txt-by-day">By Day</option>
+<option value="hour" id="txt-by-hour">By Hour</option>
         </select>
     </div>
 
@@ -92,8 +91,8 @@
 <div class="card p-3 mb-4 shadow-sm">
 
     <div class="mb-2">
-        <strong>Leads by Car Model</strong><br />
-        <small class="text-muted">Most popular car models based on visitor interest</small>
+        <strong id="txt-leads-car">Leads by Car Model</strong><br />
+<small class="text-muted" id="txt-popular-cars">Most popular car models based on visitor interest</small>
     </div>
 
     <canvas id="modelChart" height="120"></canvas>
@@ -102,7 +101,8 @@
 
 <div class="card p-3 shadow-sm">
 
-    <strong>Follow-up Status</strong>
+    <strong id="txt-follow-up">Follow-up Status</strong>
+
 
     <div class="chart-container">
         <canvas id="statusChart"></canvas>
@@ -112,7 +112,7 @@
 
 <div class="card p-3 shadow-sm">
 
-    <strong>Visitor Type</strong>
+<strong id="txt-visitor-type">Visitor Type</strong>
 
     <div class="chart-container">
         <canvas id="visitorChart"></canvas>
@@ -120,18 +120,129 @@
 
 </div>
 
-<div class="card p-3 shadow-sm">
+<div class="card shadow-sm" style="
+    border-radius:16px;
+    border:1.5px solid #e8ecf2;
+    padding:28px 30px 32px;
+    font-family:'DM Sans',sans-serif;">
 
-    <strong>Peak Hours</strong>
-    <small class="text-muted d-block mb-2">
-        Walk-in volume by hour — all time
-    </small>
+    <!-- Header -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:20px;">
+        <div>
+            <div style="font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;color:#1a1f2e;" id="txt-peak-hours">
+    Peak Hours
+</div>
+            <div style="font-size:.82rem;color:#5a6175;margin-top:4px;" id="phSubText">
+    <span id="txt-walk-volume">Walk-in volume by hour — all time</span>
+</div>
+        </div>
+        <!-- Day label -->
 
-    <div class="chart-container">
-        <canvas id="peakChart"></canvas>
+<!-- Slot label -->
+
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <span id="phBadge" style="
+                background:#fff7e6;border:1.5px solid #fde8a8;
+                color:#92400e;font-size:.76rem;font-weight:700;
+                padding:6px 14px;border-radius:20px;white-space:nowrap;">
+                — Busiest Hour
+            </span>
+            <!-- Toggle -->
+            <div style="display:flex;align-items:center;gap:10px;background:#f8fafc;border:1.5px solid #e8ecf2;border-radius:30px;padding:7px 14px;">
+                <span style="font-size:.78rem;font-weight:700;color:#1a1f2e;" id="phLblLeft">Hourly View</span>
+                <label style="position:relative;width:46px;height:25px;flex-shrink:0;display:inline-block;">
+                    <input type="checkbox" id="phToggle" style="opacity:0;width:0;height:0;"
+                           onchange="phOnToggle(this.checked)"/>
+                    <span id="phSlider" style="position:absolute;inset:0;border-radius:99px;background:#cbd5e1;cursor:pointer;transition:background .25s;">
+                        <span id="phKnob" style="position:absolute;width:19px;height:19px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .25s cubic-bezier(.4,0,.2,1);box-shadow:0 1px 4px rgba(0,0,0,.2);display:block;"></span>
+                    </span>
+                </label>
+                <span style="font-size:.78rem;font-weight:500;color:#9ca3af;" id="phLblRight">Peak Ranking</span>
+            </div>
+        </div>
     </div>
 
+    <!-- Day chips row -->
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+        <span style="font-size:.72rem;font-weight:700;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;margin-right:4px;direction:ltr;display:inline-block;" id="txt-day-label">Day:</span>
+
+
+        <button onclick="phSetDay('All',this)"     class="ph-day-chip ph-day-active">All</button>
+        <button onclick="phSetDay('Monday',this)"    class="ph-day-chip">Mon</button>
+        <button onclick="phSetDay('Tuesday',this)"   class="ph-day-chip">Tue</button>
+        <button onclick="phSetDay('Wednesday',this)" class="ph-day-chip">Wed</button>
+        <button onclick="phSetDay('Thursday',this)"  class="ph-day-chip">Thu</button>
+        <button onclick="phSetDay('Friday',this)"    class="ph-day-chip">Fri</button>
+        <button onclick="phSetDay('Saturday',this)"  class="ph-day-chip">Sat</button>
+        <button onclick="phSetDay('Sunday',this)"    class="ph-day-chip">Sun</button>
+        <input type="date" id="phDatePicker" onchange="phOnDatePick(this.value)"
+               style="padding:6px 12px;border-radius:10px;border:1.5px solid #e8ecf2;
+                      font-size:.78rem;color:#1a1f2e;background:#f8fafc;cursor:pointer;
+                      font-family:'DM Sans',sans-serif;"/>
+    </div>
+
+    <hr style="border:none;border-top:1.5px solid #e8ecf2;margin:0 0 16px;" />
+
+    <!-- Slot filter row -->
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+        <span style="font-size:.72rem;font-weight:700;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;direction:ltr;display:inline-block;" id="txt-slot-label">Slot:</span>
+
+        <div id="phSlotChips" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+    </div>
+
+    <!-- VIEW A: Hourly column chart -->
+    <div id="phViewChart">
+        <div style="position:relative;padding-left:36px;">
+            <div id="phYAxis" style="position:absolute;left:0;top:0;bottom:28px;display:flex;flex-direction:column;justify-content:space-between;"></div>
+            <div style="position:relative;height:220px;border-bottom:2px solid #e8ecf2;">
+                <div id="phGridLines" style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;"></div>
+                <div id="phColsRow"   style="position:absolute;inset:0;display:flex;align-items:flex-end;gap:6px;padding:0 4px;"></div>
+            </div>
+            <div id="phXRow" style="display:flex;gap:6px;padding:0 4px;margin-top:8px;"></div>
+        </div>
+    </div>
+
+    <!-- VIEW B: Ranked bars -->
+    <div id="phViewRanked" style="display:none;flex-direction:column;gap:10px;"></div>
+
+    <!-- No data -->
+    <div id="phNoData" style="display:none;text-align:center;padding:40px;color:#9ca3af;font-size:.9rem;">
+        No walk-in data for this selection.
+    </div>
+
+    <!-- Footer -->
+    <div style="margin-top:24px;padding-top:18px;border-top:1.5px solid #e8ecf2;
+            display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div style="display:flex;align-items:center;gap:7px;font-size:.78rem;color:#5a6175;">
+        <span style="width:8px;height:8px;border-radius:50%;background:#27ae60;
+                     box-shadow:0 0 0 3px rgba(39,174,96,.15);flex-shrink:0;display:inline-block;"></span>
+        <span id="txt-last-update-label">Last updated:</span>
+        <strong id="phLastUpdated" style="color:#1a1f2e;font-weight:600;"></strong>
+    </div>
+    <div style="font-size:.72rem;color:#9ca3af;">
+        · <span id="txt-filtered">filtered by selected showroom</span>
+    </div>
 </div>
+
+</div>
+
+<style>
+.ph-day-chip {
+    padding:6px 14px;border-radius:20px;font-size:.78rem;font-weight:500;
+    border:1.5px solid #e8ecf2;background:#f8fafc;color:#5a6175;
+    cursor:pointer;transition:all .18s;font-family:'DM Sans',sans-serif;
+}
+.ph-day-chip:hover  { border-color:#f5a623;color:#f5a623;background:#fff7e6; }
+.ph-day-active      { background:#1a1f2e!important;border-color:#1a1f2e!important;color:#fff!important;font-weight:600!important; }
+.ph-slot-chip {
+    padding:5px 12px;border-radius:20px;font-size:.74rem;font-weight:500;
+    border:1.5px solid #e8ecf2;background:#f8fafc;color:#5a6175;
+    cursor:pointer;transition:all .18s;font-family:'DM Sans',sans-serif;
+}
+.ph-slot-chip:hover       { border-color:#4a90d9;color:#4a90d9; }
+.ph-slot-chip-active      { background:#4a90d9!important;border-color:#4a90d9!important;color:#fff!important;font-weight:600!important; }
+.ph-slot-chip-active-all  { background:#1a1f2e!important;border-color:#1a1f2e!important;color:#fff!important;font-weight:600!important; }
+</style>
 
 @section Scripts
 {
@@ -273,28 +384,394 @@
         });
     </script>
     <!--Peak Hours-->
-    <script>
-        const peakLabels = @Html.Raw(Json.Serialize(ViewBag.PeakLabels));
-        const peakData = @Html.Raw(Json.Serialize(ViewBag.PeakCounts));
+    <!--Peak Hours-->
+<script>
+(function () {
+    /* ── Data from controller ── */
+    const PH_ALL_LABELS = @Html.Raw(Json.Serialize(ViewBag.PeakLabels));
+    const PH_ALL_COUNTS = @Html.Raw(Json.Serialize(ViewBag.PeakCounts));
+    const PH_BY_DAY     = @Html.Raw(ViewBag.PeakByDay);   // {Monday:[{hour,count},...], ...}
 
-        const ctxPeak = document.getElementById('peakChart').getContext('2d');
+    /* Build all-time slots */
+    const PH_ALL_SLOTS = PH_ALL_LABELS.map((lbl, i) => ({
+        label: lbl, visitors: PH_ALL_COUNTS[i] || 0
+    })).filter(s => s.visitors > 0);
 
-        new Chart(ctxPeak, {
-            type: 'bar',
-            data: {
-                labels: peakLabels,
-                datasets: [{
-                    data: peakData,
-                    backgroundColor: '#f5b301', // gold
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                }
-            }
+    /* ── State ── */
+    let phCurrentDay = "All";
+    let phActiveSlot = "all";
+    let phIsChart    = true;
+
+    /* ── Helpers ── */
+    function phGetSlots() {
+        if (phCurrentDay === "All") return PH_ALL_SLOTS;
+        const raw = PH_BY_DAY[phCurrentDay] || [];
+        return raw.map(x => ({ label: x.hour, visitors: x.count }))
+                  .filter(s => s.visitors > 0);
+    }
+
+   function phStatus(rank) {
+    const lang = localStorage.getItem('siteLang') || 'en';
+    const ar = lang === 'ar';
+    if (rank === 0) return { cls:'busiest',  text: ar ? 'الأكثر ازدحاماً' : 'Busiest'  };
+    if (rank === 1) return { cls:'high',     text: ar ? 'مرتفع'           : 'High'     };
+    if (rank <= 3)  return { cls:'moderate', text: ar ? 'متوسط'           : 'Moderate' };
+    return                  { cls:'low',     text: ar ? 'منخفض'           : 'Low'      };
+}
+    const PH_BADGE = {
+        busiest:  'background:#fff7e6;border:1.5px solid #fde8a8;color:#92400e;',
+        high:     'background:#eaf3fb;border:1.5px solid #c3dff7;color:#1a5fa8;',
+        moderate: 'background:#eafaf1;border:1.5px solid #bbf7d0;color:#166534;',
+        low:      'background:#f1f5f9;border:1.5px solid #e8ecf2;color:#5a6175;'
+    };
+
+    /* Group hours into 2-hour slot windows for the Slot chips */
+    function phBuildSlotWindows(slots) {
+        const windows = {};
+        slots.forEach(s => {
+            const h = parseInt(s.label);
+            const start = h % 2 === 0 ? h : h - 1;
+            const key = `${String(start).padStart(2,'0')}:00–${String(start+2).padStart(2,'0')}:00`;
+            if (!windows[key]) windows[key] = { label: key, visitors: 0 };
+            windows[key].visitors += s.visitors;
         });
+        return Object.values(windows).sort((a,b) =>
+            parseInt(a.label) - parseInt(b.label));
+    }
+
+    /* ── Master render ── */
+    function phRender() {
+        const allSlots = phGetSlots();
+        const ranked   = [...allSlots].sort((a,b) => b.visitors - a.visitors);
+        const max      = ranked[0]?.visitors || 1;
+        const top      = ranked[0];
+
+        /* Badge */
+const badge = document.getElementById('phBadge');
+if (top) {
+    const lang2 = localStorage.getItem('siteLang') || 'en';
+    badge.textContent = top.label + (lang2 === 'ar' ? ' — الأكثر ازدحاماً' : ' — Busiest');
+} else {
+    const lang2 = localStorage.getItem('siteLang') || 'en';
+    badge.textContent = lang2 === 'ar' ? 'لا توجد بيانات' : 'No data';
+}
+
+        /* Subtitle */
+        const lang = localStorage.getItem('siteLang') || 'en';
+const ar = lang === 'ar';
+document.getElementById('phSubText').textContent =
+    phCurrentDay === 'All'
+        ? (ar ? 'حجم الزيارات بالساعة — كل الأوقات' : 'Walk-in volume by hour — all time')
+        : (ar ? `حجم الزيارات بالساعة — ${phCurrentDay}` : `Walk-in volume by hour — ${phCurrentDay}`);
+        /* Slot chips */
+        phBuildSlotChips(allSlots);
+
+        /* Filter by active slot if not "all" */
+        const windows   = phBuildSlotWindows(allSlots);
+        let visibleSlots = allSlots;
+        if (phActiveSlot !== 'all') {
+            const [wStart, wEnd] = phActiveSlot.split('–').map(t => parseInt(t));
+            visibleSlots = allSlots.filter(s => {
+                const h = parseInt(s.label); return h >= wStart && h < wEnd;
+            });
+        }
+
+        /* No data state */
+        const noData = document.getElementById('phNoData');
+        if (!visibleSlots.length) {
+            document.getElementById('phViewChart').style.display  = 'none';
+            document.getElementById('phViewRanked').style.display = 'none';
+            noData.style.display = 'block';
+            return;
+        }
+        noData.style.display = 'none';
+
+        const visRanked = [...visibleSlots].sort((a,b) => b.visitors - a.visitors);
+        const visMax    = visRanked[0].visitors;
+
+        phIsChart ? phRenderChart(visibleSlots, visRanked, visMax)
+                  : phRenderRanked(visRanked, visMax);
+    }
+
+    /* ── Slot chips ── */
+    function phBuildSlotChips(slots) {
+        const container = document.getElementById('phSlotChips');
+        container.innerHTML = '';
+        const windows = phBuildSlotWindows(slots);
+
+        const allChip = document.createElement('span');
+        allChip.className = 'ph-slot-chip' +
+            (phActiveSlot === 'all' ? ' ph-slot-chip-active-all ph-slot-chip-active' : '');
+        const lang = localStorage.getItem('siteLang') || 'en';
+allChip.textContent = lang === 'ar' ? 'كل الفترات' : 'All Slots';
+        allChip.onclick = () => { phActiveSlot = 'all'; phRender(); };
+        container.appendChild(allChip);
+
+        windows.forEach(w => {
+            const c = document.createElement('span');
+            c.className = 'ph-slot-chip' +
+                (phActiveSlot === w.label ? ' ph-slot-chip-active' : '');
+            c.textContent = w.label + ' (' + w.visitors + ')';
+            c.onclick = () => { phActiveSlot = w.label; phRender(); };
+            container.appendChild(c);
+        });
+        // Translate day chip buttons
+// Always map using data-en attribute so switching back to English works
+const arDays = { All: 'الكل', Mon: 'الإثنين', Tue: 'الثلاثاء', Wed: 'الأربعاء', Thu: 'الخميس', Fri: 'الجمعة', Sat: 'السبت', Sun: 'الأحد' };
+
+document.querySelectorAll('.ph-day-chip').forEach(btn => {
+    // Save original English text on first run
+    if (!btn.dataset.en) btn.dataset.en = btn.innerText.trim();
+    const enText = btn.dataset.en;
+    btn.innerText = lang === 'ar' ? (arDays[enText] || enText) : enText;
+}); }
+
+    /* ── VIEW A: Hourly chart ── */
+    function phRenderChart(chrono, ranked, max) {
+        document.getElementById('phViewChart').style.display  = 'block';
+        document.getElementById('phViewRanked').style.display = 'none';
+
+        const CHART_H = 220;
+        const step    = Math.max(1, Math.ceil(max / 4));
+        const yAxis   = document.getElementById('phYAxis');
+        const grid    = document.getElementById('phGridLines');
+        yAxis.innerHTML = grid.innerHTML = '';
+
+        for (let v = max; v >= 0; v -= step) {
+            const t = document.createElement('div');
+            t.style.cssText = 'font-size:.68rem;color:#9ca3af;line-height:1;';
+            t.textContent = v;
+            yAxis.appendChild(t);
+            const l = document.createElement('div');
+            l.style.cssText = 'width:100%;border-top:1px dashed #e8ecf2;';
+            grid.appendChild(l);
+        }
+
+        const colsRow = document.getElementById('phColsRow');
+        const xRow    = document.getElementById('phXRow');
+        colsRow.innerHTML = xRow.innerHTML = '';
+
+        chrono.forEach(slot => {
+            const isTop = slot.label === ranked[0].label;
+            const barH  = Math.max(4, Math.round((slot.visitors / max) * CHART_H));
+            const color = isTop
+                ? 'linear-gradient(180deg,#f5c842,#f5a623)'
+                : 'linear-gradient(180deg,#74b3ec,#4a90d9)';
+
+            const wrap = document.createElement('div');
+            wrap.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;';
+            wrap.innerHTML = `
+                <div style="font-size:.7rem;font-weight:700;color:#5a6175;margin-bottom:4px;">${slot.visitors}</div>
+                <div class="ph-col-bar" data-h="${barH}px"
+                     style="width:100%;border-radius:6px 6px 0 0;background:${color};
+                            height:0;transition:height .5s cubic-bezier(.4,0,.2,1);"></div>`;
+            colsRow.appendChild(wrap);
+
+            const xl = document.createElement('div');
+            xl.style.cssText = 'flex:1;text-align:center;font-size:.62rem;color:#9ca3af;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+            xl.textContent = slot.label;
+            xRow.appendChild(xl);
+        });
+
+        requestAnimationFrame(() => {
+            document.querySelectorAll('.ph-col-bar').forEach(b => {
+                b.style.height = b.dataset.h;
+            });
+        });
+    }
+
+    /* ── VIEW B: Ranked bars ── */
+    function phRenderRanked(ranked, max) {
+        document.getElementById('phViewChart').style.display  = 'none';
+        const area = document.getElementById('phViewRanked');
+        area.style.display = 'flex';
+        area.innerHTML = '';
+
+        ranked.forEach((slot, i) => {
+            const pct    = (slot.visitors / max * 100).toFixed(1);
+            const status = phStatus(i);
+            const isTop  = i === 0;
+            const rowBg  = isTop ? 'background:#fff7e6;border:1.5px solid #fde8a8;'
+                                 : 'border:1.5px solid transparent;';
+            const barClr = isTop
+                ? 'linear-gradient(90deg,#f5a623,#f0cd6a)'
+                : 'linear-gradient(90deg,#4a90d9,#74b3ec)';
+
+            const row = document.createElement('div');
+            row.style.cssText = `display:grid;grid-template-columns:22px 1fr 2fr 46px 96px;
+                align-items:center;gap:12px;padding:11px 14px;border-radius:10px;${rowBg}`;
+            row.innerHTML = `
+                <span style="font-size:.8rem;font-weight:700;color:${isTop?'#f5a623':'#9ca3af'};">${i+1}</span>
+                <span style="font-size:.88rem;font-weight:600;color:#1a1f2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${slot.label}</span>
+                <div style="background:#f0f4f8;border-radius:99px;height:28px;overflow:hidden;">
+                    <div class="ph-bar-fill" data-target="${pct}"
+                         style="height:100%;border-radius:99px;background:${barClr};width:0;
+                                display:flex;align-items:center;justify-content:flex-end;
+                                padding-right:10px;font-size:.74rem;font-weight:700;color:#fff;
+                                transition:width .5s cubic-bezier(.4,0,.2,1);">${slot.visitors}</div>
+                </div>
+                <span style="font-size:1rem;font-weight:700;color:#1a1f2e;text-align:right;">${slot.visitors}</span>
+                <span style="padding:5px 12px;border-radius:20px;font-size:.72rem;font-weight:700;text-align:center;${PH_BADGE[status.cls]}">${status.text}</span>`;
+            area.appendChild(row);
+        });
+
+        requestAnimationFrame(() => {
+            document.querySelectorAll('.ph-bar-fill').forEach(b => {
+                b.style.width = b.dataset.target + '%';
+            });
+        });
+    }
+
+    /* ── Day selector ── */
+    window.phSetDay = function(day, el) {
+        phCurrentDay = day;
+        phActiveSlot = 'all';
+        document.querySelectorAll('.ph-day-chip').forEach(c => c.classList.remove('ph-day-active'));
+        el.classList.add('ph-day-active');
+        phRender();
+    };
+
+    /* ── Date picker → auto-select day chip ── */
+    window.phOnDatePick = function(val) {
+        if (!val) return;
+        const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+        const name = days[new Date(val + "T00:00:00").getDay()];
+        phCurrentDay = name;
+        phActiveSlot = 'all';
+        document.querySelectorAll('.ph-day-chip').forEach(c => {
+            const matches = c.textContent.trim() === name.slice(0,3) || c.textContent.trim() === 'All';
+            c.classList.toggle('ph-day-active', c.textContent.trim() === name.slice(0,3));
+        });
+        phRender();
+    };
+
+    /* ── Toggle ── */
+    window.phOnToggle = function(checked) {
+        phIsChart = !checked;
+        document.getElementById('phSlider').style.background = checked ? '#f5a623' : '#cbd5e1';
+        document.getElementById('phKnob').style.transform    = checked ? 'translateX(21px)' : 'translateX(0)';
+        document.getElementById('phLblLeft').style.cssText   = !checked
+            ? 'font-size:.78rem;font-weight:700;color:#1a1f2e;'
+            : 'font-size:.78rem;font-weight:500;color:#9ca3af;';
+        document.getElementById('phLblRight').style.cssText  = checked
+            ? 'font-size:.78rem;font-weight:700;color:#1a1f2e;'
+            : 'font-size:.78rem;font-weight:500;color:#9ca3af;';
+        phRender();
+    };
+
+    /* ── Last Updated ── */
+    document.getElementById('phLastUpdated').textContent =
+        'Today, ' + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+
+    /* ── Init ── */
+    phRender();
+})();
+
+
+</script>
+
+<script>
+        // ── PAGE TRANSLATIONS ────────────────────────────────────────
+       const pageTranslations = {
+    en: {
+        pageTitle: "Dashboard",
+        allShowrooms: "All Showrooms",
+        todayWalkins: "Today's Walk-ins",
+        customersToday: "Customers checked in today",
+        thisWeek: "This Week",
+        sinceWeek: "Since start of this week",
+        avgScore: "Avg Lead Score",
+        acrossAll: "Across all visitors",
+        thisMonth: "This Month",
+        sinceMonth: "Since 1st of this month",
+        walkInTrends: "Walk-in Trends",
+        last30: "Last 30 days — from customer check-in records",
+        leadsByCar: "Leads by Car Model",
+        popularCars: "Most popular car models based on visitor interest",
+        followUp: "Follow-up Status",
+        visitorType: "Visitor Type",
+        byDay: "By Day",
+        byHour: "By Hour",
+        peakHours: "Peak Hours",
+        walkInVolume: "Walk-in volume by hour — all time",
+        dayLabel: "Day:",
+        slotLabel: "Slot:"
+    },
+    ar: {
+        pageTitle: "لوحة التحكم",
+        allShowrooms: "جميع المعارض",
+        todayWalkins: "زيارات اليوم",
+        customersToday: "العملاء الذين وصلوا اليوم",
+        thisWeek: "هذا الأسبوع",
+        sinceWeek: "منذ بداية الأسبوع",
+        avgScore: "متوسط نقاط العملاء",
+        acrossAll: "عبر جميع الزوار",
+        thisMonth: "هذا الشهر",
+        sinceMonth: "منذ أول الشهر",
+        walkInTrends: "اتجاهات الزيارات",
+        last30: "آخر 30 يوماً — من سجلات الزيارات",
+        leadsByCar: "العملاء حسب موديل السيارة",
+        popularCars: "أكثر موديلات السيارات شعبية",
+        followUp: "حالة المتابعة",
+        visitorType: "نوع الزائر",
+        byDay: "حسب اليوم",
+        byHour: "حسب الساعة",
+        peakHours: "ساعات الذروة",
+        walkInVolume: "حجم الزيارات بالساعة — كل الأوقات",
+        dayLabel: "اليوم",
+        slotLabel: "الفترة"
+    }
+};
+
+function translatePage(lang) {
+    const t = pageTranslations[lang];
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+    const lblLeft = document.getElementById('phLblLeft');
+const lblRight = document.getElementById('phLblRight');
+if (lblLeft) lblLeft.innerText = lang === 'ar' ? 'عرض بالساعة' : 'Hourly View';
+if (lblRight) lblRight.innerText = lang === 'ar' ? 'ترتيب الذروة' : 'Peak Ranking';
+
+const lastUpdatedLabel = document.querySelector('[id="phLastUpdated"]')?.parentElement;
+const filterLabel = document.querySelector('.ph-day-chip')?.closest('.card')?.querySelector('[style*="font-size:.72rem;color:#9ca3af"]');
+set('txt-last-update-label', lang === 'ar' ? 'آخر تحديث:' : 'Last updated:');
+set('txt-filtered', lang === 'ar' ? 'مفلتر حسب المعرض المحدد' : 'filtered by selected showroom');
+
+    set('txt-page-title', t.pageTitle);
+    set('txt-all-showrooms', t.allShowrooms);
+    set('txt-today-walkins', t.todayWalkins);
+    set('txt-customers-today', t.customersToday);
+    set('txt-this-week', t.thisWeek);
+    set('txt-since-week', t.sinceWeek);
+    set('txt-avg-score', t.avgScore);
+    set('txt-across-all', t.acrossAll);
+    set('txt-this-month', t.thisMonth);
+    set('txt-since-month', t.sinceMonth);
+    set('txt-walk-trends', t.walkInTrends);
+    set('txt-last30', t.last30);
+    set('txt-leads-car', t.leadsByCar);
+    set('txt-popular-cars', t.popularCars);
+    set('txt-follow-up', t.followUp);
+    set('txt-visitor-type', t.visitorType);
+    set('txt-by-day', t.byDay);
+    set('txt-by-hour', t.byHour);
+    set('txt-peak-hours', t.peakHours);
+    set('txt-walk-volume', t.walkInVolume);
+    set('txt-day-label', t.dayLabel);
+    set('txt-slot-label', t.slotLabel);
+}
+
+        // Apply on load — use window.load to ensure layout has already run
+window.addEventListener('load', function () {
+    // Small delay to ensure layout translateLayout has run first
+    setTimeout(function() {
+    const lang = localStorage.getItem('siteLang') || 'en';
+    translatePage(lang);
+}, 200);
+});
+
+        // Listen for language change from layout
+        window.addEventListener('languageChanged', function (e) {
+            translatePage(e.detail);
+});
     </script>
 }

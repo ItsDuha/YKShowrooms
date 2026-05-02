@@ -475,5 +475,5 @@
     }
   },
   "type": "object",
-  "SourceSegments": "C:\\Users\\duhah\\.nuget\\packages\\system.clientmodel\\1.10.0\\ConfigurationSchema.json;C:\\Users\\duhah\\.nuget\\packages\\openai\\2.10.0\\ConfigurationSchema.json"
+  "SourceSegments": "C:\\Users\\MY-PC\\.nuget\\packages\\system.clientmodel\\1.10.0\\ConfigurationSchema.json;C:\\Users\\MY-PC\\.nuget\\packages\\openai\\2.10.0\\ConfigurationSchema.json"
 }

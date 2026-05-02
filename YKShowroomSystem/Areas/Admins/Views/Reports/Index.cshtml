@@ -7,7 +7,7 @@
 
 
 
-<h4 class="fw-bold mb-4">Reports</h4>
+<h4 class="fw-bold mb-4" id="txt-report-title">Reports</h4>
 
 <!-- SUCCESS MESSAGE -->
 @if (TempData["msg"] != null)
@@ -21,13 +21,13 @@
 <div class="mb-4 d-flex gap-2">
 
     <a href="?tab=daily"
-       class="btn btn-light px-4 @(ViewBag.Tab == "daily" ? "active-tab" : "")">
-        Daily Walk-ins
+           class="btn btn-light px-4 @(ViewBag.Tab == "daily" ? "active-tab" : "")">
+        <span id="txt-daily-tab">Daily Walk-ins</span>
     </a>
 
     <a href="?tab=missed"
-       class="btn btn-light px-4 @(ViewBag.Tab == "missed" ? "active-tab" : "")">
-        Missed Follow-ups
+           class="btn btn-light px-4 @(ViewBag.Tab == "missed" ? "active-tab" : "")">
+        <span id="txt-missed-tab">Missed Follow-ups</span>
     </a>
 
 </div>
@@ -54,7 +54,7 @@
             <div class="col-md-3">
                 <select name="showroomId" class="form-select shadow-sm"
                         onchange="submitForm()">
-                    <option value="0">All Showrooms</option>
+                    <option value="0" id="txt-all-showrooms-report">All Showrooms</option>
                     @foreach (var s in ViewBag.Showrooms)
                     {
                         <option value="@s.Id" selected="@(ViewBag.SelectedShowroom == s.Id)">
@@ -68,7 +68,8 @@
             <div class="col-md-3">
                 <select name="status" class="form-select shadow-sm"
                         onchange="submitForm()">
-                    <option value="All">Any Status</option>
+                    <option value="All" id="txt-any-status">Any Status</option>
+
                     <option value="pending" selected="@(ViewBag.SelectedStatus == "pending")">Pending</option>
                     <option value="contacted" selected="@(ViewBag.SelectedStatus == "contacted")">Contacted</option>
                     <option value="not_interested" selected="@(ViewBag.SelectedStatus == "not_interested")">Not Interested</option>
@@ -79,7 +80,7 @@
             <div class="col-md-2">
                 <a href="/Admins/Reports/Export?search=@ViewBag.Search&showroomId=@ViewBag.SelectedShowroom&status=@ViewBag.SelectedStatus"
                    class="btn btn-dark w-100 shadow-sm">
-                    <i class="bi bi-download"></i> Export
+                    <i class="bi bi-download"></i> <span id="txt-export-btn">Export</span>
                 </a>
             </div>
 
@@ -89,14 +90,14 @@
 
         <thead class="table-light">
             <tr>
-                <th>Visitor</th>
-                <th>CPR</th>
-                <th>Showroom</th>
-                <th>Status</th>
-                <th>Score</th>
-                <th>Visit Time</th>
-                <th>View</th>
-                <th>Delete</th>
+                    <th class="th-visitor">Visitor</th>
+                    <th class="th-cpr">CPR</th>
+                    <th class="th-showroom">Showroom</th>
+                    <th class="th-status">Status</th>
+                    <th class="th-score">Score</th>
+                    <th class="th-visittime">Visit Time</th>
+                    <th class="th-view">View</th>
+                    <th class="th-delete">Delete</th>
             </tr>
         </thead>
 
@@ -176,10 +177,8 @@
             <!-- HEADER -->
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
-                    <h5 class="fw-bold">Missed Follow-up Report</h5>
-                    <small class="text-muted">
-                        Visitors still in Pending status
-                    </small>
+                    <h5 class="fw-bold" id="txt-missed-title">Missed Follow-up Report</h5>
+                    <small class="text-muted" id="txt-missed-subtitle">Visitors still in Pending status</small>
                 </div>
             </div>
 
@@ -217,7 +216,7 @@
                 <div class="position-relative">
                     <a href="/Admins/Reports/ExportMissed?search=@ViewBag.Search&range=@ViewBag.Range"
                        class="btn btn-dark w-100 shadow-sm">
-                        <i class="bi bi-download"></i> Export CSV
+                        <i class="bi bi-download"></i> <span id="txt-export-csv-btn">Export CSV</span>
                     </a>
                 </div>
 
@@ -227,14 +226,14 @@
 
                 <thead class="table-light">
                     <tr>
-                        <th>Visitor</th>
-                        <th>Visited</th>
-                        <th>Overdue</th>
-                        <th>Showroom</th>
-                        <th>Salesperson</th>
-                        <th>Required Action</th>
-                        <th>View</th>
-                        <th>Delete</th>
+                        <th class="th-visitor">Visitor</th>
+                        <th class="th-missed-visited">Visited</th>
+                        <th class="th-missed-overdue">Overdue</th>
+                        <th class="th-showroom">Showroom</th>
+                        <th class="th-missed-salesperson">Salesperson</th>
+                        <th class="th-missed-action">Required Action</th>
+                        <th class="th-view">View</th>
+                        <th class="th-delete">Delete</th>
                     </tr>
                 </thead>
 
@@ -344,7 +343,7 @@
             @if (ViewBag.Page > 1)
             {
                 <a href="?tab=@ViewBag.Tab&page=@(ViewBag.Page - 1)&search=@ViewBag.Search&showroomId=@ViewBag.SelectedShowroom&status=@ViewBag.SelectedStatus"
-                   class="btn btn-outline-secondary btn-sm me-2">
+                       class="btn btn-outline-secondary btn-sm me-2" id="txt-prev">
                     Previous
                 </a>
             }
@@ -352,7 +351,7 @@
             @if (ViewBag.Page < ViewBag.TotalPages)
             {
                 <a href="?tab=@ViewBag.Tab&page=@(ViewBag.Page + 1)&search=@ViewBag.Search&showroomId=@ViewBag.SelectedShowroom&status=@ViewBag.SelectedStatus"
-                   class="btn btn-dark btn-sm">
+                       class="btn btn-dark btn-sm" id="txt-next">
                     Next
                 </a>
             }
@@ -364,14 +363,15 @@
 <!-- DELETED TABLE -->
 <div class="card p-4 shadow-sm mt-4">
 
-    <h5 class="mb-3 fw-semibold">Deleted Visitors</h5>
+    <h5 class="mb-3 fw-semibold" id="txt-deleted-title">Deleted Visitors</h5>
+
 
     <table class="table table-hover">
         <thead class="table-light">
             <tr>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Restore</th>
+                <th class="th-deleted-name">Name</th>
+                <th class="th-deleted-phone">Phone</th>
+                <th class="th-deleted-restore">Restore</th>
             </tr>
         </thead>
 
@@ -411,16 +411,16 @@
         <div class="modal-content shadow">
 
             <div class="modal-header">
-                <h5 class="modal-title fw-semibold">Delete Record</h5>
+                <h5 class="modal-title fw-semibold" id="txt-modal-title">Delete Record</h5>
             </div>
 
-            <div class="modal-body text-muted">
+            <div class="modal-body text-muted" id="txt-modal-body">
                 Are you sure you want to delete this record?
             </div>
 
             <div class="modal-footer">
-                <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                <a id="deleteBtn" class="btn btn-danger">Delete</a>
+                <button class="btn btn-light" data-bs-dismiss="modal" id="txt-modal-cancel">Cancel</button>
+                <a id="deleteBtn" class="btn btn-danger" >Delete</a>
             </div>
 
         </div>
@@ -577,7 +577,185 @@
             }
         }, 2000);
     </script>
+    <script>
+        const reportTranslations = {
+            en: {
+                pageTitle: "Reports",
+                dailyTab: "Daily Walk-ins",
+                missedTab: "Missed Follow-ups",
+                searchPlaceholder: "Search name, phone...",
+                allShowrooms: "All Showrooms",
+                anyStatus: "Any Status",
+                export: "Export",
+                exportCsv: "Export CSV",
+                // Table headers
+                visitor: "Visitor",
+                cpr: "CPR",
+                showroom: "Showroom",
+                status: "Status",
+                score: "Score",
+                visitTime: "Visit Time",
+                view: "View",
+                delete: "Delete",
+                // Status options
+                pending: "Pending",
+                contacted: "Contacted",
+                notInterested: "Not Interested",
+                // Missed Follow-ups
+                missedTitle: "Missed Follow-up Report",
+                missedSubtitle: "Visitors still in Pending status",
+                searchMissed: "Search by name or phone...",
+                todayOnly: "Today only",
+                last3: "Last 3 days",
+                last7: "Last 7 days",
+                last30: "Last 30 days",
+                missedVisitor: "Visitor",
+                missedVisited: "Visited",
+                missedOverdue: "Overdue",
+                missedShowroom: "Showroom",
+                missedSalesperson: "Salesperson",
+                missedAction: "Required Action",
+                missedView: "View",
+                missedDelete: "Delete",
+                unassigned: "Unassigned",
+                noMissed: "No missed follow-ups found",
+                // Deleted
+                deletedTitle: "Deleted Visitors",
+                deletedName: "Name",
+                deletedPhone: "Phone",
+                deletedRestore: "Restore",
+                noDeleted: "No deleted visitors yet",
+                // Pagination
+                previous: "Previous",
+                next: "Next",
+                // Modal
+                deleteModalTitle: "Delete Record",
+                deleteModalBody: "Are you sure you want to delete this record?",
+                cancel: "Cancel",
+                deleteBtn: "Delete"
+            },
+            ar: {
+                pageTitle: "التقارير",
+                dailyTab: "الزيارات اليومية",
+                missedTab: "المتابعات الفائتة",
+                searchPlaceholder: "ابحث بالاسم أو الهاتف...",
+                allShowrooms: "جميع المعارض",
+                anyStatus: "أي حالة",
+                export: "تصدير",
+                exportCsv: "تصدير CSV",
+                visitor: "الزائر",
+                cpr: "الرقم الشخصي",
+                showroom: "المعرض",
+                status: "الحالة",
+                score: "النقاط",
+                visitTime: "وقت الزيارة",
+                view: "عرض",
+                delete: "حذف",
+                pending: "قيد الانتظار",
+                contacted: "تم التواصل",
+                notInterested: "غير مهتم",
+                missedTitle: "تقرير المتابعات الفائتة",
+                missedSubtitle: "الزوار الذين لا يزالون في حالة الانتظار",
+                searchMissed: "ابحث بالاسم أو الهاتف...",
+                todayOnly: "اليوم فقط",
+                last3: "آخر 3 أيام",
+                last7: "آخر 7 أيام",
+                last30: "آخر 30 يوماً",
+                missedVisitor: "الزائر",
+                missedVisited: "تاريخ الزيارة",
+                missedOverdue: "متأخر",
+                missedShowroom: "المعرض",
+                missedSalesperson: "مندوب المبيعات",
+                missedAction: "الإجراء المطلوب",
+                missedView: "عرض",
+                missedDelete: "حذف",
+                unassigned: "غير معين",
+                noMissed: "لا توجد متابعات فائتة",
+                deletedTitle: "الزوار المحذوفون",
+                deletedName: "الاسم",
+                deletedPhone: "الهاتف",
+                deletedRestore: "استعادة",
+                noDeleted: "لا يوجد زوار محذوفون",
+                previous: "السابق",
+                next: "التالي",
+                deleteModalTitle: "حذف السجل",
+                deleteModalBody: "هل أنت متأكد أنك تريد حذف هذا السجل؟",
+                cancel: "إلغاء",
+                deleteBtn: "حذف"
+            }
+        };
 
+        function translateReportPage(lang) {
+            const t = reportTranslations[lang];
+            const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+            const setPlaceholder = (id, val) => { const el = document.getElementById(id); if (el) el.placeholder = val; };
+            const setAll = (sel, val) => { document.querySelectorAll(sel).forEach(el => el.innerText = val); };
+
+            // NOTE: Keep page direction LTR always — no RTL flip for tables
+            // Only translate text, never change dir
+
+            set('txt-report-title', t.pageTitle);
+            set('txt-daily-tab', t.dailyTab);
+            set('txt-missed-tab', t.missedTab);
+            setPlaceholder('searchInput', t.searchPlaceholder);
+            setPlaceholder('missedSearch', t.searchMissed);
+
+            // Table headers - Daily
+            setAll('.th-visitor', t.visitor);
+            setAll('.th-cpr', t.cpr);
+            setAll('.th-showroom', t.showroom);
+            setAll('.th-status', t.status);
+            setAll('.th-score', t.score);
+            setAll('.th-visittime', t.visitTime);
+            setAll('.th-view', t.view);
+            setAll('.th-delete', t.delete);
+
+            // Table headers - Missed
+            set('txt-missed-title', t.missedTitle);
+            set('txt-missed-subtitle', t.missedSubtitle);
+            setAll('.th-missed-visited', t.missedVisited);
+            setAll('.th-missed-overdue', t.missedOverdue);
+            setAll('.th-missed-salesperson', t.missedSalesperson);
+            setAll('.th-missed-action', t.missedAction);
+
+            // Deleted section
+            set('txt-deleted-title', t.deletedTitle);
+            setAll('.th-deleted-name', t.deletedName);
+            setAll('.th-deleted-phone', t.deletedPhone);
+            setAll('.th-deleted-restore', t.deletedRestore);
+
+            // Modal
+            set('txt-modal-title', t.deleteModalTitle);
+            set('txt-modal-body', t.deleteModalBody);
+            set('txt-modal-cancel', t.cancel);
+            set('txt-modal-delete', t.deleteBtn);
+
+            // Filter dropdowns text
+            set('txt-all-showrooms-report', t.allShowrooms);
+            set('txt-any-status', t.anyStatus);
+            set('txt-export-btn', t.export);
+            set('txt-export-csv-btn', t.exportCsv);
+            set('txt-prev', t.previous);
+            set('txt-next', t.next);
+                    // Translate status dropdown options in table rows
+        document.querySelectorAll('.status-select option').forEach(opt => {
+            if (opt.value === 'pending')        opt.text = t.pending;
+            if (opt.value === 'contacted')      opt.text = t.contacted;
+            if (opt.value === 'not_interested') opt.text = t.notInterested;
+        });
+        }
+
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                const lang = localStorage.getItem('siteLang') || 'en';
+                translateReportPage(lang);
+            }, 200);
+        });
+
+        window.addEventListener('languageChanged', function (e) {
+            translateReportPage(e.detail);
+        });
+    </script>
     <script>
         let timeout = null;
 

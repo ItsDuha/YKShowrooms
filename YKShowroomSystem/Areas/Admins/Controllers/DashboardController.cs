@@ -129,20 +129,45 @@ namespace YKShowroomSystem.Areas.Admins.Controllers
 
             ViewBag.NewVisitors = newVisitors;
             ViewBag.ReturningVisitors = returningVisitors;
-            //PEAK HOURS
+            //PEAK HOURS — all-time (existing, keep working)
             var peakHours = visitors
                 .Where(v => v.VisitedAt.HasValue)
                 .GroupBy(v => v.VisitedAt.Value.Hour)
-                .Select(g => new
-                {
-                    hour = g.Key,
-                    count = g.Count()
-                })
+                .Select(g => new { hour = g.Key, count = g.Count() })
                 .OrderBy(h => h.hour)
                 .ToList();
 
             ViewBag.PeakLabels = peakHours.Select(h => h.hour + ":00").ToList();
             ViewBag.PeakCounts = peakHours.Select(h => h.count).ToList();
+
+            //PEAK HOURS — broken down by day of week (for Day chips)
+            var peakRaw = visitors
+                .Where(v => v.VisitedAt.HasValue)
+                .Select(v => new
+                {
+                    DayOfWeek = v.VisitedAt.Value.DayOfWeek,
+                    Hour = v.VisitedAt.Value.Hour
+                })
+                .ToList();
+
+            var dayNames = new[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+
+            var peakByDay = dayNames.ToDictionary(
+                day => day,
+                day =>
+                {
+                    var dow = (DayOfWeek)Array.IndexOf(dayNames, day);
+                    return peakRaw
+                        .Where(x => x.DayOfWeek == dow)
+                        .GroupBy(x => x.Hour)
+                        .Select(g => new { hour = g.Key + ":00", count = g.Count() })
+                        .OrderBy(x => x.hour)
+                        .ToList<object>();
+                }
+            );
+
+            ViewBag.PeakByDay = System.Text.Json.JsonSerializer.Serialize(peakByDay);
+
             return View();
         }
 

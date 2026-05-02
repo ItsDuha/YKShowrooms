@@ -5,6 +5,8 @@
     ViewData["Title"] = "Showrooms Service";
 }
 
+<!-- Light/Dark mode toggle will be injected by JS -->
+
 <style>
     body {
         background: #f5f6f8;
@@ -31,6 +33,30 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
+
+    /* RTL mode */
+    .rtl {
+        direction: rtl;
+        text-align: right;
+    }
+
+        /* Fix labels + inputs alignment */
+        .rtl .form-label {
+            text-align: right;
+            display: block;
+        }
+
+        .rtl input,
+        .rtl select,
+        .rtl textarea {
+            text-align: right;
+        }
+
+        /* Optional: fix spacing between fields */
+        .rtl .row {
+            flex-direction: row-reverse;
+        }
+
 </style>
 
 <div class="container">
@@ -41,15 +67,15 @@
     <div class="text-center mt-4">
         <div class="logo"></div>
 
-        <h2 class="fw-bold mt-3">Showrooms Service</h2>
-        <p class="text-muted">Welcome to Showrooms Service</p>
+        <h2 class="fw-bold mt-3" id="txt-page-title">Showrooms Service</h2>
+        <p class="text-muted" id="txt-page-subtitle">Welcome to Showrooms Service</p>
     </div>
 
     <!-- CARD -->
     <div class="card shadow-sm mt-4 mx-auto" style="max-width:500px; border-radius:15px;">
         <div class="card-body">
 
-            <h5 class="fw-semibold">Check In</h5>
+            <h5 class="fw-semibold" id="txt-checkin">Check In</h5>
             <hr />
 
             <form method="post">
@@ -58,35 +84,35 @@
 
                     <!-- Name -->
                     <div class="col-md-6">
-                        <label class="form-label">Full Name</label>
+                        <label class="form-label" id="txt-fullname">Full Name</label>
                         <input asp-for="Name" class="form-control" placeholder="John Doe" />
                         <span asp-validation-for="Name" class="text-danger small"></span>
                     </div>
 
                     <!-- Phone -->
                     <div class="col-md-6">
-                        <label class="form-label">Phone Number</label>
+                        <label class="form-label" id="txt-phone">Phone Number</label>
                         <input asp-for="Phone" class="form-control" placeholder="+973 12345678" />
                         <span asp-validation-for="Phone" class="text-danger small"></span>
                     </div>
 
                     <!-- Email -->
                     <div class="col-md-6">
-                        <label class="form-label">Email (Optional)</label>
+                        <label class="form-label" id="txt-email">Email (Optional)</label>
                         <input asp-for="Email" class="form-control" />
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
 
                     <!-- CPR -->
                     <div class="col-md-6">
-                        <label class="form-label">CPR Number</label>
+                        <label class="form-label" id="txt-cpr">CPR Number</label>
                         <input asp-for="Cpr" class="form-control" />
                         <span asp-validation-for="Cpr" class="text-danger small"></span>
                     </div>
 
                     <!-- Showroom -->
                     <div class="col-md-6">
-                        <label class="form-label">Showroom</label>
+                        <label class="form-label" id="txt-showroom">Showroom</label>
                         <select asp-for="ShowroomId" class="form-select">
                             <option value="0">Select a showroom</option>
                             @foreach (var s in ViewBag.Showrooms)
@@ -99,7 +125,7 @@
 
                     <!-- Product -->
                     <div class="col-md-6">
-                        <label class="form-label">Car Model of Interest</label>
+                        <label class="form-label" id="txt-car-model">Car Model of Interest</label>
                         <select asp-for="ProductId" class="form-select">
                             <option value="">Not sure yet</option>
                             @foreach (var p in ViewBag.Products)
@@ -111,7 +137,7 @@
 
                     <!-- Salesperson -->
                     <div class="col-md-12">
-                        <label class="form-label">Assigned Salesperson</label>
+                        <label class="form-label" id="txt-salesperson">Assigned Salesperson</label>
                         <select asp-for="SalespersonId" class="form-select">
                             <option value="">Select a salesperson (optional)</option>
                             @foreach (var sp in ViewBag.Salespersons)
@@ -121,24 +147,16 @@
                         </select>
                     </div>
 
-                    <!-- Language -->
-                    <div class="col-md-12">
-                        <label class="form-label">Preferred Language</label>
-                        <select asp-for="Language" class="form-select">
-                            <option value="en">English</option>
-                            <option value="ar">العربية</option>
-                        </select>
-                    </div>
 
                     <!-- Notes -->
                     <div class="col-md-12">
-                        <label class="form-label">Notes (Optional)</label>
+                        <label class="form-label" id="txt-notes">Notes (Optional)</label>
                         <textarea asp-for="Notes" class="form-control" placeholder="Any specific requirements?"></textarea>
                     </div>
 
                 </div>
 
-                <button type="submit" class="btn btn-dark w-100 mt-4">
+                <button type="submit" class="btn btn-dark w-100 mt-4" id="txt-submit">
                     Complete Check-in
                 </button>
 
@@ -150,5 +168,107 @@
 </div>
 
 @section Scripts {
+    
+    
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/site.js"></script>
+    <script>
+            /* ── TRANSLATIONS ── */
+        const homeTranslations = {
+            en: {
+                pageTitle:      "Showrooms Service",
+                pageSubtitle:   "Welcome to Showrooms Service",
+                checkIn:        "Check In",
+                fullName:       "Full Name",
+                phoneNumber:    "Phone Number",
+                email:          "Email (Optional)",
+                cpr:            "CPR Number",
+                showroom:       "Showroom",
+                selectShowroom: "Select a showroom",
+                carModel:       "Car Model of Interest",
+                notSure:        "Not sure yet",
+                salesperson:    "Assigned Salesperson",
+                selectSales:    "Select a salesperson (optional)",
+                notes:          "Notes (Optional)",
+                notesPH:        "Any specific requirements?",
+                submit:         "Complete Check-in",
+                langBtn:        "English"
+            },
+            ar: {
+                pageTitle:      "خدمة المعارض",
+                pageSubtitle:   "مرحباً بك في خدمة المعارض",
+                checkIn:        "تسجيل الدخول",
+                fullName:       "الاسم الكامل",
+                phoneNumber:    "رقم الهاتف",
+                email:          "البريد الإلكتروني (اختياري)",
+                cpr:            "الرقم الشخصي",
+                showroom:       "المعرض",
+                selectShowroom: "اختر معرضاً",
+                carModel:       "موديل السيارة المفضل",
+                notSure:        "غير متأكد بعد",
+                salesperson:    "مندوب المبيعات",
+                selectSales:    "اختر مندوباً (اختياري)",
+                notes:          "ملاحظات (اختياري)",
+                notesPH:        "أي متطلبات خاصة؟",
+                submit:         "إتمام تسجيل الدخول",
+                langBtn:        "العربية"
+            }
+        };
+
+        function translateHomePage(lang) {
+            const t      = homeTranslations[lang];
+            const set    = (id, val) => { const el = document.getElementById(id);    if (el) el.innerText    = val; };
+            const setPH  = (id, val) => { const el = document.getElementById(id);    if (el) el.placeholder  = val; };
+            const setOpt = (sel, val) => { const el = document.querySelector(sel);   if (el) el.innerText    = val; };
+
+            set('txt-page-title',    t.pageTitle);
+            set('txt-page-subtitle', t.pageSubtitle);
+            set('txt-checkin',       t.checkIn);
+            set('txt-fullname',      t.fullName);
+            set('txt-phone',         t.phoneNumber);
+            set('txt-email',         t.email);
+            set('txt-cpr',           t.cpr);
+            set('txt-showroom',      t.showroom);
+            set('txt-car-model',     t.carModel);
+            set('txt-salesperson',   t.salesperson);
+            set('txt-notes',         t.notes);
+            set('langBtnLabel',      t.langBtn);
+
+            setPH('input-notes', t.notesPH);
+
+            setOpt('select[name="ShowroomId"] option[value="0"]',    t.selectShowroom);
+            setOpt('select[name="ProductId"]  option[value=""]',     t.notSure);
+            setOpt('select[name="SalespersonId"] option[value=""]',  t.selectSales);
+
+            /* Save language preference */
+            localStorage.setItem('lang',     lang);
+            localStorage.setItem('siteLang', lang);
+
+            /* Sync hidden field if present */
+            const langField = document.getElementById('hidden-lang');
+            if (langField) langField.value = lang;
+
+            /* ── RTL / LTR — runs here, inside the function, every time ── */
+            if (lang === 'ar') {
+                document.documentElement.setAttribute('dir', 'rtl');
+                document.body.classList.add('rtl');
+            } else {
+                document.documentElement.setAttribute('dir', 'ltr');
+                document.body.classList.remove('rtl');
+            }
+        }
+
+        function toggleLanguage() {
+            const current = localStorage.getItem('lang') || 'en';
+            const next    = current === 'en' ? 'ar' : 'en';
+            translateHomePage(next);
+        }
+
+        /* Apply saved language on page load */
+        document.addEventListener('DOMContentLoaded', function () {
+            const lang = localStorage.getItem('lang') || 'en';
+            translateHomePage(lang);
+        });
+    </script>
+
 }

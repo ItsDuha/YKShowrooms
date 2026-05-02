@@ -7,7 +7,7 @@
 
 
 <div class="mb-3">
-   <a href="/Admins/Reports/Index?tab=@ViewBag.Tab" class="text-decoration-none">
+    <a href="/Admins/Reports/Index?tab=@ViewBag.Tab" class="text-decoration-none" id="txt-back" >
         ← Back to Reports
     </a>
 </div>
@@ -36,7 +36,7 @@
 
                 <h5 class="mt-3">@Model.Name</h5>
 
-                <span class="badge bg-secondary">New Customer</span>
+                <span class="badge bg-secondary" id="txt-new-customer">New Customer</span>
             </div>
 
             <hr />
@@ -48,7 +48,7 @@
             <hr />
 
             <div>
-                <strong>Lead Score</strong>
+                <strong id="txt-lead-score-label">Lead Score</strong>
                 <div class="progress mt-2">
                     <div class="progress-bar bg-warning"
                          style="width:@Model.Score%">
@@ -65,11 +65,11 @@
     <div class="col-md-8">
 
         <div class="d-flex justify-content-between">
-            <h5>Visit Details</h5>
+            <h5 id="txt-visit-details">Visit Details</h5>
 
-            <button class="btn btn-outline-dark btn-sm"
-                    onclick="enableEdit()">
-                <i class="bi bi-pencil"></i> Edit Record
+            <button class="btn btn-edit-record btn-sm" onclick="enableEdit()">
+                <i class="bi bi-pencil"></i>
+                <span id="txt-edit-record">Edit Record</span>
             </button>
         </div>
 
@@ -86,18 +86,18 @@
                 <div class="row g-3">
 
                     <div class="col-md-6">
-                        <label>Status</label>
+                        <label id="txt-lbl-status">Status</label>
                         <select name="FollowUpStatus" class="form-select">
-                            <option value="pending" selected="@(Model.FollowUpStatus == "pending")">Pending</option>
-                            <option value="contacted" selected="@(Model.FollowUpStatus == "contacted")">Contacted</option>
-                            <option value="not_interested" selected="@(Model.FollowUpStatus == "not_interested")">Not Interested</option>
+                            <option value="pending" selected="@(Model.FollowUpStatus == "pending")" class="opt-pending">Pending</option>
+                            <option value="contacted" selected="@(Model.FollowUpStatus == "contacted")" class="opt-contacted">Contacted</option>
+                            <option value="not_interested" selected="@(Model.FollowUpStatus == "not_interested")" class="opt-not-interested">Not Interested</option>
                         </select>
                     </div>
 
                     <div class="col-md-6">
-                        <label>Assigned Salesperson</label>
+                        <label id="txt-lbl-salesperson">Assigned Salesperson</label>
                         <select name="SalespersonId" class="form-select">
-                            <option value="">Unassigned</option>
+                            <option value="" class="opt-unassigned">Unassigned</option>
 
                             @foreach (var sp in ViewBag.Salespersons)
                             {
@@ -110,14 +110,14 @@
                     </div>
 
                     <div class="col-12">
-                        <label>Notes</label>
+                        <label id="txt-lbl-notes">Notes</label>
                         <textarea name="Notes" class="form-control">@Model.Notes</textarea>
                     </div>
 
                 </div>
 
                 <div class="mt-3">
-                    <button class="btn btn-dark">Save Changes</button>
+                    <button class="btn btn-dark"  id="txt-save-btn">Save Changes</button>
                 </div>
 
             </form>
@@ -133,25 +133,25 @@
                 <div class="row">
 
                     <div class="col-md-6 mb-2">
-                        <label>Full Name</label>
+                        <label id="txt-lbl-fullname">Full Name</label>
                         <input name="Name" value="@Model.Name"
                                class="form-control editable" disabled />
                     </div>
 
                     <div class="col-md-6 mb-2">
-                        <label>Phone</label>
+                        <label id="txt-lbl-phone">Phone</label>
                         <input name="Phone" value="@Model.Phone"
                                class="form-control editable" disabled />
                     </div>
 
                     <div class="col-md-12 mb-2">
-                        <label>Email</label>
+                        <label id="txt-lbl-email">Email</label>
                         <input name="Email" value="@Model.Email"
                                class="form-control editable" disabled />
                     </div>
 
                     <div class="col-md-6 mb-2">
-                        <label>Showroom</label>
+                        <label id="txt-lbl-showroom">Showroom</label>
                         <select name="ShowroomId" class="form-select editable" disabled>
                             @foreach (var s in ViewBag.Showrooms)
                             {
@@ -163,9 +163,9 @@
                     </div>
 
                     <div class="col-md-6 mb-2">
-                        <label>Product</label>
+                        <label id="txt-lbl-product">Product</label>
                         <select name="ProductId" class="form-select editable" disabled>
-                            <option value="">Select product</option>
+                            <option value="" class="opt-select-product">Select product</option>
 
                             @foreach (var p in ViewBag.Products)
                             {
@@ -177,22 +177,22 @@
                     </div>
 
                     <div class="col-md-6 mb-2">
-                        <label>Follow-up Status</label>
+                        <label id="txt-lbl-followup">Follow-up Status</label>
                         <select name="FollowUpStatus" class="form-select editable" disabled>
-                            <option value="pending" selected="@(Model.FollowUpStatus == "pending")">Pending</option>
-                            <option value="contacted" selected="@(Model.FollowUpStatus == "contacted")">Contacted</option>
-                            <option value="not_interested" selected="@(Model.FollowUpStatus == "not_interested")">Not Interested</option>
+                            <option value="pending" selected="@(Model.FollowUpStatus == "pending")" class="opt-pending">Pending</option>
+                            <option value="contacted" selected="@(Model.FollowUpStatus == "contacted")" class="opt-contacted" >Contacted</option>
+                            <option value="not_interested" selected="@(Model.FollowUpStatus == "not_interested")" class="opt-not-interested">Not Interested</option>
                         </select>
                     </div>
 
                     <div class="col-md-6 mb-2">
-                        <label>Lead Score</label>
+                        <label id="txt-lbl-score">Lead Score</label>
                         <input name="Score" value="@Model.Score"
                                class="form-control editable" disabled />
                     </div>
 
                     <div class="col-md-12 mb-2">
-                        <label>Notes</label>
+                        <label id="txt-lbl-notes">Notes</label>
                         <textarea name="Notes"
                               class="form-control editable"
                               disabled>@Model.Notes</textarea>
@@ -201,12 +201,12 @@
                 </div>
 
                 <div class="mt-3 d-none" id="editButtons">
-                    <button type="submit" class="btn btn-dark">
+                    <button type="submit" class="btn btn-dark" id="txt-save-btn">
                         Save Changes
                     </button>
 
                     <a href="/Admins/Reports/Details/@Model.Id"
-                       class="btn btn-light">
+                           class="btn btn-light" id="txt-cancel-btn">
                         Cancel
                     </a>
                 </div>
@@ -220,6 +220,32 @@
 
 @section Scripts
 {
+
+    <style>
+        /* DARK mode - orange button */
+        body.dark .btn-edit-record {
+            border: 1.5px solid #f97316 !important;
+            color: #f97316 !important;
+            background: transparent !important;
+        }
+
+            body.dark .btn-edit-record:hover {
+                background: #f97316 !important;
+                color: #fff !important;
+            }
+
+        /* LIGHT mode - dark button */
+        body:not(.dark) .btn-edit-record {
+            border: 1.5px solid #1e293b !important;
+            color: #1e293b !important;
+            background: transparent !important;
+        }
+
+            body:not(.dark) .btn-edit-record:hover {
+                background: #1e293b !important;
+                color: #fff !important;
+            }
+    </style>
     <script>
         function enableEdit() {
             document.querySelectorAll('.editable').forEach(e => {
@@ -240,4 +266,129 @@
             }
         }, 2000);
     </script>
-}
+    
+
+    
+
+    <!-- ===== TRANSLATION SCRIPT ===== -->
+    <script>
+        const detailsTranslations = {
+            en: {
+                back:           "← Back to Reports",
+                visitDetails:   "Visit Details",
+                editRecord:     "Edit Record",
+                newCustomer:    "New Customer",
+                leadScoreLabel: "Lead Score",
+                // Form labels
+                fullName:       "Full Name",
+                phone:          "Phone",
+                email:          "Email",
+                showroom:       "Showroom",
+                product:        "Product",
+                followup:       "Follow-up Status",
+                score:          "Lead Score",
+                notes:          "Notes",
+                status:         "Status",
+                salesperson:    "Assigned Salesperson",
+                // Options
+                pending:        "Pending",
+                contacted:      "Contacted",
+                notInterested:  "Not Interested",
+                unassigned:     "Unassigned",
+                selectProduct:  "Select product",
+                // Buttons
+                saveChanges:    "Save Changes",
+                cancel:         "Cancel"
+            },
+            ar: {
+                back:           "→ العودة إلى التقارير",
+                visitDetails:   "تفاصيل الزيارة",
+                editRecord:     "تعديل السجل",
+                newCustomer:    "عميل جديد",
+                leadScoreLabel: "نقاط العميل",
+                // Form labels
+                fullName:       "الاسم الكامل",
+                phone:          "الهاتف",
+                email:          "البريد الإلكتروني",
+                showroom:       "المعرض",
+                product:        "المنتج",
+                followup:       "حالة المتابعة",
+                score:          "نقاط العميل",
+                notes:          "ملاحظات",
+                status:         "الحالة",
+                salesperson:    "مندوب المبيعات المعين",
+                // Options
+                pending:        "قيد الانتظار",
+                contacted:      "تم التواصل",
+                notInterested:  "غير مهتم",
+                unassigned:     "غير معين",
+                selectProduct:  "اختر المنتج",
+                // Buttons
+                saveChanges:    "حفظ التغييرات",
+                cancel:         "إلغاء"
+            }
+        };
+
+        function translateDetailsPage(lang) {
+            const t = detailsTranslations[lang];
+
+            // Helper functions
+            const set = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = val;
+            };
+
+            const setAll = (sel, val) => {
+                document.querySelectorAll(sel).forEach(el => el.innerText = val);
+            };
+
+            // General elements
+            set('txt-back',           t.back);
+            set('txt-visit-details',  t.visitDetails);
+            set('txt-edit-record',    t.editRecord);
+            set('txt-new-customer',   t.newCustomer);
+            set('txt-lead-score-label', t.leadScoreLabel);
+
+            // Form labels
+            set('txt-lbl-fullname',   t.fullName);
+            set('txt-lbl-phone',      t.phone);
+            set('txt-lbl-email',      t.email);
+            set('txt-lbl-showroom',   t.showroom);
+            set('txt-lbl-product',    t.product);
+            set('txt-lbl-followup',   t.followup);
+            set('txt-lbl-score',      t.score);
+            set('txt-lbl-notes',      t.notes);
+            set('txt-lbl-status',     t.status);
+            set('txt-lbl-salesperson', t.salesperson);
+
+            // Dropdown options (by class)
+            setAll('.opt-pending',       t.pending);
+            setAll('.opt-contacted',     t.contacted);
+            setAll('.opt-not-interested', t.notInterested);
+            setAll('.opt-unassigned',    t.unassigned);
+            setAll('.opt-select-product', t.selectProduct);
+
+            // Buttons
+            set('txt-save-btn',    t.saveChanges);
+            set('txt-cancel-btn',  t.cancel);
+        }
+
+        // Apply on page load using saved language
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                const lang = localStorage.getItem('siteLang') || 'en';
+                translateDetailsPage(lang);
+            }, 200);
+        });
+
+        // Listen for language toggle from the shared layout
+        window.addEventListener('languageChanged', function (e) {
+            translateDetailsPage(e.detail);
+        });
+
+
+
+    </script> 
+
+
+    }

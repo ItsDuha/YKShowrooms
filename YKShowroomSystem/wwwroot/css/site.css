@@ -29,3 +29,103 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* Light/Dark mode toggle styles - improved for fixed top right */
+.theme-toggle {
+    position: fixed;
+    top: 24px;
+    right: 32px;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    background: rgba(255,255,255,0.85);
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    padding: 2px 10px;
+    transition: background 0.3s;
+}
+.theme-toggle .toggle-switch {
+    width: 48px;
+    height: 24px;
+    background: #e6eaf1;
+    border-radius: 16px;
+    position: relative;
+    transition: background 0.3s;
+    margin: 0 8px;
+    border: 1px solid #d1d5db;
+}
+.theme-toggle .toggle-switch.dark {
+    background: #23272b;
+    border-color: #23272b;
+}
+.theme-toggle .toggle-knob {
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: left 0.3s, background 0.3s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+}
+.theme-toggle .toggle-switch.dark .toggle-knob {
+    left: 26px;
+    background: #444;
+}
+.theme-toggle .icon {
+    font-size: 18px;
+    margin: 0 2px;
+    color: #222;
+    transition: color 0.3s;
+}
+.theme-toggle .toggle-switch.dark ~ .icon {
+    color: #fff;
+}
+
+body.dark-mode .theme-toggle {
+    background: rgba(34,34,34,0.95);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+body.dark-mode .theme-toggle .icon {
+    color: #fff;
+}
+
+/* Light/Dark theme body */
+body.dark-mode {
+    background: #18191a !important;
+    color: #f5f6f8;
+}
+body.dark-mode .card {
+    background: #23272b;
+    color: #f5f6f8;
+}
+body.dark-mode .form-control, body.dark-mode .form-select, body.dark-mode textarea {
+    background: #23272b;
+    color: #f5f6f8;
+    border-color: #444;
+}
+body.dark-mode .btn-dark {
+    background: #444;
+    border-color: #444;
+}
+body.dark-mode .btn-dark:hover {
+    background: #222;
+    border-color: #222;
+}
+
+/* RTL support */
+body[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+}
+body[dir="rtl"] .form-label, body[dir="rtl"] .form-control, body[dir="rtl"] .form-select {
+    text-align: right;
+}
+
+/* Red error text translation (for JS) */
+.text-danger.translated-ar {
+    font-family: 'Cairo', Arial, sans-serif;
+    font-size: 1em;
+}

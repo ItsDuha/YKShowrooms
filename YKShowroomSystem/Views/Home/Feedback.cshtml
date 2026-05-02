@@ -2,6 +2,8 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<!-- Light/Dark mode toggle will be injected by JS -->
+
 <div class="container text-center mt-5">
 
     <div class="card shadow-sm mx-auto" style="max-width:500px; border-radius:15px;">
@@ -42,6 +44,10 @@
     </div>
 
 </div>
+
+@section Scripts {
+    <script src="~/js/site.js"></script>
+}
 
 <style>
     .star {
