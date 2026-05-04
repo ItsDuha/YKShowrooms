@@ -1,0 +1,10 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/YKShowroomSystem.slnx/FileContentIndex
+/.vs/YKShowroomSystem.slnx/FileContentIndex/01a601f6-2287-4283-a95d-7948cf4f39f0.vsidx
+/BL/obj/Debug/net10.0
+/BL/obj/Debug/net10.0/BL.sourcelink.json
+/DatabaseModel/obj/Debug/net10.0
+/DatabaseModel/obj/Debug/net10.0/DatabaseModel.sourcelink.json
