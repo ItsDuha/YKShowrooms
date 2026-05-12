@@ -44,6 +44,10 @@ public partial class Visitor
     public int IsDeleted { get; set; } = 0; // 0 = active, -1 = deleted
     public string? Language { get; set; }
 
+
+    // Marketing source fields
+    public string? MarketingSourceOther { get; set; }
+
     public DateTimeOffset? VisitedAt { get; set; }
 
     public DateTimeOffset? CreatedAt { get; set; }
@@ -61,4 +65,8 @@ public partial class Visitor
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
+    public string? MarketingSource { get; set; }
+
+
 }

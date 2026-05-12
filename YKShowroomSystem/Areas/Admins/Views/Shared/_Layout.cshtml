@@ -222,9 +222,20 @@
             <a href="/Admins/Reports/Index" class="nav-item">
                 <i class="fa fa-chart-line me-2"></i> <span id="txt-reports">Reports</span>
             </a>
+
+
+            <a href="/Admins/Marketing/Index" class="nav-item">
+                <i class="fa fa-bullhorn me-2"></i>
+                <span id="txt-marketing">Marketing</span>
+            </a>
+
+
+
             <a href="/Admins/Account/Profile" class="nav-item">
                 <i class="fa fa-user me-2"></i> <span id="txt-account">Account</span>
             </a>
+
+
         </div>
 
         <div class="sidebar-footer">
@@ -478,7 +489,8 @@
                 markAllRead: "Mark all read",
                 noNotifications: "No notifications",
                 darkBtn: "🌙 Dark",
-                lightBtn: "☀️ Light"
+                lightBtn: "☀️ Light",
+                marketing: "Marketing"
             },
             ar: {
                 showroomPortal: "بوابة المعرض",
@@ -491,7 +503,8 @@
                 markAllRead: "تحديد الكل كمقروء",
                 noNotifications: "لا توجد إشعارات",
                 darkBtn: "🌙 داكن",
-                lightBtn: "☀️ فاتح"
+                lightBtn: "☀️ فاتح",
+                marketing: "التسويق"
             }
         };
 
@@ -523,6 +536,7 @@
             const langBtn = document.querySelector('.lang-toggle'); if (langBtn) { langBtn.style.background = 'white'; langBtn.style.color = '#0b1b3f'; langBtn.style.borderColor = '#ccc'; }
             const filter = document.querySelector('.showroom-filter'); if (filter) { filter.style.background = 'white'; filter.style.color = ''; filter.style.borderColor = ''; }
             const logout = document.querySelector('.logout-btn'); if (logout) { logout.style.background = '#f8f9fa'; logout.style.color = 'red'; }
+            
         }
 
         function toggleDarkMode() {
@@ -554,6 +568,7 @@
             const n = document.getElementById('txt-notifications'); if (n) n.innerText = t.notifications;
             const m = document.getElementById('txt-mark-all-read'); if (m) m.innerText = t.markAllRead;
             const nn = document.getElementById('txt-no-notifications'); if (nn) nn.innerText = t.noNotifications;
+            const mk = document.getElementById('txt-marketing'); if (mk) mk.innerText = t.marketing;
 
             // Update dark button text for current language
             const isDark = localStorage.getItem('darkMode') === 'true';

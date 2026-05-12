@@ -22,7 +22,16 @@ builder.Services.AddHttpClient("groq", client =>
     client.BaseAddress = new Uri("https://api.groq.com/openai/v1/");
     client.DefaultRequestHeaders.Add("Authorization", "Bearer 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");
 });
+
+
+// --- Maryam: Register  marketing services ---
+
+builder.Services.AddScoped<BL.Services.IMarketingAnalysisService, BL.Services.MarketingAnalysisService>();
+builder.Services.AddScoped<BL.Services.IEmailService, BL.Services.EmailService>();
+
+
 var app = builder.Build();
+
 
 
 if (!app.Environment.IsDevelopment())

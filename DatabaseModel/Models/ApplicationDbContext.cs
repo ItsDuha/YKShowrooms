@@ -242,6 +242,9 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.ShowroomId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__visitors__showro__72C60C4A");
+            // --- marketing source column ---
+            entity.Property(v => v.MarketingSource)
+      .HasColumnName("MarketingSource");
         });
 
         OnModelCreatingPartial(modelBuilder);

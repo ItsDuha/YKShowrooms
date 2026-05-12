@@ -168,6 +168,28 @@ namespace YKShowroomSystem.Areas.Admins.Controllers
 
             ViewBag.PeakByDay = System.Text.Json.JsonSerializer.Serialize(peakByDay);
 
+            // VISITOR GROWTH BY CHANNEL (Marketing Preview Mini Chart)
+            var channelGroups = visitors
+                .Where(v => v.MarketingSource != null)
+                .AsEnumerable()
+                .GroupBy(v => v.MarketingSource)
+                .Select(g => new
+                {
+                    channel = g.Key,
+                    monthlyCounts = new int[]
+                    {
+            g.Count(v => v.VisitedAt.HasValue && v.VisitedAt.Value.Month == 12), // Dec
+            g.Count(v => v.VisitedAt.HasValue && v.VisitedAt.Value.Month == 1),  // Jan
+            g.Count(v => v.VisitedAt.HasValue && v.VisitedAt.Value.Month == 2),  // Feb
+            g.Count(v => v.VisitedAt.HasValue && v.VisitedAt.Value.Month == 3),  // Mar
+            g.Count(v => v.VisitedAt.HasValue && v.VisitedAt.Value.Month == 4),  // Apr
+            g.Count(v => v.VisitedAt.HasValue && v.VisitedAt.Value.Month == 5),  // May
+                    }
+                })
+                .ToList();
+
+            ViewBag.ChannelMonthlyJson = System.Text.Json.JsonSerializer.Serialize(channelGroups);
+
             return View();
         }
 

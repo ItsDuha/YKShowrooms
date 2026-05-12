@@ -99,7 +99,7 @@
 
 </div>
 
-<div class="card p-3 shadow-sm">
+<div class="card p-3 shadow-sm mb-4">
 
     <strong id="txt-follow-up">Follow-up Status</strong>
 
@@ -111,13 +111,25 @@
 </div>
 
 <div class="card p-3 shadow-sm">
-
-<strong id="txt-visitor-type">Visitor Type</strong>
-
+    <strong id="txt-visitor-type">Visitor Type</strong>
     <div class="chart-container">
         <canvas id="visitorChart"></canvas>
     </div>
+</div>
 
+<!-- ── MARKETING PREVIEW ── -->
+<div class="card p-4 shadow-sm mb-4 mt-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <p class="fw-semibold mb-0" style="font-size:15px;" id="txt-channel-title"> Visitor Growth by Channel</p>
+        </div>
+        <a href="/Admins/Marketing/Index" class="btn btn-dark btn-sm" id="txt-channel-btn">
+    View Full Report →
+</a>
+    </div>
+    <div style="position:relative;height:220px;">
+        <canvas id="dashMiniLineChart"></canvas>
+    </div>
 </div>
 
 <div class="card shadow-sm" style="
@@ -147,18 +159,7 @@
                 padding:6px 14px;border-radius:20px;white-space:nowrap;">
                 — Busiest Hour
             </span>
-            <!-- Toggle -->
-            <div style="display:flex;align-items:center;gap:10px;background:#f8fafc;border:1.5px solid #e8ecf2;border-radius:30px;padding:7px 14px;">
-                <span style="font-size:.78rem;font-weight:700;color:#1a1f2e;" id="phLblLeft">Hourly View</span>
-                <label style="position:relative;width:46px;height:25px;flex-shrink:0;display:inline-block;">
-                    <input type="checkbox" id="phToggle" style="opacity:0;width:0;height:0;"
-                           onchange="phOnToggle(this.checked)"/>
-                    <span id="phSlider" style="position:absolute;inset:0;border-radius:99px;background:#cbd5e1;cursor:pointer;transition:background .25s;">
-                        <span id="phKnob" style="position:absolute;width:19px;height:19px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .25s cubic-bezier(.4,0,.2,1);box-shadow:0 1px 4px rgba(0,0,0,.2);display:block;"></span>
-                    </span>
-                </label>
-                <span style="font-size:.78rem;font-weight:500;color:#9ca3af;" id="phLblRight">Peak Ranking</span>
-            </div>
+
         </div>
     </div>
 
@@ -351,6 +352,53 @@
             }
         }
         });
+
+
+(function() {
+    const MONTHS  = ['Dec','Jan','Feb','Mar','Apr','May'];
+    const PALETTE = ['#0d6efd','#fd7e14','#198754','#6f42c1','#dc3545','#20c997','#6c757d','#ffc107'];
+
+    const channelData = @Html.Raw(ViewBag.ChannelMonthlyJson ?? "[]");
+
+    if (!channelData || channelData.length === 0) {
+        document.getElementById('dashMiniLineChart')
+            .closest('div[style]').innerHTML =
+            '<p class="text-muted text-center pt-4" style="font-size:13px;">No channel data available yet.</p>';
+        return;
+    }
+
+    new Chart(document.getElementById('dashMiniLineChart'), {
+        type: 'line',
+        data: {
+            labels: MONTHS,
+            datasets: channelData.map((c, i) => ({
+                label: c.channel,
+                data: c.monthlyCounts,
+                borderColor: PALETTE[i % PALETTE.length],
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                pointRadius: 2,
+                tension: 0.3
+            }))
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { size: 11 }, boxWidth: 10 }
+                }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, ticks: { precision: 0 } }
+            }
+        }
+    });
+})();
+
+
     </script>
     <!--Visitor Type-->
     <script>
@@ -383,7 +431,12 @@
             }
         });
     </script>
-    <!--Peak Hours-->
+
+
+    
+
+
+
     <!--Peak Hours-->
 <script>
 (function () {
@@ -646,18 +699,19 @@ document.querySelectorAll('.ph-day-chip').forEach(btn => {
     };
 
     /* ── Toggle ── */
-    window.phOnToggle = function(checked) {
-        phIsChart = !checked;
-        document.getElementById('phSlider').style.background = checked ? '#f5a623' : '#cbd5e1';
-        document.getElementById('phKnob').style.transform    = checked ? 'translateX(21px)' : 'translateX(0)';
-        document.getElementById('phLblLeft').style.cssText   = !checked
-            ? 'font-size:.78rem;font-weight:700;color:#1a1f2e;'
-            : 'font-size:.78rem;font-weight:500;color:#9ca3af;';
-        document.getElementById('phLblRight').style.cssText  = checked
-            ? 'font-size:.78rem;font-weight:700;color:#1a1f2e;'
-            : 'font-size:.78rem;font-weight:500;color:#9ca3af;';
-        phRender();
-    };
+    /* ── Toggle ── */
+window.phOnToggle = function(checked) {
+    phIsChart = !checked;
+    document.getElementById('phSlider').style.background = checked ? '#f5a623' : '#cbd5e1';
+    document.getElementById('phKnob').style.transform    = checked ? 'translateX(21px)' : 'translateX(0)';
+    document.getElementById('phLblLeft').style.cssText   = !checked
+        ? 'font-size:.78rem;font-weight:700;color:#1a1f2e;'
+        : 'font-size:.78rem;font-weight:500;color:#9ca3af;';
+    document.getElementById('phLblRight').style.cssText  = checked
+        ? 'font-size:.78rem;font-weight:700;color:#1a1f2e;'
+        : 'font-size:.78rem;font-weight:500;color:#9ca3af;';
+    phRender();
+};
 
     /* ── Last Updated ── */
     document.getElementById('phLastUpdated').textContent =
@@ -695,7 +749,9 @@ document.querySelectorAll('.ph-day-chip').forEach(btn => {
         peakHours: "Peak Hours",
         walkInVolume: "Walk-in volume by hour — all time",
         dayLabel: "Day:",
-        slotLabel: "Slot:"
+        slotLabel: "Slot:",
+        channelTitle: "Visitor Growth by Channel",
+        channelBtn:   "View Full Report →",
     },
     ar: {
         pageTitle: "لوحة التحكم",
@@ -719,7 +775,9 @@ document.querySelectorAll('.ph-day-chip').forEach(btn => {
         peakHours: "ساعات الذروة",
         walkInVolume: "حجم الزيارات بالساعة — كل الأوقات",
         dayLabel: "اليوم",
-        slotLabel: "الفترة"
+        slotLabel: "الفترة",
+        channelTitle: " نمو الزوار حسب القناة",
+        channelBtn:   "عرض التقرير الكامل →"
     }
 };
 
@@ -728,8 +786,7 @@ function translatePage(lang) {
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
     const lblLeft = document.getElementById('phLblLeft');
 const lblRight = document.getElementById('phLblRight');
-if (lblLeft) lblLeft.innerText = lang === 'ar' ? 'عرض بالساعة' : 'Hourly View';
-if (lblRight) lblRight.innerText = lang === 'ar' ? 'ترتيب الذروة' : 'Peak Ranking';
+
 
 const lastUpdatedLabel = document.querySelector('[id="phLastUpdated"]')?.parentElement;
 const filterLabel = document.querySelector('.ph-day-chip')?.closest('.card')?.querySelector('[style*="font-size:.72rem;color:#9ca3af"]');
@@ -758,6 +815,8 @@ set('txt-filtered', lang === 'ar' ? 'مفلتر حسب المعرض المحدد
     set('txt-walk-volume', t.walkInVolume);
     set('txt-day-label', t.dayLabel);
     set('txt-slot-label', t.slotLabel);
+    set('txt-channel-title', t.channelTitle);
+    set('txt-channel-btn',   t.channelBtn);
 }
 
         // Apply on load — use window.load to ensure layout has already run
