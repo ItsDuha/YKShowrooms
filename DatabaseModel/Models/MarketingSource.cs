@@ -11,11 +11,10 @@ namespace DatabaseModel.Models
         public const string Website   = "Website";
         public const string Friend    = "Friend";
         public const string WalkIn    = "Walk-in";
-        public const string Other     = "Other";
 
         public static readonly string[] All =
         [
-            Instagram, TikTok, Website, Friend, WalkIn, Other
+            Instagram, TikTok, Website, Friend, WalkIn
         ];
     }
 }

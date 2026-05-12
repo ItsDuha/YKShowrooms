@@ -13,14 +13,6 @@
         },
         "runtime": {
           "YKShowroomSystem.dll": {}
-        },
-        "resources": {
-          "ar/YKShowroomSystem.resources.dll": {
-            "locale": "ar"
-          },
-          "en/YKShowroomSystem.resources.dll": {
-            "locale": "en"
-          }
         }
       },
       "Azure.Core/1.47.1": {

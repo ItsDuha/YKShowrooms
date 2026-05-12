@@ -66,7 +66,8 @@ public partial class Visitor
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
-    public string? MarketingSource { get; set; }
+    [Required(ErrorMessage = "Please select how you heard about us.")]
+    public string MarketingSource { get; set; } = string.Empty;
 
 
 }

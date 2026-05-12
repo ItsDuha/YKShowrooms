@@ -253,7 +253,7 @@
                             <span class="src-label" data-key="srcWalkin">Walk-in</span>
                         </label>
 
-                       
+                        
 
                     </div>
 
@@ -388,19 +388,13 @@
         }
 
         // Show/hide the Other text box when a pill is clicked
-        document.addEventListener('DOMContentLoaded', function () {
+                document.addEventListener('DOMContentLoaded', function () {
 
             document.querySelectorAll('.source-options input[type="radio"]').forEach(function (radio) {
                 radio.addEventListener('change', function () {
-                    const wrap  = document.getElementById('other-source-wrap');
-                    const input = document.getElementById('other-source-input');
-                    if (this.value === 'Other') {
-                        wrap.style.display = 'block';
-                        input.focus();
-                    } else {
-                        wrap.style.display = 'none';
-                        input.value = '';
-                    }
+                    // Clear the validation message when a source is selected
+                    const field = document.querySelector('[data-valmsg-for="MarketingSource"]');
+                    if (field) field.innerText = '';
                 });
             });
 
