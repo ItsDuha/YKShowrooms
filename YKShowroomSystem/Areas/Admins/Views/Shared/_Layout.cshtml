@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Admin Panel</title>
 
@@ -19,6 +19,8 @@
             height: 100vh;
             background: #0b1b3f;
             position: fixed;
+            left: 0;
+            top: 0;
             color: white;
             display: flex;
             flex-direction: column;
@@ -49,15 +51,14 @@
             border-radius: 8px;
         }
 
-            .nav-item:hover,
-            .nav-item.active {
+            .nav-item:hover, .nav-item.active {
                 background: #1a2b5f;
                 color: white;
             }
 
         /* FOOTER */
         .sidebar-footer {
-            margin-top: auto; 
+            margin-top: auto;
             padding: 20px 15px;
             border-top: 1px solid rgba(255,255,255,0.1);
             display: flex;
@@ -65,7 +66,6 @@
             gap: 15px;
         }
 
-        /* PROFILE */
         .profile-box {
             display: flex;
             align-items: center;
@@ -83,7 +83,6 @@
             font-weight: bold;
         }
 
-        /* LOGOUT BUTTON */
         .logout-btn {
             display: block;
             padding: 12px;
@@ -108,22 +107,31 @@
                 margin-left: 240px;
             }
 
-        /* HEADER */
+        /* HEADER — ALWAYS LTR, NEVER FLIPS */
         .header {
             height: 60px;
             background: white;
             display: flex;
+            flex-direction: row !important;
             justify-content: space-between;
             align-items: center;
             padding: 0 20px;
             border-bottom: 1px solid #eee;
+            direction: ltr !important;
         }
 
         .header-right {
             display: flex;
+            flex-direction: row !important;
             align-items: center;
-            gap: 20px;
+            gap: 12px;
+            direction: ltr !important;
         }
+
+            /* Force every child of header-right to stay LTR */
+            .header-right * {
+                direction: ltr !important;
+            }
 
         /* CONTENT */
         .content {
@@ -151,12 +159,10 @@
             cursor: pointer;
         }
 
-            /* hover */
             .showroom-filter:hover {
                 border-color: #999;
             }
 
-            /* focus */
             .showroom-filter:focus {
                 outline: none;
                 border-color: #d4a100;
@@ -167,6 +173,241 @@
             height: 220px;
             position: relative;
         }
+
+        /* ===== DARK MODE ===== */
+        body.dark {
+            background: #111827 !important;
+            color: #f3f4f6 !important;
+        }
+
+            body.dark .header {
+                background: #1f2937 !important;
+                border-bottom: 1px solid #374151 !important;
+                color: #f3f4f6 !important;
+            }
+
+                body.dark .header strong {
+                    color: #f3f4f6 !important;
+                }
+
+                body.dark .header .fa-bars, body.dark .header .fa-bell {
+                    color: #f3f4f6 !important;
+                }
+
+            body.dark .sidebar {
+                background: #0f172a !important;
+            }
+
+            body.dark .card {
+                background: #1f2937 !important;
+                color: #f3f4f6 !important;
+                border: 1px solid #374151 !important;
+            }
+
+            body.dark .text-muted {
+                color: #9ca3af !important;
+            }
+
+            body.dark .main {
+                background: #111827 !important;
+            }
+
+            body.dark .content {
+                background: #111827 !important;
+            }
+
+            body.dark .showroom-filter {
+                background: #1f2937 !important;
+                color: #f3f4f6 !important;
+                border-color: #374151 !important;
+            }
+
+            body.dark .logout-btn {
+                background: #374151 !important;
+                color: #f87171 !important;
+            }
+
+                body.dark .logout-btn:hover {
+                    background: #4b5563 !important;
+                }
+
+            body.dark .notif-box {
+                background: #1f2937 !important;
+                color: #f3f4f6 !important;
+            }
+
+            body.dark .notif-item {
+                border-bottom: 1px solid #374151 !important;
+            }
+
+            body.dark .dropdown-menu {
+                background: #1f2937 !important;
+                color: #f3f4f6 !important;
+                border: 1px solid #374151 !important;
+            }
+
+                body.dark .dropdown-menu a {
+                    color: #93c5fd !important;
+                }
+
+            body.dark h5, body.dark h2, body.dark strong {
+                color: #B0B0B0 !important;
+            }
+
+            body.dark #txt-peak-hours {
+                color: #f3f4f6 !important;
+            }
+
+            body.dark #txt-follow-up, body.dark #txt-visitor-type {
+                color: #f3f4f6 !important;
+            }
+
+            body.dark #phViewRanked > div {
+                background: #1f2937 !important;
+                border-color: #374151 !important;
+            }
+
+            body.dark #phViewRanked .ph-bar-fill {
+                color: #f3f4f6 !important;
+            }
+
+            body.dark #phViewRanked div[style*="background:#f0f4f8"] {
+                background: #374151 !important;
+            }
+
+            body.dark #phViewRanked span[style*="color:#1a1f2e"] {
+                color: #f3f4f6 !important;
+            }
+
+            body.dark #phViewRanked span[style*="color:#9ca3af"] {
+                color: #6b7280 !important;
+            }
+
+            body.dark #phViewRanked span[style*="background:#eaf3fb"] {
+                background: #1e3a5f !important;
+            }
+
+            body.dark #phViewRanked span[style*="background:#eafaf1"] {
+                background: #14532d !important;
+            }
+
+            body.dark #phViewRanked span[style*="background:#f1f5f9"] {
+                background: #374151 !important;
+                color: #9ca3af !important;
+            }
+
+        /* Dark mode toggle button */
+        .dark-toggle {
+            background: white;
+            border: 2px solid #ccc;
+            border-radius: 25px;
+            padding: 6px 14px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #0b1b3f;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: background 0.3s, color 0.3s;
+            white-space: nowrap;
+        }
+
+        body.dark .dark-toggle {
+            background: #374151;
+            border-color: #4b5563;
+            color: #f3f4f6;
+        }
+
+        /* LANGUAGE BUTTON */
+        .lang-toggle {
+            background: white;
+            border: 2px solid #ccc;
+            border-radius: 25px;
+            padding: 6px 14px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #0b1b3f;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: background 0.3s, color 0.3s, border-color 0.3s;
+            white-space: nowrap;
+        }
+
+            .lang-toggle:hover {
+                border-color: #999;
+            }
+
+        body.dark .lang-toggle {
+            background: #374151;
+            border-color: #4b5563;
+            color: #f3f4f6;
+        }
+
+        .lang-dropdown-menu {
+            min-width: 150px;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12) !important;
+            border: 1px solid #e5e7eb !important;
+            overflow: hidden;
+            padding: 4px !important;
+        }
+
+        body.dark .lang-dropdown-menu {
+            background: #1f2937 !important;
+            border-color: #374151 !important;
+        }
+
+        .lang-option {
+            padding: 9px 14px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 8px;
+            color: #374151;
+            transition: background 0.15s;
+        }
+
+            .lang-option:hover {
+                background: #f3f4f6;
+            }
+
+            .lang-option.active {
+                color: #2563eb;
+                font-weight: 600;
+            }
+
+        body.dark .lang-option {
+            color: #e5e7eb;
+        }
+
+            body.dark .lang-option:hover {
+                background: #374151;
+            }
+
+            body.dark .lang-option.active {
+                color: #60a5fa;
+            }
+
+        /* TYPING INDICATOR */
+        @@keyframes pulse {
+            0%, 100% {
+                opacity: 0.4;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
         @RenderSection("Styles", required: false)
     </style>
 </head>
@@ -175,346 +416,285 @@
 
     <!-- SIDEBAR -->
     <div class="sidebar">
-
-        <!-- TOP -->
         <div class="sidebar-top">
-            <h5>Showroom Portal</h5>
+            <h5 class="txt-portal-title">Showroom Portal</h5>
 
             <a href="/Admins/Dashboard/Index" class="nav-item active">
-                <i class="fa fa-home me-2"></i> Dashboard
+                <i class="fa fa-home me-2"></i> <span id="txt-dashboard">Dashboard</span>
             </a>
 
             <a href="/Admins/Reports/Index" class="nav-item">
-                <i class="fa fa-chart-line me-2"></i> Reports
+                <i class="fa fa-chart-line me-2"></i> <span id="txt-reports">Reports</span>
+            </a>
+
+            <a href="/Admins/Staffing/Index" class="nav-item">
+                <i class="fa fa-users me-2"></i> <span id="txt-staff">Staff Management</span>
+            </a>
+
+            <a href="/Admins/Marketing/Index" class="nav-item">
+                <i class="fa fa-bullhorn me-2"></i> <span id="txt-marketing">Marketing</span>
             </a>
 
             <a href="/Admins/Account/Profile" class="nav-item">
-                <i class="fa fa-user me-2"></i> Account
+                <i class="fa fa-user me-2"></i> <span id="txt-account">Account</span>
             </a>
         </div>
 
-        <!-- BOTTOM -->
         <div class="sidebar-footer">
-
             <div class="profile-box">
                 <div class="avatar">
-                    @Context.Session.GetString("AdminName")?.Substring(0, 1)
+                    @{
+                        var sidebarAdminName = Context.Session.GetString("AdminName");
+                        var sidebarInitial = !string.IsNullOrWhiteSpace(sidebarAdminName) ? sidebarAdminName.Substring(0, 1).ToUpper() : "?";
+                    }
+                    @sidebarInitial
                 </div>
-
                 <div>
-                    <strong>@Context.Session.GetString("AdminName")</strong><br />
-                    <small class="text-muted">Administrator</small>
+                    <strong>@sidebarAdminName</strong><br />
+                    <small class="text-muted txt-administrator">Administrator</small>
                 </div>
             </div>
-
             <a href="/Admins/Account/Logout" class="logout-btn">
-                <i class="fa fa-sign-out-alt me-2"></i> Logout
+                <i class="fa fa-sign-out-alt me-2"></i> <span id="txt-logout">Logout</span>
             </a>
-
         </div>
-
     </div>
 
     <!-- MAIN -->
     <div class="main">
 
-        <!-- HEADER -->
+        <!-- HEADER — direction is forced LTR via CSS, never changes -->
         <div class="header">
 
-            <div>
+            <div style="direction:ltr;">
                 <i class="fa fa-bars" onclick="toggleSidebar()" style="cursor:pointer;"></i>
-                <strong class="ms-2">Showroom Portal</strong>
+                <strong class="ms-2 txt-portal-title">Showroom Portal</strong>
             </div>
 
-            <div class="header-right">
+            <div class="header-right" style="direction:ltr;">
 
-                <!-- Bell -->
-                <div class="dropdown position-relative">
+                <!-- BELL -->
+                <div class="dropdown position-relative" style="direction:ltr;">
                     <i class="fa fa-bell" data-bs-toggle="dropdown" style="cursor:pointer;"></i>
 
                     @if (ViewBag.UnreadCount != null && ViewBag.UnreadCount > 0)
                     {
-                        <span style="
-                    position:absolute;
-                    top:2px;
-                    right:2px;
-                    width:8px;
-                    height:8px;
-                    background:red;
-                    border-radius:50%;">
-                        </span>
+                        <span style="position:absolute;top:2px;right:2px;width:8px;height:8px;background:red;border-radius:50%;"></span>
                     }
 
-                    <div class="dropdown-menu dropdown-menu-end p-2 notif-box">
+                    <div class="dropdown-menu dropdown-menu-end p-2 notif-box" style="direction:ltr;">
                         <div class="d-flex justify-content-between mb-2">
-                            <strong>Notifications</strong>
-                            <a href="/Admins/Dashboard/MarkAllRead" style="font-size:12px;">Mark all read</a>
+                            <strong id="txt-notifications">Notifications</strong>
+                            <a href="/Admins/Dashboard/MarkAllRead" style="font-size:12px;" id="txt-mark-all-read">Mark all read</a>
                         </div>
 
-                        @if (ViewBag.Notifications != null)
+                        @{
+                            var notifications = ViewBag.Notifications as List<DatabaseModel.Models.Notification>;
+                        }
+                        @if (notifications != null && notifications.Count > 0)
                         {
-                            foreach (var n in (List<DatabaseModel.Models.Notification>)ViewBag.Notifications)
+                            foreach (var n in notifications)
                             {
                                 <div class="notif-item">
-                                    <strong>@n.Type</strong><br />
-                                    <small>@n.Message</small><br />
+                                    <strong>@(n.Type ?? "—")</strong><br />
+                                    <small>@(n.Message ?? "No message")</small><br />
                                     <small class="text-muted">
-                                        @(n.CreatedAt?.ToString("dd/MM/yyyy HH:mm"))
+                                        @(n.CreatedAt.HasValue? n.CreatedAt.Value.ToString("dd/MM/yyyy HH:mm") : "—")
                                     </small>
                                 </div>
                             }
                         }
+                        else
+                        {
+                            <div class="notif-item text-muted" id="txt-no-notifications" style="text-align:center; padding:16px 0;">
+                                No notifications
+                            </div>
+                        }
                     </div>
                 </div>
 
-                <!--  USER INFO  -->
-                <div class="d-flex align-items-center gap-2">
+                <!-- LANGUAGE BUTTON -->
+                <div class="dropdown" style="direction:ltr;">
+                    <button class="lang-toggle" data-bs-toggle="dropdown" aria-expanded="false" id="langToggleBtn" style="direction:ltr;">
+                        <i class="bi bi-globe2"></i>
+                        <span id="langLabel">English</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end lang-dropdown-menu" style="direction:ltr;">
+                        <li>
+                            <div class="lang-option" id="lang-en" onclick="setLanguage('en', 'English')">
+                                🇬🇧 English
+                            </div>
+                        </li>
+                        <li>
+                            <div class="lang-option" id="lang-ar" onclick="setLanguage('ar', 'العربية')">
+                                🇸🇦 العربية
+                            </div>
+                        </li>
+                    </ul>
+                </div>
 
+                <!-- DARK/LIGHT TOGGLE -->
+                <button class="dark-toggle" onclick="toggleDarkMode()" id="darkToggleBtn" style="direction:ltr;">
+                    🌙 <span id="txt-dark-mode">Dark</span>
+                </button>
+
+                <!-- USER INFO -->
+                @{
+                    var adminName = Context.Session.GetString("AdminName");
+                    var adminInitial = !string.IsNullOrWhiteSpace(adminName) ? adminName.Substring(0, 1).ToUpper() : "?";
+                }
+                <div class="d-flex align-items-center gap-2" style="direction:ltr;">
                     <div class="text-end">
-                        <strong>@Context.Session.GetString("AdminName")</strong><br />
-                        <small class="text-muted">Administrator</small>
+                        <strong>@adminName</strong><br />
+                        <small class="text-muted txt-administrator">Administrator</small>
                     </div>
-
-                    <div class="avatar">
-                        @Context.Session.GetString("AdminName")?.Substring(0, 1)
-                    </div>
-
+                    <div class="avatar">@adminInitial</div>
                 </div>
 
             </div>
-
         </div>
 
-        <!-- CONTENT -->
-        <div class="content">
+        <!-- CONTENT — this is the ONLY part that changes direction for Arabic -->
+        <div class="content" id="mainContent">
             @RenderBody()
         </div>
 
     </div>
-<!-- ========== AI CHAT WIDGET ========== -->
 
-<button id="chat-toggle-btn" onclick="toggleChat()" title="AI Assistant"
-        style="position:fixed; bottom:24px; right:24px; z-index:9999;
-               width:56px; height:56px; border-radius:50%; border:none;
-               background:#2563eb; color:white; font-size:24px;
-               box-shadow:0 4px 16px rgba(0,0,0,0.2); cursor:pointer;">
-    💬
-</button>
+    <!-- AI CHAT WIDGET -->
+    <button id="chat-toggle-btn" onclick="toggleChat()" title="AI Assistant"
+            style="position:fixed; bottom:24px; right:24px; z-index:9999;
+                   width:56px; height:56px; border-radius:50%; border:none;
+                   background:#2563eb; color:white; font-size:24px;
+                   box-shadow:0 4px 16px rgba(0,0,0,0.2); cursor:pointer;">
+        💬
+    </button>
 
-<div id="chat-panel"
-     style="display:none; position:fixed; bottom:96px; right:24px; z-index:9999;
-            width:360px; max-height:560px; border-radius:16px;
-            box-shadow:0 8px 32px rgba(0,0,0,0.2); border:1px solid #e5e7eb;
-            background:white; flex-direction:column; overflow:hidden;">
-
-    <!-- Header-->
-    <div style="background:#2563eb; color:white; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
-        <div>
-            <div style="font-weight:600; font-size:14px;">🤖 Showroom Assistant</div>
-            <div style="font-size:11px; opacity:0.8;">Ask in Arabic or English</div>
+    <div id="chat-panel"
+         style="display:none; position:fixed; bottom:96px; right:24px; z-index:9999;
+                width:360px; max-height:560px; border-radius:16px;
+                box-shadow:0 8px 32px rgba(0,0,0,0.2); border:1px solid #e5e7eb;
+                background:white; flex-direction:column; overflow:hidden;">
+        <div style="background:#2563eb; color:white; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <div style="font-weight:600; font-size:14px;">🤖 Showroom Assistant</div>
+                <div style="font-size:11px; opacity:0.8;">Ask in Arabic or English</div>
+            </div>
+            <button onclick="toggleChat()" style="background:transparent; border:none; color:white; cursor:pointer; font-size:18px;">✕</button>
         </div>
-        <button onclick="toggleChat()" title="Close"
-                style="background:transparent; border:none; color:white; cursor:pointer; font-size:18px;">
-            ✕
-        </button>
-    </div>
-
-    <!-- Messages -->
-    <div id="chat-messages"
-         style="flex:1; overflow-y:auto; padding:16px; min-height:300px; max-height:400px; display:flex; flex-direction:column; gap:10px;">
-        <div id="welcome-msg" style="font-size:13px; color:#6b7280; text-align:center; padding-top:16px;">
-            مرحباً! / Hello!<br />
-            I'm your Showroom Assistant.<br />
-            Ask me anything about visitor data.
+        <div id="chat-messages"
+             style="flex:1; overflow-y:auto; padding:16px; min-height:300px; max-height:400px; display:flex; flex-direction:column; gap:10px;">
+            <div id="welcome-msg" style="font-size:13px; color:#6b7280; text-align:center; padding-top:16px;">
+                مرحباً! / Hello!<br />I'm your Showroom Assistant.<br />Ask me anything about visitor data.
+            </div>
         </div>
-    </div>
-
-    <!-- Input row -->
-    <div style="border-top:1px solid #e5e7eb; padding:10px; display:flex; gap:8px; background:white; align-items:center;">
-        <div style="flex:1; position:relative;">
-            <input id="chat-input" type="text" placeholder="Type a question..."
-                   onkeydown="if(event.key==='Enter') sendMessage()"
-                   oninput="toggleClearBtn()"
-                   style="width:100%; padding:8px 32px 8px 12px; border:1px solid #d1d5db;
-                          border-radius:8px; font-size:13px; outline:none; box-sizing:border-box;" />
-            <!-- X button to clear what is typed -->
-            <button id="clear-input-btn" onclick="clearInput()" title="Clear"
-                    style="display:none; position:absolute; right:8px; top:50%; transform:translateY(-50%);
-                           background:none; border:none; cursor:pointer; color:#9ca3af; font-size:14px; padding:0;">
-                ✕
+        <div style="border-top:1px solid #e5e7eb; padding:10px; display:flex; gap:8px; background:white; align-items:center;">
+            <div style="flex:1; position:relative;">
+                <input id="chat-input" type="text" placeholder="Type a question..."
+                       onkeydown="if(event.key==='Enter') sendMessage()"
+                       oninput="toggleClearBtn()"
+                       style="width:100%; padding:8px 32px 8px 12px; border:1px solid #d1d5db;
+                              border-radius:8px; font-size:13px; outline:none; box-sizing:border-box;" />
+                <button id="clear-input-btn" onclick="clearInput()"
+                        style="display:none; position:absolute; right:8px; top:50%; transform:translateY(-50%);
+                               background:none; border:none; cursor:pointer; color:#9ca3af; font-size:14px; padding:0;">
+                    ✕
+                </button>
+            </div>
+            <button onclick="sendMessage()" id="send-btn"
+                    style="background:#2563eb; color:white; border:none; border-radius:8px;
+                           padding:8px 14px; cursor:pointer; font-size:14px; flex-shrink:0;">
+                ➤
             </button>
         </div>
-        <button onclick="sendMessage()" id="send-btn"
-                style="background:#2563eb; color:white; border:none; border-radius:8px;
-                       padding:8px 14px; cursor:pointer; font-size:14px; flex-shrink:0;">
-            ➤
-        </button>
     </div>
-</div>
 
-<script>
-   
-    let messages = [];
-    let isOpen = false;
-    let isLoading = false;
-    let abortController = null;
+    <script>
+        let messages = [], isOpen = false, isLoading = false, abortController = null;
 
-    function toggleChat() {
-        isOpen = !isOpen;
-        const panel = document.getElementById('chat-panel');
-        panel.style.display = isOpen ? 'flex' : 'none';
-        document.getElementById('chat-toggle-btn').innerText = isOpen ? '✕' : '💬';
-
-        if (isOpen) {
-            document.getElementById('chat-input').focus();
-        } else {
-            // Reset to fresh state every time you close
-            if (abortController) abortController.abort();
-            isLoading = false;
-            messages = [];
-            document.getElementById('chat-input').value = '';
-            document.getElementById('clear-input-btn').style.display = 'none';
-            document.getElementById('chat-messages').innerHTML =
-                `<div id="welcome-msg" style="font-size:13px;color:#6b7280;text-align:center;padding-top:16px;">
-                    مرحباً! / Hello!<br/>I'm your Showroom Assistant.<br/>Ask me anything about visitor data.
-                 </div>`;
-        }
-    }
-
-    function clearInput() {
-        document.getElementById('chat-input').value = '';
-        document.getElementById('clear-input-btn').style.display = 'none';
-        document.getElementById('chat-input').focus();
-    }
-
-    function toggleClearBtn() {
-        const val = document.getElementById('chat-input').value;
-        document.getElementById('clear-input-btn').style.display = val ? 'block' : 'none';
-    }
-
-    function isArabic(text) {
-        return /[\u0600-\u06FF]/.test(text);
-    }
-
-    function appendMessage(role, text) {
-        const welcome = document.getElementById('welcome-msg');
-        if (welcome) welcome.remove();
-
-        const box = document.getElementById('chat-messages');
-        const div = document.createElement('div');
-        div.style.display = 'flex';
-        div.style.alignItems = 'flex-end';
-        div.style.gap = '6px';
-        div.style.justifyContent = role === 'user' ? 'flex-end' : 'flex-start';
-
-        if (role === 'assistant') {
-            const avatar = document.createElement('div');
-            avatar.innerText = '🤖';
-            avatar.style.fontSize = '18px';
-            avatar.style.flexShrink = '0';
-            div.appendChild(avatar);
+        function toggleChat() {
+            isOpen = !isOpen;
+            document.getElementById('chat-panel').style.display = isOpen ? 'flex' : 'none';
+            document.getElementById('chat-toggle-btn').innerText = isOpen ? '✕' : '💬';
+            if (isOpen) { document.getElementById('chat-input').focus(); }
+            else {
+                if (abortController) abortController.abort();
+                isLoading = false; messages = [];
+                document.getElementById('chat-input').value = '';
+                document.getElementById('clear-input-btn').style.display = 'none';
+                document.getElementById('chat-messages').innerHTML =
+                    `<div id="welcome-msg" style="font-size:13px;color:#6b7280;text-align:center;padding-top:16px;">مرحباً! / Hello!<br/>I'm your Showroom Assistant.<br/>Ask me anything about visitor data.</div>`;
+            }
         }
 
-        const bubble = document.createElement('div');
-        bubble.style.maxWidth = '80%';
-        bubble.style.padding = '10px 14px';
-        bubble.style.borderRadius = role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px';
-        bubble.style.fontSize = '13px';
-        bubble.style.whiteSpace = 'pre-wrap';
-        bubble.style.lineHeight = '1.6';
-        bubble.style.direction = isArabic(text) ? 'rtl' : 'ltr';
-        bubble.style.boxShadow = '0 1px 4px rgba(0,0,0,0.08)';
-        bubble.style.background = role === 'user' ? '#2563eb' : '#f3f4f6';
-        bubble.style.color = role === 'user' ? 'white' : '#111827';
-        bubble.innerText = text || '';
+        function clearInput() { document.getElementById('chat-input').value = ''; document.getElementById('clear-input-btn').style.display = 'none'; document.getElementById('chat-input').focus(); }
+        function toggleClearBtn() { document.getElementById('clear-input-btn').style.display = document.getElementById('chat-input').value ? 'block' : 'none'; }
+        function isArabic(text) { return /[\u0600-\u06FF]/.test(text); }
 
-        div.appendChild(bubble);
-        box.appendChild(div);
-        box.scrollTop = box.scrollHeight;
-        return bubble;
-    }
+        function appendMessage(role, text) {
+            const welcome = document.getElementById('welcome-msg');
+            if (welcome) welcome.remove();
+            const box = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.style.cssText = `display:flex;align-items:flex-end;gap:6px;justify-content:${role === 'user' ? 'flex-end' : 'flex-start'}`;
+            if (role === 'assistant') {
+                const av = document.createElement('div');
+                av.innerText = '🤖';
+                av.style.cssText = 'font-size:18px;flex-shrink:0';
+                div.appendChild(av);
+            }
+            const bubble = document.createElement('div');
+            bubble.style.cssText = `max-width:80%;padding:10px 14px;border-radius:${role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px'};font-size:13px;white-space:pre-wrap;line-height:1.6;direction:${isArabic(text) ? 'rtl' : 'ltr'};box-shadow:0 1px 4px rgba(0,0,0,0.08);background:${role === 'user' ? '#2563eb' : '#f3f4f6'};color:${role === 'user' ? 'white' : '#111827'}`;
+            bubble.innerText = text || '';
+            div.appendChild(bubble); box.appendChild(div); box.scrollTop = box.scrollHeight;
+            return bubble;
+        }
 
-    async function sendMessage() {
-        if (isLoading) return;
-        const input = document.getElementById('chat-input');
-        const text = input.value.trim();
-        if (!text) return;
-        input.value = '';
-        document.getElementById('clear-input-btn').style.display = 'none';
+        async function sendMessage() {
+            if (isLoading) return;
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim(); if (!text) return;
+            input.value = ''; document.getElementById('clear-input-btn').style.display = 'none';
+            messages.push({ role: 'user', content: text }); appendMessage('user', text);
 
-        // Add user message to local state and UI
-        messages.push({ role: 'user', content: text });
-        appendMessage('user', text);
+            // Typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.style.cssText = 'display:flex;align-items:center;gap:6px;';
+            typingDiv.innerHTML = `<span style="font-size:18px">🤖</span>
+                <div style="background:#f3f4f6;padding:10px 14px;border-radius:18px 18px 18px 4px;display:flex;gap:4px;align-items:center;">
+                    <span style="width:7px;height:7px;border-radius:50%;background:#9ca3af;display:inline-block;animation:pulse 1s infinite;"></span>
+                    <span style="width:7px;height:7px;border-radius:50%;background:#9ca3af;display:inline-block;animation:pulse 1s infinite 0.2s;"></span>
+                    <span style="width:7px;height:7px;border-radius:50%;background:#9ca3af;display:inline-block;animation:pulse 1s infinite 0.4s;"></span>
+                </div>`;
+            document.getElementById('chat-messages').appendChild(typingDiv);
+            document.getElementById('chat-messages').scrollTop = 999999;
 
-        // Typing indicator
-        const typingDiv = document.createElement('div');
-        typingDiv.id = 'typing-indicator';
-        typingDiv.style.cssText = 'display:flex;align-items:center;gap:6px;';
-        typingDiv.innerHTML = `<span style="font-size:18px">🤖</span>
-            <div style="background:#f3f4f6;padding:10px 14px;border-radius:18px 18px 18px 4px;display:flex;gap:4px;align-items:center;">
-                <span style="width:7px;height:7px;border-radius:50%;background:#9ca3af;display:inline-block;animation:pulse 1s infinite;"></span>
-                <span style="width:7px;height:7px;border-radius:50%;background:#9ca3af;display:inline-block;animation:pulse 1s infinite 0.2s;"></span>
-                <span style="width:7px;height:7px;border-radius:50%;background:#9ca3af;display:inline-block;animation:pulse 1s infinite 0.4s;"></span>
-            </div>`;
-        document.getElementById('chat-messages').appendChild(typingDiv);
-        document.getElementById('chat-messages').scrollTop = 999999;
+            isLoading = true; document.getElementById('send-btn').innerText = '...';
+            abortController = new AbortController();
 
-        isLoading = true;
-        document.getElementById('send-btn').innerText = '...';
-        abortController = new AbortController();
-
-        typingDiv.remove();
-        const aiBubble = appendMessage('assistant', '');
-        let fullReply = '';
-
-        try {
-            // Send full conversation history — no ConversationId, no DB
-            const response = await fetch('/AI/SendMessage', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ messages }),
-                signal: abortController.signal
-            });
-
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let buffer = '';
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split('\n');
-                buffer = lines.pop();
-
-                for (const line of lines) {
-                    if (!line.startsWith('data: ')) continue;
-                    const chunk = line.slice(6);
-                    if (chunk && chunk !== '[DONE]') {
-                        fullReply += chunk;
-                        aiBubble.innerText = fullReply;
-                        aiBubble.style.direction = isArabic(fullReply) ? 'rtl' : 'ltr';
-                        document.getElementById('chat-messages').scrollTop = 999999;
+            typingDiv.remove();
+            const aiBubble = appendMessage('assistant', ''); let fullReply = '';
+            try {
+                const response = await fetch('/AI/SendMessage', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages }), signal: abortController.signal });
+                const reader = response.body.getReader(); const decoder = new TextDecoder(); let buffer = '';
+                while (true) {
+                    const { done, value } = await reader.read(); if (done) break;
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n'); buffer = lines.pop();
+                    for (const line of lines) {
+                        if (!line.startsWith('data: ')) continue;
+                        const chunk = line.slice(6);
+                        if (chunk && chunk !== '[DONE]') { fullReply += chunk; aiBubble.innerText = fullReply; aiBubble.style.direction = isArabic(fullReply) ? 'rtl' : 'ltr'; document.getElementById('chat-messages').scrollTop = 999999; }
                     }
                 }
-            }
-
-            // Save AI reply to local state so next message has full context
-            messages.push({ role: 'assistant', content: fullReply });
-
-        } catch (e) {
-            if (e.name !== 'AbortError') {
-                aiBubble.innerText = 'Sorry, something went wrong. Please try again.';
-            }
-        } finally {
-            isLoading = false;
-            document.getElementById('send-btn').innerText = '➤';
+                messages.push({ role: 'assistant', content: fullReply });
+            } catch (e) { if (e.name !== 'AbortError') aiBubble.innerText = 'Sorry, something went wrong. Please try again.'; }
+            finally { isLoading = false; document.getElementById('send-btn').innerText = '➤'; }
         }
-    }
-</script>
-<!-- ========== END AI CHAT WIDGET ========== -->
-    <!-- SCRIPTS -->
+    </script>
+    <!-- END AI CHAT WIDGET -->
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
@@ -523,7 +703,145 @@
             document.querySelector('.main').classList.toggle('shift');
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!--Chart-->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // ── LAYOUT TRANSLATIONS ──────────────────────────────────
+        const layoutTranslations = {
+            en: {
+                showroomPortal: "Showroom Portal",
+                dashboard: "Dashboard",
+                reports: "Reports",
+                staffManagement: "Staff Management",
+                marketing: "Marketing",
+                account: "Account",
+                administrator: "Administrator",
+                logout: "Logout",
+                notifications: "Notifications",
+                markAllRead: "Mark all read",
+                noNotifications: "No notifications",
+                darkBtn: "🌙 Dark",
+                lightBtn: "☀️ Light"
+            },
+            ar: {
+                showroomPortal: "بوابة المعرض",
+                dashboard: "لوحة التحكم",
+                reports: "التقارير",
+                staffManagement: "إدارة الموظفين",
+                marketing: "التسويق",
+                account: "الحساب",
+                administrator: "مدير",
+                logout: "تسجيل الخروج",
+                notifications: "الإشعارات",
+                markAllRead: "تحديد الكل كمقروء",
+                noNotifications: "لا توجد إشعارات",
+                darkBtn: "🌙 داكن",
+                lightBtn: "☀️ فاتح"
+            }
+        };
+
+        // ── DARK MODE ──────────────────────────────────────────
+        function applyDark() {
+            document.body.classList.add('dark');
+            document.body.style.background = '#111827';
+            document.body.style.color = '#f3f4f6';
+            const header = document.querySelector('.header');
+            if (header) { header.style.background = '#1f2937'; header.style.borderBottom = '1px solid #374151'; }
+            document.querySelectorAll('.card').forEach(c => { c.style.background = '#1f2937'; c.style.color = '#f3f4f6'; c.style.border = '1px solid #374151'; });
+            const content = document.querySelector('.content'); if (content) content.style.background = '#111827';
+            const main = document.querySelector('.main'); if (main) main.style.background = '#111827';
+            const toggle = document.querySelector('.dark-toggle'); if (toggle) { toggle.style.background = '#374151'; toggle.style.color = '#f3f4f6'; toggle.style.borderColor = '#4b5563'; }
+            const langBtn = document.querySelector('.lang-toggle'); if (langBtn) { langBtn.style.background = '#374151'; langBtn.style.color = '#f3f4f6'; langBtn.style.borderColor = '#4b5563'; }
+            const filter = document.querySelector('.showroom-filter'); if (filter) { filter.style.background = '#1f2937'; filter.style.color = '#f3f4f6'; filter.style.borderColor = '#374151'; }
+            const logout = document.querySelector('.logout-btn'); if (logout) { logout.style.background = '#374151'; logout.style.color = '#f87171'; }
+        }
+
+        function applyLight() {
+            document.body.classList.remove('dark');
+            document.body.style.background = '#f5f6fa';
+            document.body.style.color = '';
+            const header = document.querySelector('.header'); if (header) { header.style.background = 'white'; header.style.borderBottom = '1px solid #eee'; }
+            document.querySelectorAll('.card').forEach(c => { c.style.background = ''; c.style.color = ''; c.style.border = ''; });
+            const content = document.querySelector('.content'); if (content) content.style.background = '';
+            const main = document.querySelector('.main'); if (main) main.style.background = '';
+            const toggle = document.querySelector('.dark-toggle'); if (toggle) { toggle.style.background = 'white'; toggle.style.color = '#0b1b3f'; toggle.style.borderColor = '#ccc'; }
+            const langBtn = document.querySelector('.lang-toggle'); if (langBtn) { langBtn.style.background = 'white'; langBtn.style.color = '#0b1b3f'; langBtn.style.borderColor = '#ccc'; }
+            const filter = document.querySelector('.showroom-filter'); if (filter) { filter.style.background = 'white'; filter.style.color = ''; filter.style.borderColor = ''; }
+            const logout = document.querySelector('.logout-btn'); if (logout) { logout.style.background = '#f8f9fa'; logout.style.color = 'red'; }
+        }
+
+        function toggleDarkMode() {
+            const isDark = localStorage.getItem('darkMode') === 'true';
+            const lang = localStorage.getItem('siteLang') || 'en';
+            const t = layoutTranslations[lang];
+            if (isDark) {
+                applyLight();
+                localStorage.setItem('darkMode', 'false');
+                document.getElementById('darkToggleBtn').innerHTML = t.darkBtn;
+            } else {
+                applyDark();
+                localStorage.setItem('darkMode', 'true');
+                document.getElementById('darkToggleBtn').innerHTML = t.lightBtn;
+            }
+        }
+
+        // ── LANGUAGE ──────────────────────────────────────────
+        function translateLayout(lang) {
+            const t = layoutTranslations[lang];
+
+            document.querySelectorAll('.txt-portal-title').forEach(el => el.innerText = t.showroomPortal);
+            const d = document.getElementById('txt-dashboard'); if (d) d.innerText = t.dashboard;
+            const r = document.getElementById('txt-reports'); if (r) r.innerText = t.reports;
+            const st = document.getElementById('txt-staff'); if (st) st.innerText = t.staffManagement;
+            const mk = document.getElementById('txt-marketing'); if (mk) mk.innerText = t.marketing;
+            const a = document.getElementById('txt-account'); if (a) a.innerText = t.account;
+            document.querySelectorAll('.txt-administrator').forEach(el => el.innerText = t.administrator);
+            const l = document.getElementById('txt-logout'); if (l) l.innerText = t.logout;
+            const n = document.getElementById('txt-notifications'); if (n) n.innerText = t.notifications;
+            const m = document.getElementById('txt-mark-all-read'); if (m) m.innerText = t.markAllRead;
+            const nn = document.getElementById('txt-no-notifications'); if (nn) nn.innerText = t.noNotifications;
+
+            const isDark = localStorage.getItem('darkMode') === 'true';
+            const darkBtn = document.getElementById('darkToggleBtn');
+            if (darkBtn) darkBtn.innerHTML = isDark ? t.lightBtn : t.darkBtn;
+
+            const langLabel = document.getElementById('langLabel');
+            if (langLabel) langLabel.textContent = lang === 'ar' ? 'العربية' : 'English';
+
+            document.querySelectorAll('.lang-option').forEach(el => el.classList.remove('active'));
+            const activeEl = document.getElementById('lang-' + lang);
+            if (activeEl) activeEl.classList.add('active');
+
+            const content = document.getElementById('mainContent');
+            if (content) content.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+
+            const header = document.querySelector('.header');
+            if (header) header.setAttribute('dir', 'ltr');
+            const headerRight = document.querySelector('.header-right');
+            if (headerRight) headerRight.setAttribute('dir', 'ltr');
+
+            document.documentElement.setAttribute('lang', lang);
+        }
+
+        function setLanguage(code, label) {
+            localStorage.setItem('siteLang', code);
+            localStorage.setItem('siteLangLabel', label);
+            translateLayout(code);
+            window.dispatchEvent(new CustomEvent('languageChanged', { detail: code }));
+            const ddEl = document.getElementById('langToggleBtn');
+            if (ddEl) { const bsDd = bootstrap.Dropdown.getInstance(ddEl); if (bsDd) bsDd.hide(); }
+        }
+
+        // ── APPLY ON PAGE LOAD ────────────────────────────────
+        document.addEventListener('DOMContentLoaded', function () {
+            const savedDark = localStorage.getItem('darkMode');
+            if (savedDark === 'true') applyDark();
+            const savedLang = localStorage.getItem('siteLang') || 'en';
+            translateLayout(savedLang);
+        });
+    </script>
+
     @RenderSection("Scripts", required: false)
 </body>
 </html>

@@ -12,3 +12,4 @@ C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\DatabaseModel\obj\Debug\n
 C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\DatabaseModel\obj\Debug\net10.0\DatabaseModel.pdb
 C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\DatabaseModel\obj\Debug\net10.0\DatabaseModel.genruntimeconfig.cache
 C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\DatabaseModel\obj\Debug\net10.0\ref\DatabaseModel.dll
+C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\DatabaseModel\obj\Debug\net10.0\DatabaseModel.sourcelink.json

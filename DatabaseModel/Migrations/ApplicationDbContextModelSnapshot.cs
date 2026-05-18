@@ -22,7 +22,7 @@ namespace DatabaseModel.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Admin", b =>
+            modelBuilder.Entity("DatabaseModel.Models.Admin", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -128,6 +128,63 @@ namespace DatabaseModel.Migrations
                     b.HasIndex("VisitorId");
 
                     b.ToTable("feedback", (string)null);
+                });
+
+            modelBuilder.Entity("DatabaseModel.Models.FollowUp", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset?>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("VisitorId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VisitorId");
+
+                    b.ToTable("FollowUps");
+                });
+
+            modelBuilder.Entity("DatabaseModel.Models.MarketingSource", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset?>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Source")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SourceOther")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("VisitorId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VisitorId");
+
+                    b.ToTable("MarketingSources");
                 });
 
             modelBuilder.Entity("DatabaseModel.Models.Message", b =>
@@ -248,6 +305,33 @@ namespace DatabaseModel.Migrations
                         .HasName("PK__products__3213E83FCDCD56FD");
 
                     b.ToTable("products", (string)null);
+                });
+
+            modelBuilder.Entity("DatabaseModel.Models.ReserveStaff", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AvailableFrom")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AvailableTo")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ReserveStaff");
                 });
 
             modelBuilder.Entity("DatabaseModel.Models.Salesperson", b =>
@@ -448,6 +532,28 @@ namespace DatabaseModel.Migrations
                         .HasConstraintName("FK__feedback__visito__787EE5A0");
 
                     b.Navigation("Showroom");
+
+                    b.Navigation("Visitor");
+                });
+
+            modelBuilder.Entity("DatabaseModel.Models.FollowUp", b =>
+                {
+                    b.HasOne("DatabaseModel.Models.Visitor", "Visitor")
+                        .WithMany()
+                        .HasForeignKey("VisitorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Visitor");
+                });
+
+            modelBuilder.Entity("DatabaseModel.Models.MarketingSource", b =>
+                {
+                    b.HasOne("DatabaseModel.Models.Visitor", "Visitor")
+                        .WithMany()
+                        .HasForeignKey("VisitorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Visitor");
                 });

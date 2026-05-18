@@ -1,11 +1,15 @@
 ﻿@model DatabaseModel.Models.Visitor
 
 @{
+
     Layout = "~/Views/Shared/_Layout.cshtml";
+
     ViewData["Title"] = "Showrooms Service";
+
 }
 
 <style>
+
     body {
         background: #f5f6f8;
         font-family: 'Segoe UI', sans-serif;
@@ -31,67 +35,238 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
+
+    /* RTL mode */
+
+    .rtl {
+        direction: rtl;
+        text-align: right;
+    }
+
+        .rtl .form-label {
+            text-align: right;
+            display: block;
+        }
+
+        .rtl input,
+        .rtl select,
+        .rtl textarea {
+            text-align: right;
+        }
+
+        .rtl .row {
+            flex-direction: row-reverse;
+        }
+
+    /* ── Marketing source pills ── */
+
+    .source-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+        .source-options input[type="radio"] {
+            display: none;
+        }
+
+        .source-options label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 50px;
+            font-size: 13.5px;
+            cursor: pointer;
+            background: #fff;
+            color: #555;
+            transition: all 0.18s ease;
+            user-select: none;
+        }
+
+            .source-options label:hover {
+                border-color: #0b1b3f;
+                color: #0b1b3f;
+            }
+
+        .source-options input[type="radio"]:checked + label {
+            background: #0b1b3f;
+            border-color: #0b1b3f;
+            color: #fff;
+            font-weight: 500;
+        }
+
+    .source-icon {
+        font-size: 15px;
+        line-height: 1;
+    }
+
+    #other-source-wrap {
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .rtl .source-options {
+        flex-direction: row-reverse;
+    }
+
+    /* ADDED: Chatbot styles from friend's file */
+
+    .chat-toggle-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: none;
+        background: #0b1b3f;
+        color: white;
+        font-size: 24px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        z-index: 9999;
+    }
+
+    .chatbot-box {
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        width: 350px;
+        max-height: 550px;
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        display: none;
+        flex-direction: column;
+        z-index: 9999;
+    }
+
+    .chatbot-header {
+        background: #0b1b3f;
+        color: white;
+        padding: 15px;
+    }
+
+    .chatbot-body {
+        padding: 15px;
+        overflow-y: auto;
+        height: 350px;
+        background: #f8f9fa;
+    }
+
+    .chatbot-footer {
+        padding: 10px;
+        border-top: 1px solid #ddd;
+        background: white;
+    }
+
+    .chat-message {
+        margin-bottom: 10px;
+        padding: 10px 14px;
+        border-radius: 12px;
+        max-width: 85%;
+        word-wrap: break-word;
+    }
+
+    .bot-message {
+        background: #e9ecef;
+        color: #212529;
+    }
+
+    .user-message {
+        background: #0b1b3f;
+        color: white;
+        margin-left: auto;
+    }
+
+    .quick-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 15px;
+    }
+
+    .quick-btn {
+        border: none;
+        background: #0b1b3f;
+        color: white;
+        border-radius: 20px;
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .chat-input {
+        border-radius: 10px;
+    }
+
+    /* END ADDED: Chatbot styles */
 </style>
 
 <div class="container">
     <div class="text-danger">
+
         @Html.ValidationSummary(false)
     </div>
+
     <!-- HEADER -->
     <div class="text-center mt-4">
         <div class="logo"></div>
-
-        <h2 class="fw-bold mt-3">Showrooms Service</h2>
-        <p class="text-muted">Welcome to Showrooms Service</p>
+        <h2 class="fw-bold mt-3" id="txt-page-title">Showrooms Service</h2>
+        <p class="text-muted" id="txt-page-subtitle">Welcome to Showrooms Service</p>
     </div>
 
     <!-- CARD -->
     <div class="card shadow-sm mt-4 mx-auto" style="max-width:500px; border-radius:15px;">
         <div class="card-body">
 
-            <h5 class="fw-semibold">Check In</h5>
+            <h5 class="fw-semibold" id="txt-checkin">Check In</h5>
             <hr />
 
             <form method="post">
-
                 <div class="row g-3">
 
                     <!-- Name -->
                     <div class="col-md-6">
-                        <label class="form-label">Full Name</label>
+                        <label class="form-label" id="txt-fullname">Full Name</label>
                         <input asp-for="Name" class="form-control" placeholder="John Doe" />
                         <span asp-validation-for="Name" class="text-danger small"></span>
                     </div>
 
                     <!-- Phone -->
                     <div class="col-md-6">
-                        <label class="form-label">Phone Number</label>
+                        <label class="form-label" id="txt-phone">Phone Number</label>
                         <input asp-for="Phone" class="form-control" placeholder="+973 12345678" />
                         <span asp-validation-for="Phone" class="text-danger small"></span>
                     </div>
 
                     <!-- Email -->
                     <div class="col-md-6">
-                        <label class="form-label">Email (Optional)</label>
+                        <label class="form-label" id="txt-email">Email (Optional)</label>
                         <input asp-for="Email" class="form-control" />
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
 
                     <!-- CPR -->
                     <div class="col-md-6">
-                        <label class="form-label">CPR Number</label>
+                        <label class="form-label" id="txt-cpr">CPR Number</label>
                         <input asp-for="Cpr" class="form-control" />
                         <span asp-validation-for="Cpr" class="text-danger small"></span>
                     </div>
 
                     <!-- Showroom -->
                     <div class="col-md-6">
-                        <label class="form-label">Showroom</label>
+                        <label class="form-label" id="txt-showroom">Showroom</label>
                         <select asp-for="ShowroomId" class="form-select">
                             <option value="0">Select a showroom</option>
+
                             @foreach (var s in ViewBag.Showrooms)
+
                             {
                                 <option value="@s.Id">@s.Name</option>
+
                             }
                         </select>
                         <span asp-validation-for="ShowroomId" class="text-danger small"></span>
@@ -99,56 +274,547 @@
 
                     <!-- Product -->
                     <div class="col-md-6">
-                        <label class="form-label">Car Model of Interest</label>
+                        <label class="form-label" id="txt-car-model">Car Model of Interest</label>
                         <select asp-for="ProductId" class="form-select">
                             <option value="">Not sure yet</option>
+
                             @foreach (var p in ViewBag.Products)
+
                             {
                                 <option value="@p.Id">@p.Name</option>
+
                             }
                         </select>
                     </div>
 
                     <!-- Salesperson -->
                     <div class="col-md-12">
-                        <label class="form-label">Assigned Salesperson</label>
+                        <label class="form-label" id="txt-salesperson">Assigned Salesperson</label>
                         <select asp-for="SalespersonId" class="form-select">
                             <option value="">Select a salesperson (optional)</option>
+
                             @foreach (var sp in ViewBag.Salespersons)
+
                             {
                                 <option value="@sp.Id">@sp.Name</option>
-                            }
-                        </select>
-                    </div>
 
-                    <!-- Language -->
-                    <div class="col-md-12">
-                        <label class="form-label">Preferred Language</label>
-                        <select asp-for="Language" class="form-select">
-                            <option value="en">English</option>
-                            <option value="ar">العربية</option>
+                            }
                         </select>
                     </div>
 
                     <!-- Notes -->
                     <div class="col-md-12">
-                        <label class="form-label">Notes (Optional)</label>
-                        <textarea asp-for="Notes" class="form-control" placeholder="Any specific requirements?"></textarea>
+                        <label class="form-label" id="txt-notes">Notes (Optional)</label>
+<textarea name="notes" id="input-notes" class="form-control"
+          placeholder="Any specific requirements?"></textarea>
                     </div>
 
                 </div>
 
-                <button type="submit" class="btn btn-dark w-100 mt-4">
+                <!-- How did you hear about us? -->
+                <div class="mt-3">
+                    <label class="form-label fw-semibold" id="txt-marketing-source">
+
+                        How did you hear about us?
+                    </label>
+                    <div class="source-options" id="source-options-container">
+
+                        <input type="radio" name="MarketingSource" value="Instagram" id="src-Instagram" />
+                        <label for="src-Instagram">
+                            <span class="source-icon">📸</span>
+                            <span class="src-label" data-key="srcInstagram">Instagram</span>
+                        </label>
+
+                        <input type="radio" name="MarketingSource" value="TikTok" id="src-TikTok" />
+                        <label for="src-TikTok">
+                            <span class="source-icon">🎵</span>
+                            <span class="src-label" data-key="srcTikTok">TikTok</span>
+                        </label>
+
+                        <input type="radio" name="MarketingSource" value="YouTube" id="src-YouTube" />
+                        <label for="src-YouTube">
+                            <span class="source-icon">▶️</span>
+                            <span class="src-label" data-key="srcYouTube">YouTube</span>
+                        </label>
+
+                        <input type="radio" name="MarketingSource" value="Website" id="src-Website" />
+                        <label for="src-Website">
+                            <span class="source-icon">🌐</span>
+                            <span class="src-label" data-key="srcWebsite">Website</span>
+                        </label>
+
+                        <input type="radio" name="MarketingSource" value="Friend" id="src-Friend" />
+                        <label for="src-Friend">
+                            <span class="source-icon">👥</span>
+                            <span class="src-label" data-key="srcFriend">Friend</span>
+                        </label>
+
+                        <input type="radio" name="MarketingSource" value="Walk-in" id="src-Walk-in" />
+                        <label for="src-Walk-in">
+                            <span class="source-icon">🚶</span>
+                            <span class="src-label" data-key="srcWalkin">Walk-in</span>
+                        </label>
+
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-dark w-100 mt-4" id="txt-submit">
+
                     Complete Check-in
                 </button>
 
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- ADDED: Chatbot button from friend's file -->
+<button class="chat-toggle-btn"
+        type="button"
+        onclick="toggleChatbot()">
+
+    💬
+</button>
+
+<!-- ADDED: Chatbot box from friend's file -->
+<div class="chatbot-box" id="chatbotBox">
+
+    <div class="chatbot-header">
+        <h6>Showroom Assistant</h6>
+        <small>Ask about cars, showrooms, contacts, ratings, and working hours</small>
+    </div>
+
+    <div class="chatbot-body" id="chatMessages">
+
+        <div class="chat-message bot-message">
+
+            Hello! I'm your showroom assistant.<br />
+
+            You can ask me about:<br />
+
+            • Available cars<br />
+
+            • Categories<br />
+
+            • Showrooms / branches<br />
+
+            • Locations<br />
+
+            • Phone numbers<br />
+
+            • Salespersons<br />
+
+            • Ratings<br />
+
+            • Working hours and days
+        </div>
+
+        <div class="quick-actions">
+
+            <button class="quick-btn" type="button"
+                    onclick="quickAsk('What cars are available?')">
+
+                Available Cars
+            </button>
+
+            <button class="quick-btn" type="button"
+                    onclick="quickAsk('What categories do you have?')">
+
+                Categories
+            </button>
+
+            <button class="quick-btn" type="button"
+                    onclick="quickAsk('What showrooms are available?')">
+
+                Showrooms
+            </button>
+
+            <button class="quick-btn" type="button"
+                    onclick="quickAsk('What are your working hours?')">
+
+                Working Hours
+            </button>
+
+            <button class="quick-btn" type="button"
+                    onclick="quickAsk('Who are the salespersons?')">
+
+                Salespersons
+            </button>
 
         </div>
     </div>
 
-</div>
+    <div class="chatbot-footer">
+        <div class="input-group">
+            <input type="text"
+                   id="userMessage"
+                   class="form-control chat-input"
+                   placeholder="Type your question..." />
+            <button type="button"
+                    class="btn btn-dark"
+                    onclick="sendMessage()">
 
+                Send
+            </button>
+        </div>
+    </div>
+
+</div>
+<!-- END ADDED: Chatbot box -->
 @section Scripts {
+
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/site.js"></script>
+
+    <script>
+
+                /* ── TRANSLATIONS ── */
+
+                const homeTranslations = {
+
+                    en: {
+
+                        pageTitle:       "Showrooms Service",
+
+                        pageSubtitle:    "Welcome to Showrooms Service",
+
+                        checkIn:         "Check In",
+
+                        fullName:        "Full Name",
+
+                        phoneNumber:     "Phone Number",
+
+                        email:           "Email (Optional)",
+
+                        cpr:             "CPR Number",
+
+                        showroom:        "Showroom",
+
+                        selectShowroom:  "Select a showroom",
+
+                        carModel:        "Car Model of Interest",
+
+                        notSure:         "Not sure yet",
+
+                        salesperson:     "Assigned Salesperson",
+
+                        selectSales:     "Select a salesperson (optional)",
+
+                        notes:           "Notes (Optional)",
+
+                        notesPH:         "Any specific requirements?",
+
+                        marketingSource: "How did you hear about us?",
+
+                        srcInstagram:    "Instagram",
+
+                        srcTikTok:       "TikTok",
+
+                        srcWebsite:      "Website",
+
+                        srcFriend:       "Friend",
+
+                        srcWalkin:       "Walk-in",
+
+                        srcOther:        "Other",
+
+                        otherPH:         "Please tell us how you heard about us...",
+
+                        submit:          "Complete Check-in",
+
+                        langBtn:         "English",
+
+                        srcYouTube:      "YouTube"
+
+                    },
+
+                    ar: {
+
+                        pageTitle:       "خدمة المعارض",
+
+                        pageSubtitle:    "مرحباً بك في خدمة المعارض",
+
+                        checkIn:         "تسجيل الدخول",
+
+                        fullName:        "الاسم الكامل",
+
+                        phoneNumber:     "رقم الهاتف",
+
+                        email:           "البريد الإلكتروني (اختياري)",
+
+                        cpr:             "الرقم الشخصي",
+
+                        showroom:        "المعرض",
+
+                        selectShowroom:  "اختر معرضاً",
+
+                        carModel:        "موديل السيارة المفضل",
+
+                        notSure:         "غير متأكد بعد",
+
+                        salesperson:     "مندوب المبيعات",
+
+                        selectSales:     "اختر مندوباً (اختياري)",
+
+                        notes:           "ملاحظات (اختياري)",
+
+                        notesPH:         "أي متطلبات خاصة؟",
+
+                        marketingSource: "كيف سمعت عنا؟",
+
+                        srcInstagram:    "إنستغرام",
+
+                        srcTikTok:       "تيك توك",
+
+                        srcWebsite:      "الموقع الإلكتروني",
+
+                        srcFriend:       "صديق",
+
+                        srcWalkin:       "زيارة مباشرة",
+
+                        srcOther:        "أخرى",
+
+                        otherPH:         "يرجى إخبارنا كيف سمعت عنا...",
+
+                        submit:          "إتمام تسجيل الدخول",
+
+                        langBtn:         "العربية",
+
+                        srcYouTube:      "يوتيوب"
+
+                    }
+
+                };
+
+                function translateHomePage(lang) {
+
+                    const t      = homeTranslations[lang];
+
+                    const set    = (id, val)  => { const el = document.getElementById(id);  if (el) el.innerText   = val; };
+
+                    const setPH  = (id, val)  => { const el = document.getElementById(id);  if (el) el.placeholder = val; };
+
+                    const setOpt = (sel, val) => { const el = document.querySelector(sel);  if (el) el.innerText   = val; };
+
+                    set('txt-page-title',       t.pageTitle);
+
+                    set('txt-page-subtitle',    t.pageSubtitle);
+
+                    set('txt-checkin',          t.checkIn);
+
+                    set('txt-fullname',         t.fullName);
+
+                    set('txt-phone',            t.phoneNumber);
+
+                    set('txt-email',            t.email);
+
+                    set('txt-cpr',              t.cpr);
+
+                    set('txt-showroom',         t.showroom);
+
+                    set('txt-car-model',        t.carModel);
+
+                    set('txt-salesperson',      t.salesperson);
+
+                    set('txt-notes',            t.notes);
+
+                    set('txt-marketing-source', t.marketingSource);
+
+                    set('txt-submit',           t.submit);
+
+                    set('langBtnLabel',         t.langBtn);
+
+                    setPH('input-notes',        t.notesPH);
+
+                    setPH('other-source-input', t.otherPH);
+
+                    setOpt('select[name="ShowroomId"]    option[value="0"]', t.selectShowroom);
+
+                    setOpt('select[name="ProductId"]     option[value=""]',  t.notSure);
+
+                    setOpt('select[name="SalespersonId"] option[value=""]',  t.selectSales);
+
+                    document.querySelectorAll('.src-label').forEach(el => {
+
+                        const key = el.getAttribute('data-key');
+
+                        if (t[key]) el.innerText = t[key];
+
+                    });
+
+                    localStorage.setItem('lang',     lang);
+
+                    localStorage.setItem('siteLang', lang);
+
+                    const langField = document.getElementById('hidden-lang');
+
+                    if (langField) langField.value = lang;
+
+                    if (lang === 'ar') {
+
+                        document.documentElement.setAttribute('dir', 'rtl');
+
+                        document.body.classList.add('rtl');
+
+                    } else {
+
+                        document.documentElement.setAttribute('dir', 'ltr');
+
+                        document.body.classList.remove('rtl');
+
+                    }
+
+                    const validationMessages = {
+
+                        en: {
+
+                            'Name':       'Name is required',
+
+                            'Phone':      'Phone is required',
+
+                            'ShowroomId': 'Please select a showroom',
+
+                            'Cpr':        'CPR number is required'
+
+                        },
+
+                        ar: {
+
+                            'Name':       'الاسم مطلوب',
+
+                            'Phone':      'رقم الهاتف مطلوب',
+
+                            'ShowroomId': 'يرجى اختيار المعرض',
+
+                            'Cpr':        'الرقم الشخصي مطلوب'
+
+                        }
+
+                    };
+
+                    const vm = validationMessages[lang];
+
+                    Object.keys(vm).forEach(function(field) {
+
+                        const span = document.querySelector('[data-valmsg-for="' + field + '"]');
+
+                        if (span && span.innerText.trim() !== '') {
+
+                            span.innerText = vm[field];
+
+                        }
+
+                    });
+
+                }
+
+                document.addEventListener('DOMContentLoaded', function () {
+
+                    document.querySelectorAll('.source-options input[type="radio"]').forEach(function (radio) {
+
+                        radio.addEventListener('change', function () {
+
+                            const field = document.querySelector('[data-valmsg-for="MarketingSource"]');
+
+                            if (field) field.innerText = '';
+
+                        });
+
+                    });
+
+                    const lang = localStorage.getItem('lang') || 'en';
+
+                    translateHomePage(lang);
+
+                });
+
+                function toggleLanguage() {
+
+                    const current = localStorage.getItem('lang') || 'en';
+
+                    translateHomePage(current === 'en' ? 'ar' : 'en');
+
+                }
+
+                /* ADDED: Chatbot functions from friend's file */
+
+                function toggleChatbot() {
+
+                    const box = document.getElementById("chatbotBox");
+
+                    if (box.style.display === "flex") {
+
+                        box.style.display = "none";
+
+                    } else {
+
+                        box.style.display = "flex";
+
+                    }
+
+                }
+
+                function quickAsk(question) {
+
+                    document.getElementById("userMessage").value = question;
+
+                    sendMessage();
+
+                }
+
+                async function sendMessage() {
+
+                    const input = document.getElementById("userMessage");
+
+                    const message = input.value.trim();
+
+                    if (message === "") return;
+
+                    const chatMessages = document.getElementById("chatMessages");
+
+                    // User message bubble
+
+                    chatMessages.innerHTML += `
+        <div class="chat-message user-message">${message}</div>
+
+                    `;
+
+                    input.value = "";
+
+                    try {
+
+                        const response = await fetch('/Chat/Ask', {
+
+                            method: 'POST',
+
+                            headers: { 'Content-Type': 'application/json' },
+
+                            body: JSON.stringify({ message: message })
+
+                        });
+
+                        const data = await response.json();
+
+                        chatMessages.innerHTML += `
+        <div class="chat-message bot-message">${data.reply}</div>
+
+                        `;
+
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                    } catch {
+
+                        chatMessages.innerHTML += `
+        <div class="chat-message bot-message">Sorry, something went wrong.</div>
+
+                        `;
+
+                    }
+
+                }
+
+                /* END ADDED: Chatbot functions */
+
+    </script>
+
 }

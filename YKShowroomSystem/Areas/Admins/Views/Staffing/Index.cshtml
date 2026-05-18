@@ -1,0 +1,808 @@
+﻿@{
+    Layout = "~/Areas/Admins/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Staff Management";
+
+    var salespersons = (ViewBag.SalespersonStats as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>()).ToList();
+    var showroomAdvisory = (ViewBag.ShowroomAdvisory as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>()).ToList();
+    var reserveAll = (ViewBag.ReserveStaffAll as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>()).ToList();
+    var reserveNow = (ViewBag.ReserveAvailableNow as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>()).ToList();
+
+    int totalOverdue = (int)(ViewBag.SummaryTotalOverdue ?? 0);
+
+    Func<int, int, string> shiftLabel = (from, to) =>
+    {
+        var parts = new System.Collections.Generic.List<string>();
+        if (from < 12) parts.Add("Morning");
+        if (from < 17 && to > 12) parts.Add("Afternoon");
+        if (to > 17) parts.Add("Evening");
+        return string.Join(" · ", parts);
+    };
+
+    Func<int, int, string> shiftLabelAr = (from, to) =>
+    {
+        var parts = new System.Collections.Generic.List<string>();
+        if (from < 12) parts.Add("صباح");
+        if (from < 17 && to > 12) parts.Add("ظهر");
+        if (to > 17) parts.Add("مساء");
+        return string.Join(" · ", parts);
+    };
+}
+
+<style>
+    :root {
+        --c-border: #e9ecef;
+        --c-bg: #f8f9fa;
+        --c-label: #6c757d;
+        --c-text: #212529;
+        --c-blue: #3b5bdb;
+        --c-green: #198754;
+        --c-orange: #fd7e14;
+        --c-red: #dc3545;
+        --c-gray: #adb5bd;
+        --radius: 10px;
+    }
+
+    .sm-label {
+        font-size: 12px;
+        color: var(--c-label);
+        line-height: 1.4;
+    }
+
+    .sm-value {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--c-text);
+    }
+
+    .sm-section {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: var(--c-label);
+        margin-bottom: 14px;
+    }
+
+    .sm-pill {
+        display: inline-block;
+        padding: 2px 9px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .sm-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f3f5;
+        min-height: 36px;
+    }
+
+        .sm-row:last-child {
+            border-bottom: none;
+        }
+
+    .sum-card {
+        background: #fff;
+        border: 1px solid var(--c-border);
+        border-radius: var(--radius);
+        height: 96px;
+        padding: 18px 22px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .sum-label {
+        font-size: 12px;
+        color: var(--c-label);
+    }
+
+    .sum-value {
+        font-size: 26px;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .sr-card {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        border: 1px solid var(--c-border);
+        border-radius: var(--radius);
+        padding: 22px;
+    }
+
+    .sr-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    .sr-rec {
+        margin-top: auto;
+        padding-top: 14px;
+    }
+
+    .sr-rec-inner {
+        background: var(--c-bg);
+        border-radius: 0 6px 6px 0;
+        padding: 10px 12px;
+    }
+    /* RTL: flip the recommendation box border side */
+    [dir="rtl"] .sr-rec-inner {
+        border-radius: 6px 0 0 6px;
+    }
+
+    [dir="rtl"] .sm-section {
+        letter-spacing: 0;
+    }
+</style>
+
+<!-- PAGE HEADER -->
+<div class="mb-4">
+    <h4 class="fw-bold mb-1" id="sm-txt-page-title">Staff Management</h4>
+</div>
+
+<!-- SECTION 1 — OVERVIEW -->
+<div class="sm-section" id="sm-txt-section-overview">Overview</div>
+<div class="row g-3 mb-5">
+
+    <div class="col-lg-3 col-md-6">
+        <div class="sum-card">
+            <div class="sum-label" id="sm-txt-active-showrooms">Active Showrooms</div>
+            <div class="sum-value">@ViewBag.SummaryActiveShowrooms</div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+        <div class="sum-card">
+            <div class="sum-label" id="sm-txt-overdue-followups">Overdue Follow-ups</div>
+            <div class="sum-value" style="color:@(totalOverdue == 0 ? "var(--c-green)" : totalOverdue <= 5 ? "var(--c-orange)" : "var(--c-red)");">
+                @totalOverdue
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+        <div class="sum-card">
+            <div class="sum-label" id="sm-txt-busiest-showroom">Busiest Showroom This Week</div>
+            <div>
+                <div class="sm-value" style="font-size:13px; line-height:1.3;">@ViewBag.SummaryBusiestShowroom</div>
+                @if ((int)(ViewBag.SummaryBusiestCount ?? 0) > 0)
+                {
+                    <div class="sum-label" style="font-size:11px; margin-top:2px;">
+                        <span id="sm-txt-visits-count" data-count="@ViewBag.SummaryBusiestCount">@ViewBag.SummaryBusiestCount visits</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+        <div class="sum-card">
+            <div class="sum-label" id="sm-txt-reserve-now">Reserve Staff Available Now</div>
+            <div class="sum-value" style="color:@((int)ViewBag.SummaryReserveNow > 0 ? "var(--c-green)" : "var(--c-gray)");">
+                @ViewBag.SummaryReserveNow
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- SECTION 2 — SHOWROOM STATUS -->
+<div class="sm-section" id="sm-txt-section-showroom">Showroom Status</div>
+<div class="row g-3 mb-5" style="align-items:stretch;">
+
+    @foreach (var sr in showroomAdvisory)
+    {
+        string statusColor = sr.Status == "Critical" ? "var(--c-red)"
+        : sr.Status == "Needs Attention" ? "var(--c-orange)"
+        : sr.Status == "Unstaffed" ? "var(--c-gray)"
+        : "var(--c-green)";
+        string statusBg = sr.Status == "Critical" ? "#fff0f0"
+        : sr.Status == "Needs Attention" ? "#fff6ee"
+        : sr.Status == "Unstaffed" ? "#f8f9fa"
+        : "#f0fdf4";
+
+        var staffNames = sr.StaffNames as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+        var peakReserve = sr.PeakReserve as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+
+        string statusKey = sr.Status == "Critical" ? "statusCritical"
+        : sr.Status == "Needs Attention" ? "statusNeedsAttention"
+        : sr.Status == "Unstaffed" ? "statusUnstaffed"
+        : "statusOnTrack";
+
+        <div class="col-lg-4 col-md-6 d-flex">
+            <div class="sr-card">
+
+                <!-- Title + Status -->
+                <div class="d-flex justify-content-between align-items-start mb-3" style="gap:8px;">
+                    <span class="sm-value" style="font-size:14px; line-height:1.4; flex:1;">@sr.Name</span>
+                    <span class="sm-pill flex-shrink-0 sm-status-pill" data-status-key="@statusKey"
+                          style="color:@statusColor; background:@statusBg; margin-top:2px;">@sr.Status</span>
+                </div>
+
+                <!-- 3 stat boxes -->
+                <div class="d-flex gap-2 mb-3">
+                    <div class="flex-fill text-center" style="background:#f8f9fa; border-radius:8px; padding:10px 4px;">
+                        <div style="font-size:20px; font-weight:700; color:var(--c-text); line-height:1;">@sr.WeekVisitors</div>
+                        <div class="sm-t" data-key="thisWeek"
+                             style="font-size:10px; color:var(--c-label); text-transform:uppercase; letter-spacing:.04em; margin-top:3px;">
+                            This Week
+                        </div>
+                    </div>
+                    <div class="flex-fill text-center" style="background:@(sr.OverdueCount > 0 ? "#fff0f0" : "#f8f9fa"); border-radius:8px; padding:10px 4px;">
+                        <div style="font-size:20px; font-weight:700; color:@(sr.OverdueCount > 0 ? "var(--c-red)" : "var(--c-text)"); line-height:1;">@sr.OverdueCount</div>
+                        <div class="sm-t" data-key="overdue"
+                             style="font-size:10px; color:var(--c-label); text-transform:uppercase; letter-spacing:.04em; margin-top:3px;">
+                            Overdue
+                        </div>
+                    </div>
+                    <div class="flex-fill text-center" style="background:#f8f9fa; border-radius:8px; padding:10px 4px;">
+                        <div style="font-size:20px; font-weight:700; color:var(--c-text); line-height:1;">@sr.StaffCount</div>
+                        <div class="sm-t" data-key="staff"
+                             style="font-size:10px; color:var(--c-label); text-transform:uppercase; letter-spacing:.04em; margin-top:3px;">
+                            Staff
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sr-body">
+
+                    <!-- Assigned Staff -->
+                    <div class="mb-3">
+                        <div class="sm-label sm-t mb-1" data-key="assignedStaff">Assigned Staff</div>
+                        @if (!staffNames.Any())
+                        {
+                            <span class="sm-label sm-t" data-key="noneAssigned">None assigned</span>
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-wrap gap-2 mt-1">
+                                @foreach (var staff in staffNames)
+                                {
+                                    <div style="background:#f0f4ff; border-radius:8px; padding:5px 10px; min-width:0;">
+                                        <div style="font-size:11px; font-weight:600; color:var(--c-blue); line-height:1.3;">@staff.Name</div>
+                                        <div style="font-size:11px; color:var(--c-label); line-height:1.3;">@staff.Phone</div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Visit Pattern -->
+                    <div>
+                        <div class="sm-label sm-t mb-1" data-key="visitPattern">Visit Pattern</div>
+                        <div class="sm-row">
+                            <span class="sm-label sm-t" data-key="busiestDay">Busiest Day</span>
+                            <span class="sm-value">@(sr.PeakDayLabel == "N/A" ? "—" : $"{sr.PeakDayLabel} ({sr.PeakDayCount})")</span>
+                        </div>
+                        <div class="sm-row">
+                            <span class="sm-label sm-t" data-key="peakHour">Peak Hour</span>
+                            <span class="sm-value">@(sr.PeakHourLabel == "N/A" ? "—" : $"{sr.PeakHourLabel} ({sr.PeakHourCount})")</span>
+                        </div>
+                        @if (peakReserve.Any() && sr.PeakHourLabel != "N/A")
+                        {
+                            <div style="padding:8px 0 0 0;">
+                                <div class="sm-label sm-t mb-1" data-key="reserveAtPeak">Reserve at Peak</div>
+                                <div class="d-flex flex-wrap gap-1 mt-1">
+                                    @foreach (var r in peakReserve)
+                                    {
+                                        <span class="sm-pill" style="background:#f3eeff; color:#6f42c1;">@r.Name</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Recommendation -->
+                    <div class="sr-rec">
+                        <div class="sr-rec-inner" style="border-left:3px solid @statusColor;">
+                            <!-- English version: shown when lang = en -->
+                            <p class="mb-0 sm-label sm-rec-en"
+                               style="line-height:1.6; color:#495057;">@Html.Raw(sr.Recommendation)</p>
+                            <!-- Arabic version: hidden by default, shown when lang = ar -->
+                            <p class="mb-0 sm-label sm-rec-ar"
+                               style="line-height:1.6; color:#495057; display:none;">@Html.Raw(sr.RecommendationAr)</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<!-- SECTION 3 — SALESPERSON WORKLOAD -->
+<div class="sm-section" id="sm-txt-section-salesperson">Salesperson Workload — This Week</div>
+<div class="mb-5" style="background:#fff; border:1px solid var(--c-border); border-radius:var(--radius); overflow:hidden;">
+
+    @if (!salespersons.Any())
+    {
+        <div class="text-center py-5 sm-label">
+            <i class="fa fa-user-slash fa-2x mb-2 d-block"></i>
+            <span class="sm-t" data-key="noSalespersons">No salespersons found.</span>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle mb-0" style="font-size:13px;">
+                <thead>
+                    <tr style="background:var(--c-bg); border-bottom:2px solid var(--c-border);">
+                        <th class="ps-4 py-3 sm-label fw-semibold sm-t" data-key="thSalesperson"
+                            style="font-size:11px; text-transform:uppercase; letter-spacing:.05em;">Salesperson</th>
+                        <th class="py-3 sm-label fw-semibold sm-t" data-key="thShowroom"
+                            style="font-size:11px; text-transform:uppercase; letter-spacing:.05em;">Showroom</th>
+                        <th class="py-3 sm-label fw-semibold text-center sm-t" data-key="thVisits"
+                            style="font-size:11px; text-transform:uppercase; letter-spacing:.05em;">Visits</th>
+                        <th class="py-3 sm-label fw-semibold text-center sm-t" data-key="thPending"
+                            style="font-size:11px; text-transform:uppercase; letter-spacing:.05em;">Pending</th>
+                        <th class="py-3 sm-label fw-semibold text-center sm-t" data-key="thContacted"
+                            style="font-size:11px; text-transform:uppercase; letter-spacing:.05em;">Contacted</th>
+                        <th class="py-3 sm-label fw-semibold text-center sm-t" data-key="thOverdue"
+                            style="font-size:11px; text-transform:uppercase; letter-spacing:.05em;">Overdue</th>
+                        <th class="pe-4 py-3 sm-label fw-semibold sm-t" data-key="thLoad"
+                            style="font-size:11px; text-transform:uppercase; letter-spacing:.05em; min-width:180px;">Load</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var sp in salespersons)
+                    {
+                        string lc = sp.LoadLevel == "Overloaded" ? "var(--c-red)"
+                        : sp.LoadLevel == "Normal" ? "var(--c-orange)"
+                        : sp.LoadLevel == "Light" ? "var(--c-blue)"
+                        : "var(--c-green)";
+                        string lbg = sp.LoadLevel == "Overloaded" ? "#fff0f0"
+                        : sp.LoadLevel == "Normal" ? "#fff6ee"
+                        : sp.LoadLevel == "Light" ? "#f0f4ff"
+                        : "#f0fdf4";
+
+                        string loadKey = sp.LoadLevel == "Overloaded" ? "loadOverloaded"
+                        : sp.LoadLevel == "Normal" ? "loadNormal"
+                        : sp.LoadLevel == "Light" ? "loadLight"
+                        : "loadFree";
+
+                        <tr style="border-bottom:1px solid #f1f3f5;">
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div style="width:32px; height:32px; border-radius:50%; background:#f0f4ff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:var(--c-blue); flex-shrink:0;">
+                                        @sp.Name.ToString().Substring(0, 1)
+                                    </div>
+                                    <span class="sm-value">@sp.Name</span>
+                                </div>
+                            </td>
+                            <td><span class="sm-label">@sp.ShowroomName</span></td>
+                            <td class="text-center"><span class="sm-value">@sp.TotalVisitors</span></td>
+                            <td class="text-center">
+                                <span class="sm-value" style="color:@(sp.Pending > 0 ? "var(--c-orange)" : "var(--c-gray)");">@sp.Pending</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="sm-value" style="color:var(--c-blue);">@sp.Contacted</span>
+                            </td>
+                            <td class="text-center">
+                                @if ((int)sp.Overdue > 0)
+                                {
+                                    <span class="sm-value sm-overdue-cell" data-count="@sp.Overdue"
+                                          style="color:var(--c-red);">@sp.Overdue overdue</span>
+                                }
+                                else
+                                {
+                                    <span class="sm-label sm-t" data-key="clear">Clear</span>
+                                }
+                            </td>
+                            <td class="pe-4">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="flex-grow-1" style="background:#e9ecef; border-radius:999px; height:6px;">
+                                        <div style="width:@(sp.LoadPercent)%; background:@lc; height:6px; border-radius:999px;"></div>
+                                    </div>
+                                    <span class="sm-pill sm-load-pill" data-load-key="@loadKey"
+                                          style="min-width:72px; text-align:center; color:@lc; background:@lbg;">@sp.LoadLevel</span>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+</div>
+
+<!-- SECTION 4 — RESERVE STAFF -->
+<div class="sm-section" id="sm-txt-section-reserve">Reserve Staff</div>
+
+@if (reserveNow.Any())
+{
+    <div class="d-flex align-items-start gap-3 mb-4 p-3"
+         style="background:#fff; border:1px solid #bbf7d0; border-radius:var(--radius);">
+        <i class="fa fa-circle-check mt-1" style="color:var(--c-green); flex-shrink:0;"></i>
+        <div>
+            <div class="sm-value mb-1">
+                <span id="sm-txt-reserve-banner"
+                      data-count="@reserveNow.Count">@reserveNow.Count @(reserveNow.Count == 1 ? "person" : "people") available right now</span>
+            </div>
+            <div class="sm-label">
+                @string.Join("  -  ", ((IEnumerable<dynamic>)reserveNow).Select(r => (string)r.Name + "  " + (string)r.Phone))
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="d-flex align-items-start gap-3 mb-4 p-3"
+         style="background:#fff; border:1px solid #fecaca; border-radius:var(--radius);">
+        <i class="fa fa-circle-xmark mt-1" style="color:var(--c-red); flex-shrink:0;"></i>
+        <div>
+            <div class="sm-value mb-1 sm-t" data-key="noReserveNow">No reserve staff available right now</div>
+            <div class="sm-label sm-t" data-key="noReserveNowSub">See the directory below to plan coverage for later hours.</div>
+        </div>
+    </div>
+}
+
+<div class="row g-3 mb-5">
+    @if (!reserveAll.Any())
+    {
+        <div class="col-12">
+            <p class="sm-label sm-t" data-key="noReserveAdded">No reserve staff added yet.</p>
+        </div>
+    }
+    else
+    {
+        @foreach (var r in reserveAll)
+        {
+            bool isNow = reserveNow.Any(x => x.Id == r.Id);
+            int from = (int)r.AvailableFrom;
+            int to = (int)r.AvailableTo;
+            string shift = shiftLabel(from, to);
+            string shiftAr = shiftLabelAr(from, to);
+
+            <div class="col-lg-3 col-md-6">
+                <div style="background:#fff; border:1px solid var(--c-border); border-radius:var(--radius); padding:16px;">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div style="width:34px; height:34px; border-radius:50%; background:var(--c-bg); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#495057; flex-shrink:0;">
+                            @r.Name.ToString().Substring(0, 1)
+                        </div>
+                        <div style="flex:1; min-width:0;">
+                            <div class="sm-value" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">@r.Name</div>
+                            <div class="sm-label">@r.Phone</div>
+                        </div>
+                        @if (isNow)
+                        {
+                            <span class="sm-pill flex-shrink-0 sm-t" data-key="available"
+                                  style="color:var(--c-green); background:#f0fdf4; border:1px solid #bbf7d0;">Available</span>
+                        }
+                    </div>
+                    <div class="d-flex gap-2">
+                        <div class="flex-fill text-center" style="background:var(--c-bg); border-radius:6px; padding:7px 4px;">
+                            <div class="sm-label sm-shift-label" data-en="@shift" data-ar="@shiftAr"
+                                 style="font-weight:600; color:var(--c-text);">
+                                @shift
+                            </div>
+                        </div>
+                        <div class="flex-fill text-center" style="background:var(--c-bg); border-radius:6px; padding:7px 4px;">
+                            <div class="sm-label" style="font-weight:600; color:var(--c-text); white-space:nowrap;">
+                                @DateTime.Today.AddHours(from).ToString("hh:00 tt") – @DateTime.Today.AddHours(to).ToString("hh:00 tt")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<!-- LEGEND -->
+<div style="background:#fff; border:1px solid var(--c-border); border-radius:var(--radius); padding:24px;">
+    <div class="sm-section sm-t" data-key="legendTitle" style="margin-bottom:12px;">How to Read This Page</div>
+    <div class="row g-3">
+
+        <div class="col-md-4">
+            <div style="background:var(--c-bg); border-radius:8px; padding:16px;">
+                <div class="sm-value sm-t mb-2" data-key="legendShowroomStatus">Showroom Status</div>
+                <div class="sm-row">
+                    <span class="sm-label sm-t" data-key="statusOnTrack">On Track</span>
+                    <span class="sm-value sm-t" data-key="legend0Overdue" style="color:var(--c-green);">0 overdue</span>
+                </div>
+                <div class="sm-row">
+                    <span class="sm-label sm-t" data-key="statusNeedsAttention">Needs Attention</span>
+                    <span class="sm-value sm-t" data-key="legend1to14" style="color:var(--c-orange);">1–14 overdue</span>
+                </div>
+                <div class="sm-row">
+                    <span class="sm-label sm-t" data-key="statusCritical">Critical</span>
+                    <span class="sm-value sm-t" data-key="legend15plus" style="color:var(--c-red);">15+ overdue</span>
+                </div>
+                <div class="sm-row">
+                    <span class="sm-label sm-t" data-key="statusUnstaffed">Unstaffed</span>
+                    <span class="sm-value sm-t" data-key="legendNoStaff" style="color:var(--c-gray);">No staff assigned</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div style="background:var(--c-bg); border-radius:8px; padding:16px;">
+                <div class="sm-value sm-t mb-2" data-key="legendSalespersonLoad">Salesperson Load</div>
+                <div class="sm-row">
+                    <span class="sm-label sm-t" data-key="loadFree">Free</span>
+                    <span class="sm-value sm-t" data-key="legend0pending" style="color:var(--c-green);">0 pending</span>
+                </div>
+                <div class="sm-row">
+                    <span class="sm-label sm-t" data-key="loadLight">Light</span>
+                    <span class="sm-value sm-t" data-key="legend1to5" style="color:var(--c-blue);">1–5 pending</span>
+                </div>
+                <div class="sm-row">
+                    <span class="sm-label sm-t" data-key="loadNormal">Normal</span>
+                    <span class="sm-value sm-t" data-key="legend6to15" style="color:var(--c-orange);">6–15 pending</span>
+                </div>
+                <div class="sm-row">
+                    <span class="sm-label sm-t" data-key="loadOverloaded">Overloaded</span>
+                    <span class="sm-value sm-t" data-key="legend16plus" style="color:var(--c-red);">16+ pending</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div style="background:var(--c-bg); border-radius:8px; padding:16px; height:100%;">
+                <div class="sm-value sm-t mb-2" data-key="legendWhatIsOverdue">What is Overdue?</div>
+                <p class="sm-label mb-0 sm-t" data-key="legendOverdueDesc" style="line-height:1.8;">
+                    A follow-up is <strong style="color:var(--c-text);">overdue</strong> when a customer visited the showroom
+                    and their status is still <strong style="color:var(--c-text);">Pending</strong> after
+                    <strong style="color:var(--c-text);">3 or more days</strong> without a callback.
+                </p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        /* ─────────────────────────────────────────────────────────────
+           STAFF MANAGEMENT — Translation dictionary
+           Uses the same siteLang key as the layout so they stay in sync.
+        ───────────────────────────────────────────────────────────── */
+        const smTranslations = {
+            en: {
+                pageTitle:            "Staff Management",
+                sectionOverview:      "Overview",
+                sectionShowroom:      "Showroom Status",
+                sectionSalesperson:   "Salesperson Workload — This Week",
+                sectionReserve:       "Reserve Staff",
+                activeShowrooms:      "Active Showrooms",
+                overdueFollowups:     "Overdue Follow-ups",
+                busiestShowroom:      "Busiest Showroom This Week",
+                reserveNow:           "Reserve Staff Available Now",
+                visitsWord:           "visits",
+                /* stat boxes */
+                thisWeek:  "This Week",
+                overdue:   "Overdue",
+                staff:     "Staff",
+                /* showroom card */
+                assignedStaff:  "Assigned Staff",
+                noneAssigned:   "None assigned",
+                visitPattern:   "Visit Pattern",
+                busiestDay:     "Busiest Day",
+                peakHour:       "Peak Hour",
+                reserveAtPeak:  "Reserve at Peak",
+                /* status pills */
+                statusOnTrack:        "On Track",
+                statusNeedsAttention: "Needs Attention",
+                statusCritical:       "Critical",
+                statusUnstaffed:      "Unstaffed",
+                /* table headers */
+                thSalesperson: "Salesperson",
+                thShowroom:    "Showroom",
+                thVisits:      "Visits",
+                thPending:     "Pending",
+                thContacted:   "Contacted",
+                thOverdue:     "Overdue",
+                thLoad:        "Load",
+                /* table values */
+                clear:          "Clear",
+                overdueWord:    "overdue",
+                noSalespersons: "No salespersons found.",
+                /* load levels */
+                loadFree:       "Free",
+                loadLight:      "Light",
+                loadNormal:     "Normal",
+                loadOverloaded: "Overloaded",
+                /* reserve staff */
+                noReserveNow:      "No reserve staff available right now",
+                noReserveNowSub:   "See the directory below to plan coverage for later hours.",
+                noReserveAdded:    "No reserve staff added yet.",
+                available:         "Available",
+                personSingular:    "person",
+                personPlural:      "people",
+                availableRightNow: "available right now",
+                /* legend */
+                legendTitle:           "How to Read This Page",
+                legendShowroomStatus:  "Showroom Status",
+                legendSalespersonLoad: "Salesperson Load",
+                legendWhatIsOverdue:   "What is Overdue?",
+                legendOverdueDesc:     "A follow-up is <strong style=\"color:var(--c-text);\">overdue</strong> when a customer visited the showroom and their status is still <strong style=\"color:var(--c-text);\">Pending</strong> after <strong style=\"color:var(--c-text);\">3 or more days</strong> without a callback.",
+                legend0Overdue: "0 overdue",
+                legend1to14:    "1–14 overdue",
+                legend15plus:   "15+ overdue",
+                legendNoStaff:  "No staff assigned",
+                legend0pending: "0 pending",
+                legend1to5:     "1–5 pending",
+                legend6to15:    "6–15 pending",
+                legend16plus:   "16+ pending"
+            },
+            ar: {
+                pageTitle:            "إدارة الموظفين",
+                sectionOverview:      "نظرة عامة",
+                sectionShowroom:      "حالة المعارض",
+                sectionSalesperson:   "عبء عمل مندوبي المبيعات — هذا الأسبوع",
+                sectionReserve:       "الموظفون الاحتياطيون",
+                activeShowrooms:      "المعارض النشطة",
+                overdueFollowups:     "المتابعات المتأخرة",
+                busiestShowroom:      "أكثر المعارض ازدحاماً هذا الأسبوع",
+                reserveNow:           "الموظفون الاحتياطيون المتاحون الآن",
+                visitsWord:           "زيارة",
+                /* stat boxes */
+                thisWeek:  "هذا الأسبوع",
+                overdue:   "متأخر",
+                staff:     "الموظفون",
+                /* showroom card */
+                assignedStaff:  "الموظفون المعينون",
+                noneAssigned:   "لا يوجد موظفون معينون",
+                visitPattern:   "نمط الزيارات",
+                busiestDay:     "أكثر الأيام ازدحاماً",
+                peakHour:       "ساعة الذروة",
+                reserveAtPeak:  "الاحتياطيون في الذروة",
+                /* status pills */
+                statusOnTrack:        "على المسار",
+                statusNeedsAttention: "يحتاج اهتماماً",
+                statusCritical:       "حرج",
+                statusUnstaffed:      "بدون موظفين",
+                /* table headers */
+                thSalesperson: "مندوب المبيعات",
+                thShowroom:    "المعرض",
+                thVisits:      "الزيارات",
+                thPending:     "معلق",
+                thContacted:   "تم التواصل",
+                thOverdue:     "متأخر",
+                thLoad:        "العبء",
+                /* table values */
+                clear:          "خالٍ",
+                overdueWord:    "متأخر",
+                noSalespersons: "لا يوجد مندوبو مبيعات.",
+                /* load levels */
+                loadFree:       "خالٍ",
+                loadLight:      "خفيف",
+                loadNormal:     "عادي",
+                loadOverloaded: "مثقل",
+                /* reserve staff */
+                noReserveNow:      "لا يوجد موظفون احتياطيون متاحون الآن",
+                noReserveNowSub:   "راجع الدليل أدناه للتخطيط لتغطية الساعات اللاحقة.",
+                noReserveAdded:    "لم يتم إضافة موظفين احتياطيين بعد.",
+                available:         "متاح",
+                personSingular:    "شخص",
+                personPlural:      "أشخاص",
+                availableRightNow: "متاحون الآن",
+                /* legend */
+                legendTitle:           "كيفية قراءة هذه الصفحة",
+                legendShowroomStatus:  "حالة المعرض",
+                legendSalespersonLoad: "عبء مندوب المبيعات",
+                legendWhatIsOverdue:   "ما معنى متأخر؟",
+                legendOverdueDesc:     "تُعدّ المتابعة <strong style=\"color:var(--c-text);\">متأخرة</strong> عندما يزور عميل المعرض ولا تزال حالته <strong style=\"color:var(--c-text);\">معلقة</strong> بعد مرور <strong style=\"color:var(--c-text);\">3 أيام أو أكثر</strong> دون اتصال.",
+                legend0Overdue: "0 متأخر",
+                legend1to14:    "1–14 متأخر",
+                legend15plus:   "15+ متأخر",
+                legendNoStaff:  "لا يوجد موظفون معينون",
+                legend0pending: "0 معلق",
+                legend1to5:     "1–5 معلق",
+                legend6to15:    "6–15 معلق",
+                legend16plus:   "16+ معلق"
+            }
+        };
+
+        /* ─────────────────────────────────────────────────────────────
+           Main translate function
+        ───────────────────────────────────────────────────────────── */
+        function translateStaffPage(lang) {
+            const t = smTranslations[lang] || smTranslations['en'];
+
+            /* Helper: set innerText safely */
+            const set = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = val;
+            };
+
+            /* ── IDs ── */
+            set('sm-txt-page-title',           t.pageTitle);
+            set('sm-txt-section-overview',     t.sectionOverview);
+            set('sm-txt-section-showroom',     t.sectionShowroom);
+            set('sm-txt-section-salesperson',  t.sectionSalesperson);
+            set('sm-txt-section-reserve',      t.sectionReserve);
+            set('sm-txt-active-showrooms',     t.activeShowrooms);
+            set('sm-txt-overdue-followups',    t.overdueFollowups);
+            set('sm-txt-busiest-showroom',     t.busiestShowroom);
+            set('sm-txt-reserve-now',          t.reserveNow);
+
+            /* ── "X visits" label beside busiest showroom count ── */
+            const visitsEl = document.getElementById('sm-txt-visits-count');
+            if (visitsEl) {
+                const count = visitsEl.getAttribute('data-count');
+                visitsEl.innerText = count + ' ' + t.visitsWord;
+            }
+
+            /* ── All generic data-key elements (class sm-t) ── */
+            document.querySelectorAll('.sm-t[data-key]').forEach(el => {
+                const key = el.getAttribute('data-key');
+                if (t[key] !== undefined) {
+                    /* legendOverdueDesc contains <strong> tags — use innerHTML */
+                    if (key === 'legendOverdueDesc') {
+                        el.innerHTML = t[key];
+                    } else {
+                        el.innerText = t[key];
+                    }
+                }
+            });
+
+            /* ── Status pills on showroom cards ── */
+            document.querySelectorAll('.sm-status-pill[data-status-key]').forEach(el => {
+                const key = el.getAttribute('data-status-key');
+                if (t[key]) el.innerText = t[key];
+            });
+
+            /* ── Load level pills in salesperson table ── */
+            document.querySelectorAll('.sm-load-pill[data-load-key]').forEach(el => {
+                const key = el.getAttribute('data-load-key');
+                if (t[key]) el.innerText = t[key];
+            });
+
+            /* ── "X overdue" cells in salesperson table ── */
+            document.querySelectorAll('.sm-overdue-cell[data-count]').forEach(el => {
+                const count = el.getAttribute('data-count');
+                el.innerText = count + ' ' + t.overdueWord;
+            });
+
+            /* ── Shift labels on reserve staff cards ── */
+            document.querySelectorAll('.sm-shift-label').forEach(el => {
+                el.innerText = lang === 'ar' ? el.getAttribute('data-ar') : el.getAttribute('data-en');
+            });
+
+            /* ── "X people available right now" banner ── */
+            const bannerEl = document.getElementById('sm-txt-reserve-banner');
+            if (bannerEl) {
+                const count = parseInt(bannerEl.getAttribute('data-count'));
+                const personWord = count === 1 ? t.personSingular : t.personPlural;
+                bannerEl.innerText = count + ' ' + personWord + ' ' + t.availableRightNow;
+            }
+
+            /* ── Recommendation paragraphs — show EN or AR version from controller ── */
+            document.querySelectorAll('.sm-rec-en').forEach(el => {
+                el.style.display = lang === 'ar' ? 'none' : '';
+            });
+            document.querySelectorAll('.sm-rec-ar').forEach(el => {
+                el.style.display = lang === 'ar' ? '' : 'none';
+            });
+        }
+
+        /* ─────────────────────────────────────────────────────────────
+           Hooks — same pattern as Dashboard page
+           1. window load + small delay (lets the layout finish first)
+           2. languageChanged event fired by the layout's setLanguage()
+        ───────────────────────────────────────────────────────────── */
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                const lang = localStorage.getItem('siteLang') || 'en';
+                translateStaffPage(lang);
+            }, 200);
+        });
+
+        window.addEventListener('languageChanged', function (e) {
+            translateStaffPage(e.detail);
+        });
+    </script>
+}

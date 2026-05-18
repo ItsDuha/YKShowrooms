@@ -2,13 +2,19 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<!-- Light/Dark mode toggle will be injected by JS -->
+
 <div class="container text-center mt-5">
 
     <div class="card shadow-sm mx-auto" style="max-width:500px; border-radius:15px;">
         <div class="card-body">
 
-            <h4 class="fw-bold">Rate your experience</h4>
-            <p class="text-muted">We value your feedback</p>
+            <h4 class="fw-bold" id="feedbackTitle">
+                Rate your experience
+            </h4>
+            <p class="text-muted" id="feedbackSubtitle">
+                We value your feedback
+            </p>
 
             <form method="post">
                 <div class="text-danger mb-2">
@@ -28,11 +34,15 @@
                 <input type="hidden" name="rating" id="rating" />
 
                 <!-- Comment -->
-                <div class="mb-3">
-                    <textarea name="comment" class="form-control" placeholder="Tell us about your experience..."></textarea>
-                </div>
+                <textarea name="comment"
+                          class="form-control"
+                          id="commentBox"
+                          placeholder="Tell us about your experience...">
+</textarea>
 
-                <button type="submit" class="btn btn-dark w-100">
+                <button type="submit"
+                        class="btn btn-dark w-100"
+                        id="submitBtn">
                     Submit Feedback
                 </button>
 
@@ -43,6 +53,10 @@
 
 </div>
 
+@section Scripts {
+    <script src="~/js/site.js"></script>
+}
+
 <style>
     .star {
         font-size: 30px;
@@ -50,9 +64,9 @@
         color: gray;
     }
 
-    .star.selected {
-        color: gold;
-    }
+        .star.selected {
+            color: gold;
+        }
 </style>
 
 <script>

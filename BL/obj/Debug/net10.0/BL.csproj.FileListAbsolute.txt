@@ -13,3 +13,4 @@ C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\BL\obj\Debug\net10.0\BL.d
 C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\BL\obj\Debug\net10.0\refint\BL.dll
 C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\BL\obj\Debug\net10.0\BL.pdb
 C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\BL\obj\Debug\net10.0\ref\BL.dll
+C:\Users\duhah\Videos\asp.net_Samples\YKShowroomSystem\BL\obj\Debug\net10.0\BL.sourcelink.json

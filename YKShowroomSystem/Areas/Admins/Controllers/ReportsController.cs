@@ -22,6 +22,8 @@ namespace YKShowroomSystem.Areas.Admins.Controllers
 
             var query = _context.Visitors
                 .Include(v => v.Showroom)
+                .Include(v => v.Product)
+                .Include(v => v.Salesperson)
                 .Where(v => v.IsDeleted == 0)
                 .AsQueryable();
 
@@ -59,7 +61,7 @@ namespace YKShowroomSystem.Areas.Admins.Controllers
                 }
             }
 
-            //  FOLLOW-UPS FILTER
+            // MISSED FOLLOW-UPS FILTER
             if (ViewBag.Tab == "missed")
             {
                 query = query.Where(v => v.FollowUpStatus == "pending");
@@ -76,10 +78,8 @@ namespace YKShowroomSystem.Areas.Admins.Controllers
                 .Take(pageSize)
                 .ToList();
 
-            //overdue
+            // OVERDUE
             var today = DateTime.Today;
-
-          
 
             ViewBag.MissedData = visitors.Select(v => new
             {
@@ -90,11 +90,9 @@ namespace YKShowroomSystem.Areas.Admins.Controllers
             }).ToList();
 
             // DELETED
-
             ViewBag.Deleted = _context.Visitors
-            .Where(v => v.IsDeleted == -1 && v.DeletedFrom == (tab ?? "daily"))
-            .ToList();
-        
+                .Where(v => v.IsDeleted == -1 && v.DeletedFrom == (tab ?? "daily"))
+                .ToList();
 
             ViewBag.Showrooms = _context.Showrooms.ToList();
             ViewBag.Salespersons = _context.Salespersons.ToList();
@@ -106,7 +104,7 @@ namespace YKShowroomSystem.Areas.Admins.Controllers
             ViewBag.Range = range;
             ViewBag.TotalPages = (int)Math.Ceiling((double)total / pageSize);
 
-                return View(visitors);
+            return View(visitors);
         }
 
         // DELETE (SOFT)
@@ -139,6 +137,7 @@ namespace YKShowroomSystem.Areas.Admins.Controllers
             }
 
             TempData["msg"] = "Visitor restored successfully";
+
             return RedirectToAction("Index", new { tab = tab });
         }
 
@@ -155,14 +154,17 @@ namespace YKShowroomSystem.Areas.Admins.Controllers
             }
 
             TempData["msg"] = "Status updated";
+
             return RedirectToAction("Index");
         }
 
-        //Details page
+        // DETAILS PAGE
         public IActionResult Details(int id, string tab)
         {
             var visitor = _context.Visitors
                 .Include(v => v.Showroom)
+                .Include(v => v.Product)
+                .Include(v => v.Salesperson)
                 .FirstOrDefault(v => v.Id == id);
 
             if (visitor == null)
@@ -176,23 +178,67 @@ namespace YKShowroomSystem.Areas.Admins.Controllers
 
             return View(visitor);
         }
-        //Edit
+
+        // EDIT
         [HttpPost]
         public IActionResult Details(Visitor model)
         {
             var visitor = _context.Visitors.Find(model.Id);
 
-            if (visitor == null) return NotFound();
+            if (visitor == null)
+                return NotFound();
+
+            int oldScore = visitor.Score ?? 0;
 
             // UPDATE FIELDS
             visitor.Name = model.Name;
             visitor.Phone = model.Phone;
             visitor.Email = model.Email;
-            visitor.ShowroomId = model.ShowroomId;
-            visitor.ProductId = model.ProductId;
-            visitor.FollowUpStatus = model.FollowUpStatus;
+
+            // SAFE SHOWROOM UPDATE
+            if (model.ShowroomId != 0)
+            {
+                visitor.ShowroomId = model.ShowroomId;
+            }
+
+            // SAFE PRODUCT UPDATE
+            if (model.ProductId != null)
+            {
+                visitor.ProductId = model.ProductId;
+            }
+
+            // SAFE STATUS UPDATE
+            if (!string.IsNullOrWhiteSpace(model.FollowUpStatus))
+            {
+                visitor.FollowUpStatus = model.FollowUpStatus;
+            }
+
+            // KEEP SCORE WORKING
             visitor.Score = model.Score;
+
             visitor.Notes = model.Notes;
+
+            int newScore = visitor.Score ?? 0;
+
+            // HIGH SCORE NOTIFICATION
+            if (newScore >= 70 && oldScore < 70)
+            {
+                bool alreadyExists = _context.Notifications.Any(n =>
+                    n.VisitorId == visitor.Id &&
+                    n.Type == "high_score_lead");
+
+                if (!alreadyExists)
+                {
+                    _context.Notifications.Add(new Notification
+                    {
+                        Type = "high_score_lead",
+                        Message = $"High-priority lead: {visitor.Name} scored {newScore}/100. Please contact this customer soon.",
+                        VisitorId = visitor.Id,
+                        CreatedAt = DateTimeOffset.Now,
+                        IsRead = false
+                    });
+                }
+            }
 
             _context.SaveChanges();
 
@@ -200,13 +246,15 @@ namespace YKShowroomSystem.Areas.Admins.Controllers
 
             return RedirectToAction("Details", new { id = model.Id });
         }
-        //edit missed report
+
+        // EDIT MISSED REPORT
         [HttpPost]
         public IActionResult UpdateMissed(Visitor model)
         {
             var visitor = _context.Visitors.Find(model.Id);
 
-            if (visitor == null) return NotFound();
+            if (visitor == null)
+                return NotFound();
 
             visitor.FollowUpStatus = model.FollowUpStatus;
             visitor.SalespersonId = model.SalespersonId;
@@ -219,11 +267,12 @@ namespace YKShowroomSystem.Areas.Admins.Controllers
             return RedirectToAction("Details", new { id = model.Id, tab = "missed" });
         }
 
-        //Export Daily
+        // EXPORT DAILY
         public IActionResult Export(string search, int? showroomId, string status)
         {
             var query = _context.Visitors
                 .Include(v => v.Showroom)
+                .Include(v => v.Product)
                 .Where(v => v.IsDeleted == 0)
                 .AsQueryable();
 
@@ -238,7 +287,7 @@ namespace YKShowroomSystem.Areas.Admins.Controllers
                 );
             }
 
-            //SHOWROOM
+            // SHOWROOM
             if (showroomId != null && showroomId != 0)
             {
                 query = query.Where(v => v.ShowroomId == showroomId);
@@ -260,14 +309,19 @@ namespace YKShowroomSystem.Areas.Admins.Controllers
             // DATA
             foreach (var v in data)
             {
-                csv.AppendLine($"{v.Name},{v.Phone},{v.Email},{v.Cpr},{v.Showroom?.Name},{v.FollowUpStatus},{v.Score},{v.VisitedAt},{v.Product},{v.Notes}");
+                csv.AppendLine(
+                    $"{v.Name},{v.Phone},{v.Email},{v.Cpr},{v.Showroom?.Name},{v.FollowUpStatus},{v.Score},{v.VisitedAt},{v.Product?.Name},{v.Notes}"
+                );
             }
 
-            return File(System.Text.Encoding.UTF8.GetBytes(csv.ToString()),
-                        "text/csv",
-                        "VisitorsReport.csv");
+            return File(
+                System.Text.Encoding.UTF8.GetBytes(csv.ToString()),
+                "text/csv",
+                "VisitorsReport.csv"
+            );
         }
-        //Export missed
+
+        // EXPORT MISSED
         public IActionResult ExportMissed(string search, int? range = 30)
         {
             var query = _context.Visitors
@@ -278,6 +332,7 @@ namespace YKShowroomSystem.Areas.Admins.Controllers
             if (range != null)
             {
                 var fromDate = DateTime.Today.AddDays(-range.Value);
+
                 query = query.Where(v => v.VisitedAt >= fromDate);
             }
 
@@ -296,7 +351,7 @@ namespace YKShowroomSystem.Areas.Admins.Controllers
 
             var csv = new System.Text.StringBuilder();
 
-            // HEADER 
+            // HEADER
             csv.AppendLine("Name,Phone,Showroom,VisitedAt,DaysOverdue");
 
             var today = DateTime.Today;
@@ -307,7 +362,9 @@ namespace YKShowroomSystem.Areas.Admins.Controllers
                     ? (today - v.VisitedAt.Value.Date).Days
                     : 0;
 
-                csv.AppendLine($"{v.Name},{v.Phone},{v.Showroom?.Name},{v.VisitedAt:dd/MM/yyyy HH:mm},{days}");
+                csv.AppendLine(
+                    $"{v.Name},{v.Phone},{v.Showroom?.Name},{v.VisitedAt:dd/MM/yyyy HH:mm},{days}"
+                );
             }
 
             return File(
@@ -316,6 +373,8 @@ namespace YKShowroomSystem.Areas.Admins.Controllers
                 "MissedFollowUps.csv"
             );
         }
+
+        // ASSIGN SALESPERSON
         [HttpPost]
         public IActionResult AssignSalesperson(int visitorId, int? salespersonId)
         {
@@ -324,12 +383,13 @@ namespace YKShowroomSystem.Areas.Admins.Controllers
             if (visitor == null)
                 return RedirectToAction("Index", new { tab = "missed" });
 
-            //VALIDATE salesperson exists
-            var salespersonExists = _context.Salespersons.Any(u => u.Id == salespersonId);
+            var salespersonExists = _context.Salespersons
+                .Any(u => u.Id == salespersonId);
 
             if (!salespersonExists && salespersonId != null)
             {
                 TempData["msg"] = "Invalid salesperson";
+
                 return RedirectToAction("Index", new { tab = "missed" });
             }
 

@@ -3,13 +3,12 @@
     Layout = "~/Areas/Admins/Views/Shared/_Layout.cshtml";
 }
 
-<h3 class="mb-4 fw-bold">Account Settings</h3>
+<h3 class="mb-4 fw-bold" id="txt-account-settings">Account Settings</h3>
 
 <div class="row">
 
     <!-- LEFT CARD -->
     <div class="col-md-4">
-
         <div class="card p-4 text-center shadow-sm">
 
             <div class="big-avatar mx-auto mb-3">
@@ -17,23 +16,22 @@
             </div>
 
             <h5 class="fw-bold">@Context.Session.GetString("AdminName")</h5>
-            <p class="text-muted">System Administrator</p>
+            <p class="text-muted" id="txt-system-admin">System Administrator</p>
 
             <a href="/Admins/Account/Logout" class="btn btn-danger w-100 mt-3">
-                <i class="fa fa-sign-out-alt me-2"></i> Sign Out
+                <i class="fa fa-sign-out-alt me-2"></i>
+                <span id="txt-sign-out">Sign Out</span>
             </a>
 
         </div>
-
     </div>
 
     <!-- RIGHT CARD -->
     <div class="col-md-8">
-
         <div class="card p-4 shadow-sm">
 
-            <h5 class="fw-bold">Profile Details</h5>
-            <p class="text-muted">Your personal information and settings</p>
+            <h5 class="fw-bold" id="txt-profile-details">Profile Details</h5>
+            <p class="text-muted" id="txt-profile-subtitle">Your personal information and settings</p>
 
             <hr />
 
@@ -41,7 +39,7 @@
             <div class="d-flex align-items-center mb-3">
                 <div class="icon-box me-3"><i class="fa fa-user"></i></div>
                 <div>
-                    <small class="text-muted">Full Name</small><br />
+                    <small class="text-muted" id="txt-full-name">Full Name</small><br />
                     <strong>@Context.Session.GetString("AdminName")</strong>
                 </div>
             </div>
@@ -50,7 +48,7 @@
             <div class="d-flex align-items-center mb-3">
                 <div class="icon-box me-3"><i class="fa fa-envelope"></i></div>
                 <div>
-                    <small class="text-muted">Email Address</small><br />
+                    <small class="text-muted" id="txt-email-address">Email Address</small><br />
                     <strong>@Context.Session.GetString("AdminEmail")</strong>
                 </div>
             </div>
@@ -59,31 +57,30 @@
             <div class="d-flex align-items-center mb-3">
                 <div class="icon-box me-3"><i class="fa fa-shield-alt"></i></div>
                 <div>
-                    <small class="text-muted">Role</small><br />
-                    <strong>Administrator</strong><br />
-                    <small class="text-muted">Full access to all showrooms and reports.</small>
+                    <small class="text-muted" id="txt-role-label">Role</small><br />
+                    <strong id="txt-role-value">Administrator</strong><br />
+                    <small class="text-muted" id="txt-role-desc">Full access to all showrooms and reports.</small>
                 </div>
             </div>
 
             <hr />
 
+
             <!-- CREATED -->
             <div class="d-flex align-items-center">
                 <div class="icon-box me-3"><i class="fa fa-calendar"></i></div>
                 <div>
-                    <small class="text-muted">Account Created</small><br />
+                    <small class="text-muted" id="txt-account-created">Account Created</small><br />
                     <strong>@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</strong>
                 </div>
             </div>
 
         </div>
-
     </div>
 
 </div>
 
 <style>
-
     .big-avatar {
         width: 100px;
         height: 100px;
@@ -104,6 +101,86 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        color: #1a1f2e;
+        transition: background 0.3s, color 0.3s;
     }
 
+    /* Dark mode — icon boxes become visible with contrast */
+    body.dark .icon-box {
+        background: #374151 !important;
+        color: #f5a623 !important; /* gold colour to match your brand */
+    }
+
+    /* Also fix the big avatar circle in dark mode */
+    body.dark .big-avatar {
+        background: #374151 !important;
+        color: #f3f4f6 !important;
+        border-color: gold;
+    }
 </style>
+
+@section Scripts {
+    <script>
+        const profileTranslations = {
+            en: {
+                accountSettings:  "Account Settings",
+                systemAdmin:      "System Administrator",
+                signOut:          "Sign Out",
+                profileDetails:   "Profile Details",
+                profileSubtitle:  "Your personal information and settings",
+                fullName:         "Full Name",
+                emailAddress:     "Email Address",
+                roleLabel:        "Role",
+                roleValue:        "Administrator",
+                roleDesc:         "Full access to all showrooms and reports.",
+                accountCreated:   "Account Created"
+            },
+            ar: {
+                accountSettings:  "إعدادات الحساب",
+                systemAdmin:      "مدير النظام",
+                signOut:          "تسجيل الخروج",
+                profileDetails:   "تفاصيل الملف الشخصي",
+                profileSubtitle:  "معلوماتك الشخصية والإعدادات",
+                fullName:         "الاسم الكامل",
+                emailAddress:     "البريد الإلكتروني",
+                roleLabel:        "الدور",
+                roleValue:        "مدير",
+                roleDesc:         "صلاحية كاملة لجميع المعارض والتقارير.",
+                accountCreated:   "تاريخ إنشاء الحساب"
+            }
+        };
+
+        function translateProfilePage(lang) {
+            const t = profileTranslations[lang];
+            const set = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = val;
+            };
+
+            set('txt-account-settings', t.accountSettings);
+            set('txt-system-admin',     t.systemAdmin);
+            set('txt-sign-out',         t.signOut);
+            set('txt-profile-details',  t.profileDetails);
+            set('txt-profile-subtitle', t.profileSubtitle);
+            set('txt-full-name',        t.fullName);
+            set('txt-email-address',    t.emailAddress);
+            set('txt-role-label',       t.roleLabel);
+            set('txt-role-value',       t.roleValue);
+            set('txt-role-desc',        t.roleDesc);
+            set('txt-account-created',  t.accountCreated);
+        }
+
+        /* Run on page load using saved language */
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                const lang = localStorage.getItem('siteLang') || 'en';
+                translateProfilePage(lang);
+            }, 200);
+        });
+
+        /* Run when user switches language from the navbar */
+        window.addEventListener('languageChanged', function (e) {
+            translateProfilePage(e.detail);
+        });
+    </script>
+}

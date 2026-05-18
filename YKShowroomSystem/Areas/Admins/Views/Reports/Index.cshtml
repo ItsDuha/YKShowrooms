@@ -7,7 +7,7 @@
 
 
 
-<h4 class="fw-bold mb-4">Reports</h4>
+<h4 class="fw-bold mb-4" id="txt-report-title">Reports</h4>
 
 <!-- SUCCESS MESSAGE -->
 @if (TempData["msg"] != null)
@@ -22,12 +22,12 @@
 
     <a href="?tab=daily"
        class="btn btn-light px-4 @(ViewBag.Tab == "daily" ? "active-tab" : "")">
-        Daily Walk-ins
+        <span id="txt-daily-tab">Daily Walk-ins</span>
     </a>
 
     <a href="?tab=missed"
        class="btn btn-light px-4 @(ViewBag.Tab == "missed" ? "active-tab" : "")">
-        Missed Follow-ups
+        <span id="txt-missed-tab">Missed Follow-ups</span>
     </a>
 
 </div>
@@ -35,9 +35,8 @@
 <div class="card p-4 shadow-sm">
 
     <!-- FILTERS -->
-
-    @if(ViewBag.Tab == "daily")
-{
+    @if (ViewBag.Tab == "daily")
+    {
         <form method="get" id="filterForm" class="row g-3 mb-4">
 
             <!-- Search -->
@@ -54,7 +53,7 @@
             <div class="col-md-3">
                 <select name="showroomId" class="form-select shadow-sm"
                         onchange="submitForm()">
-                    <option value="0">All Showrooms</option>
+                    <option value="0" id="txt-all-showrooms-report">All Showrooms</option>
                     @foreach (var s in ViewBag.Showrooms)
                     {
                         <option value="@s.Id" selected="@(ViewBag.SelectedShowroom == s.Id)">
@@ -68,7 +67,7 @@
             <div class="col-md-3">
                 <select name="status" class="form-select shadow-sm"
                         onchange="submitForm()">
-                    <option value="All">Any Status</option>
+                    <option value="All" id="txt-any-status">Any Status</option>
                     <option value="pending" selected="@(ViewBag.SelectedStatus == "pending")">Pending</option>
                     <option value="contacted" selected="@(ViewBag.SelectedStatus == "contacted")">Contacted</option>
                     <option value="not_interested" selected="@(ViewBag.SelectedStatus == "not_interested")">Not Interested</option>
@@ -79,93 +78,133 @@
             <div class="col-md-2">
                 <a href="/Admins/Reports/Export?search=@ViewBag.Search&showroomId=@ViewBag.SelectedShowroom&status=@ViewBag.SelectedStatus"
                    class="btn btn-dark w-100 shadow-sm">
-                    <i class="bi bi-download"></i> Export
+                    <i class="bi bi-download"></i> <span id="txt-export-btn">Export</span>
                 </a>
             </div>
 
         </form>
-    <!-- MAIN TABLE (Daily walk-ins) -->
-    <table class="table table-hover align-middle">
+        <!-- MAIN TABLE (Daily walk-ins) -->
+        <table class="table table-hover align-middle">
 
-        <thead class="table-light">
-            <tr>
-                <th>Visitor</th>
-                <th>CPR</th>
-                <th>Showroom</th>
-                <th>Status</th>
-                <th>Score</th>
-                <th>Visit Time</th>
-                <th>View</th>
-                <th>Delete</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            @foreach (var item in Model)
-            {
+            <thead class="table-light">
                 <tr>
-
-                    <td>
-                        <strong>@item.Name</strong><br />
-                        <small class="text-muted">@item.Phone</small>
-                    </td>
-
-                    <td>@item.Cpr</td>
-
-                    <td>@item.Showroom?.Name</td>
-
-                    <!-- STATUS -->
-                    <td>
-                        <form method="post" action="/Admins/Reports/UpdateStatus">
-                            <input type="hidden" name="id" value="@item.Id" />
-
-                            <select name="status"
-                                    class="form-select form-select-sm status-select
-                                    @(item.FollowUpStatus == "pending" ? "status-pending" :
-                                              item.FollowUpStatus == "contacted" ? "status-contacted" :
-                                              "status-not")"
-                                    onchange="this.form.submit()">
-
-                                <option value="pending" selected="@(item.FollowUpStatus == "pending")">Pending</option>
-                                <option value="contacted" selected="@(item.FollowUpStatus == "contacted")">Contacted</option>
-                                <option value="not_interested" selected="@(item.FollowUpStatus == "not_interested")">Not Interested</option>
-
-                            </select>
-                        </form>
-                    </td>
-
-                    <!-- SCORE -->
-                    <td>
-                        <span class="badge bg-light text-dark">@item.Score/100</span>
-                    </td>
-
-                    <!-- DATE -->
-                    <td>
-                        @item.VisitedAt?.ToString("dd MMM yyyy")<br />
-                        <small class="text-muted">@item.VisitedAt?.ToString("HH:mm")</small>
-                    </td>
-
-                    <!-- VIEW -->
-                    <td class="text-end">
-                        <a href="/Admins/Reports/Details/@item.Id"
-                           class="btn btn-outline-secondary btn-sm">
-                            <i class="bi bi-eye"></i>
-                        </a>
-                    </td>
-
-                    <!-- DELETE -->
-                    <td class="text-end">
-                        <button class="btn btn-outline-danger btn-sm"
-                                    onclick="openDelete(@item.Id, '@ViewBag.Tab')">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </td>
-
+                    <th class="th-visitor">Visitor</th>
+                    <th class="th-cpr">CPR</th>
+                    <th class="th-showroom">Showroom</th>
+                    <th class="th-status">Status</th>
+                    <th class="th-score">Score</th>
+                    <th class="th-visittime">Visit Time</th>
+                    <th class="th-view">View</th>
+                    <th class="th-delete">Delete</th>
                 </tr>
-            }
-        </tbody>
+            </thead>
 
-    </table>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var score = item.Score ?? 0;
+
+                    // ROW COLOR
+                    var rowClass = score >= 70 ? "high-lead-row"
+                    : score >= 40 ? "medium-lead-row"
+                    : "";
+
+                    // SCORE BADGE COLOR
+                    var scoreBadgeClass = score >= 70 ? "score-high"
+                    : score >= 40 ? "score-medium"
+                    : "score-low";
+
+                    // SCORE LABEL
+                    var scoreLevel = score >= 70 ? "High"
+                    : score >= 40 ? "Medium"
+                    : "Low";
+
+                    <tr class="@rowClass">
+
+                        <!-- VISITOR -->
+                        <td>
+                            <strong>@item.Name</strong><br />
+                            <small class="text-muted">@item.Phone</small>
+                        </td>
+
+                        <!-- CPR -->
+                        <td>@item.Cpr</td>
+
+                        <!-- SHOWROOM -->
+                        <td>@item.Showroom?.Name</td>
+
+                        <!-- STATUS -->
+                        <td>
+                            <form method="post" action="/Admins/Reports/UpdateStatus">
+
+                                <input type="hidden" name="id" value="@item.Id" />
+
+                                <select name="status"
+                                        class="form-select form-select-sm status-select
+                                    @(item.FollowUpStatus == "pending" ? "status-pending" :
+                                                                      item.FollowUpStatus == "contacted" ? "status-contacted" :
+                                                                      "status-not")"
+                                        onchange="this.form.submit()">
+
+                                    <option value="pending"
+                                            selected="@(item.FollowUpStatus == "pending")">
+                                        Pending
+                                    </option>
+
+                                    <option value="contacted"
+                                            selected="@(item.FollowUpStatus == "contacted")">
+                                        Contacted
+                                    </option>
+
+                                    <option value="not_interested"
+                                            selected="@(item.FollowUpStatus == "not_interested")">
+                                        Not Interested
+                                    </option>
+
+                                </select>
+
+                            </form>
+                        </td>
+
+                        <!-- SCORE -->
+                        <td>
+                            <span class="score-badge @scoreBadgeClass">
+                                @scoreLevel - @score/100
+                            </span>
+                        </td>
+
+                        <!-- DATE -->
+                        <td>
+                            @item.VisitedAt?.ToString("dd MMM yyyy")<br />
+                            <small class="text-muted">
+                                @item.VisitedAt?.ToString("HH:mm")
+                            </small>
+                        </td>
+
+                        <!-- VIEW -->
+                        <td class="text-end">
+                            <a href="/Admins/Reports/Details/@item.Id"
+                               class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
+
+                        <!-- DELETE -->
+                        <td class="text-end">
+                            <button type="button"
+                                    class="btn btn-outline-danger btn-sm"
+                                    onclick="openDelete(@item.Id, '@ViewBag.Tab')">
+
+                                <i class="bi bi-trash"></i>
+
+                            </button>
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+
+        </table>
     }
 
     <!--Missed Follow up report-->
@@ -176,8 +215,8 @@
             <!-- HEADER -->
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
-                    <h5 class="fw-bold">Missed Follow-up Report</h5>
-                    <small class="text-muted">
+                    <h5 class="fw-bold" id="txt-missed-title">Missed Follow-up Report</h5>
+                    <small class="text-muted" id="txt-missed-subtitle">
                         Visitors still in Pending status
                     </small>
                 </div>
@@ -186,7 +225,7 @@
             <!-- SEARCH & Filter -->
             <form method="get" id="missedForm" class="d-flex gap-2 mb-3">
 
-             
+
                 <input type="hidden" name="tab" value="missed" />
 
                 <!-- SEARCH -->
@@ -207,17 +246,16 @@
                         class="form-select shadow-sm"
                         style="width:180px;"
                         onchange="document.getElementById('missedForm').submit()">
-
+                    <option value="0" selected="@(ViewBag.Range == 0)">All time</option>
                     <option value="1" selected="@(ViewBag.Range == 1)">Today only</option>
                     <option value="3" selected="@(ViewBag.Range == 3)">Last 3 days</option>
                     <option value="7" selected="@(ViewBag.Range == 7)">Last 7 days</option>
                     <option value="30" selected="@(ViewBag.Range == 30)">Last 30 days</option>
-
                 </select>
                 <div class="position-relative">
                     <a href="/Admins/Reports/ExportMissed?search=@ViewBag.Search&range=@ViewBag.Range"
                        class="btn btn-dark w-100 shadow-sm">
-                        <i class="bi bi-download"></i> Export CSV
+                        <i class="bi bi-download"></i> <span id="txt-export-csv-btn">Export CSV</span>
                     </a>
                 </div>
 
@@ -227,14 +265,14 @@
 
                 <thead class="table-light">
                     <tr>
-                        <th>Visitor</th>
-                        <th>Visited</th>
-                        <th>Overdue</th>
-                        <th>Showroom</th>
-                        <th>Salesperson</th>
-                        <th>Required Action</th>
-                        <th>View</th>
-                        <th>Delete</th>
+                        <th class="th-visitor">Visitor</th>
+                        <th class="th-missed-visited">Visited</th>
+                        <th class="th-missed-overdue">Overdue</th>
+                        <th class="th-showroom">Showroom</th>
+                        <th class="th-missed-salesperson">Salesperson</th>
+                        <th class="th-missed-action">Required Action</th>
+                        <th class="th-view">View</th>
+                        <th class="th-delete">Delete</th>
                     </tr>
                 </thead>
 
@@ -250,7 +288,7 @@
                             string badge =
                             days <= 1 ? "badge bg-warning text-dark" :
                             days <= 3 ? "badge bg-orange text-white" :
-                                                            "badge bg-danger";
+                                                                                                                    "badge bg-danger";
 
                             <tr>
 
@@ -274,16 +312,24 @@
 
                                 <td>
                                     <form method="post" action="/Admins/Reports/AssignSalesperson">
-
                                         <input type="hidden" name="visitorId" value="@v.Id" />
+                                        <input type="hidden" name="range" value="@ViewBag.Range" />
+                                        <input type="hidden" name="page" value="@ViewBag.Page" />
 
                                         <select name="salespersonId"
                                                 class="form-select shadow-sm"
                                                 onchange="this.form.submit()">
 
-                                            <option value="">Unassigned</option>
+                                            <option value="" class="opt-unassigned">Unassigned</option>
 
-                                            @foreach (var sp in ViewBag.Salespersons)
+                                            @{
+                                                var spList = (ViewBag.Salespersons as List<DatabaseModel.Models.Salesperson>)
+                                                ?? new List<DatabaseModel.Models.Salesperson>();
+
+                                                var filtered = spList.Where(sp => sp.ShowroomId == v.ShowroomId).ToList();
+                                            }
+
+                                            @foreach (var sp in filtered)
                                             {
                                                 <option value="@sp.Id"
                                                         selected="@(v.SalespersonId == sp.Id)">
@@ -323,7 +369,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="8" class="text-center text-muted">
+                            <td colspan="8" class="text-center text-muted" id="txt-no-missed">
                                 No missed follow-ups found
                             </td>
                         </tr>
@@ -343,16 +389,15 @@
         <div>
             @if (ViewBag.Page > 1)
             {
-                <a href="?tab=@ViewBag.Tab&page=@(ViewBag.Page - 1)&search=@ViewBag.Search&showroomId=@ViewBag.SelectedShowroom&status=@ViewBag.SelectedStatus"
-                   class="btn btn-outline-secondary btn-sm me-2">
+                <a href="?tab=@ViewBag.Tab&page=@(ViewBag.Page - 1)&search=@ViewBag.Search&showroomId=@ViewBag.SelectedShowroom&status=@ViewBag.SelectedStatus&range=@ViewBag.Range"
+                   class="btn btn-outline-secondary btn-sm me-2" id="txt-prev">
                     Previous
                 </a>
             }
-
             @if (ViewBag.Page < ViewBag.TotalPages)
             {
-                <a href="?tab=@ViewBag.Tab&page=@(ViewBag.Page + 1)&search=@ViewBag.Search&showroomId=@ViewBag.SelectedShowroom&status=@ViewBag.SelectedStatus"
-                   class="btn btn-dark btn-sm">
+                <a href="?tab=@ViewBag.Tab&page=@(ViewBag.Page + 1)&search=@ViewBag.Search&showroomId=@ViewBag.SelectedShowroom&status=@ViewBag.SelectedStatus&range=@ViewBag.Range"
+                   class="btn btn-dark btn-sm" id="txt-next">
                     Next
                 </a>
             }
@@ -364,14 +409,14 @@
 <!-- DELETED TABLE -->
 <div class="card p-4 shadow-sm mt-4">
 
-    <h5 class="mb-3 fw-semibold">Deleted Visitors</h5>
+    <h5 class="mb-3 fw-semibold" id="txt-deleted-title">Deleted Visitors</h5>
 
     <table class="table table-hover">
         <thead class="table-light">
             <tr>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Restore</th>
+                <th class="th-deleted-name">Name</th>
+                <th class="th-deleted-phone">Phone</th>
+                <th class="th-deleted-restore">Restore</th>
             </tr>
         </thead>
 
@@ -411,15 +456,15 @@
         <div class="modal-content shadow">
 
             <div class="modal-header">
-                <h5 class="modal-title fw-semibold">Delete Record</h5>
+                <h5 class="modal-title fw-semibold" id="txt-modal-title">Delete Record</h5>
             </div>
 
-            <div class="modal-body text-muted">
+            <div class="modal-body text-muted" id="txt-modal-body">
                 Are you sure you want to delete this record?
             </div>
 
             <div class="modal-footer">
-                <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-light" data-bs-dismiss="modal" id="txt-modal-cancel">Cancel</button>
                 <a id="deleteBtn" class="btn btn-danger">Delete</a>
             </div>
 
@@ -549,6 +594,43 @@
             color: black;
         }
 
+        .badge {
+            background: #f1f3f5 !important;
+            color: #212529 !important;
+            font-weight: 500;
+        }
+
+        .score-badge {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .score-high {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .score-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .score-low {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .high-lead-row {
+            background-color: #f3fbf5;
+        }
+
+        .medium-lead-row {
+            background-color: #fffaf0;
+        }
+
     </style>
 }
 
@@ -560,11 +642,11 @@
             document.getElementById("filterForm").submit();
         }
 
-                function openDelete(id, tab) {
-        document.getElementById("deleteBtn").href =
-               "/Admins/Reports/Delete?id=" + id + "&tab=" + tab;
+        function openDelete(id, tab) {
+            document.getElementById("deleteBtn").href =
+                   "/Admins/Reports/Delete?id=" + id + "&tab=" + tab;
 
-           new bootstrap.Modal(document.getElementById('deleteModal')).show();
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
         }
 
         // AUTO HIDE SUCCESS MESSAGE
@@ -578,10 +660,215 @@
         }, 2000);
     </script>
 
+    <!-- ===== TRANSLATION SCRIPT ===== -->
+    <script>
+        const reportTranslations = {
+            en: {
+                pageTitle: "Reports",
+                dailyTab: "Daily Walk-ins",
+                missedTab: "Missed Follow-ups",
+                searchPlaceholder: "Search name, phone...",
+                allShowrooms: "All Showrooms",
+                anyStatus: "Any Status",
+                export: "Export",
+                exportCsv: "Export CSV",
+                // Table headers - Daily
+                visitor: "Visitor",
+                cpr: "CPR",
+                showroom: "Showroom",
+                status: "Status",
+                score: "Score",
+                visitTime: "Visit Time",
+                view: "View",
+                delete: "Delete",
+                // Status options
+                pending: "Pending",
+                contacted: "Contacted",
+                notInterested: "Not Interested",
+                // Missed Follow-ups
+                missedTitle: "Missed Follow-up Report",
+                missedSubtitle: "Visitors still in Pending status",
+                searchMissed: "Search by name or phone...",
+                allTime: "All time",
+                todayOnly: "Today only",
+                last3: "Last 3 days",
+                last7: "Last 7 days",
+                last30: "Last 30 days",
+                missedVisited: "Visited",
+                missedOverdue: "Overdue",
+                missedSalesperson: "Salesperson",
+                missedAction: "Required Action",
+                unassigned: "Unassigned",
+                noMissed: "No missed follow-ups found",
+                // Deleted
+                deletedTitle: "Deleted Visitors",
+                deletedName: "Name",
+                deletedPhone: "Phone",
+                deletedRestore: "Restore",
+                noDeleted: "No deleted visitors yet",
+                // Pagination
+                previous: "Previous",
+                next: "Next",
+                // Modal
+                deleteModalTitle: "Delete Record",
+                deleteModalBody: "Are you sure you want to delete this record?",
+                cancel: "Cancel",
+                deleteBtn: "Delete"
+            },
+            ar: {
+                pageTitle: "التقارير",
+                dailyTab: "الزيارات اليومية",
+                missedTab: "المتابعات الفائتة",
+                searchPlaceholder: "ابحث بالاسم أو الهاتف...",
+                allShowrooms: "جميع المعارض",
+                anyStatus: "أي حالة",
+                export: "تصدير",
+                exportCsv: "تصدير CSV",
+                // Table headers - Daily
+                visitor: "الزائر",
+                cpr: "الرقم الشخصي",
+                showroom: "المعرض",
+                status: "الحالة",
+                score: "النقاط",
+                visitTime: "وقت الزيارة",
+                view: "عرض",
+                delete: "حذف",
+                // Status options
+                pending: "قيد الانتظار",
+                contacted: "تم التواصل",
+                notInterested: "غير مهتم",
+                // Missed Follow-ups
+                missedTitle: "تقرير المتابعات الفائتة",
+                missedSubtitle: "الزوار الذين لا يزالون في حالة الانتظار",
+                searchMissed: "ابحث بالاسم أو الهاتف...",
+                allTime: "كل الأوقات",
+                todayOnly: "اليوم فقط",
+                last3: "آخر 3 أيام",
+                last7: "آخر 7 أيام",
+                last30: "آخر 30 يوماً",
+                missedVisited: "تاريخ الزيارة",
+                missedOverdue: "متأخر",
+                missedSalesperson: "مندوب المبيعات",
+                missedAction: "الإجراء المطلوب",
+                unassigned: "غير معين",
+                noMissed: "لا توجد متابعات فائتة",
+                // Deleted
+                deletedTitle: "الزوار المحذوفون",
+                deletedName: "الاسم",
+                deletedPhone: "الهاتف",
+                deletedRestore: "استعادة",
+                noDeleted: "لا يوجد زوار محذوفون",
+                // Pagination
+                previous: "السابق",
+                next: "التالي",
+                // Modal
+                deleteModalTitle: "حذف السجل",
+                deleteModalBody: "هل أنت متأكد أنك تريد حذف هذا السجل؟",
+                cancel: "إلغاء",
+                deleteBtn: "حذف"
+            }
+        };
+
+        function translateReportPage(lang) {
+            const t = reportTranslations[lang];
+            if (!t) return;
+
+            const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+            const setPlaceholder = (id, val) => { const el = document.getElementById(id); if (el) el.placeholder = val; };
+            const setAll = (sel, val) => { document.querySelectorAll(sel).forEach(el => el.innerText = val); };
+
+            // Page title & tabs
+            set('txt-report-title', t.pageTitle);
+            set('txt-daily-tab', t.dailyTab);
+            set('txt-missed-tab', t.missedTab);
+
+            // Search placeholders
+            setPlaceholder('searchInput', t.searchPlaceholder);
+            setPlaceholder('missedSearch', t.searchMissed);
+
+            // Filter dropdowns
+            set('txt-all-showrooms-report', t.allShowrooms);
+            set('txt-any-status', t.anyStatus);
+            set('txt-export-btn', t.export);
+            set('txt-export-csv-btn', t.exportCsv);
+
+            // Daily table headers
+            setAll('.th-visitor', t.visitor);
+            setAll('.th-cpr', t.cpr);
+            setAll('.th-showroom', t.showroom);
+            setAll('.th-status', t.status);
+            setAll('.th-score', t.score);
+            setAll('.th-visittime', t.visitTime);
+            setAll('.th-view', t.view);
+            setAll('.th-delete', t.delete);
+
+            // Status dropdown options inside table rows
+            document.querySelectorAll('.status-select option').forEach(opt => {
+                if (opt.value === 'pending')        opt.text = t.pending;
+                if (opt.value === 'contacted')      opt.text = t.contacted;
+                if (opt.value === 'not_interested') opt.text = t.notInterested;
+            });
+
+            // Missed section
+            set('txt-missed-title', t.missedTitle);
+            set('txt-missed-subtitle', t.missedSubtitle);
+            setAll('.th-missed-visited', t.missedVisited);
+            setAll('.th-missed-overdue', t.missedOverdue);
+            setAll('.th-missed-salesperson', t.missedSalesperson);
+            setAll('.th-missed-action', t.missedAction);
+
+            // Unassigned option in salesperson dropdowns
+            document.querySelectorAll('.opt-unassigned').forEach(el => el.text = t.unassigned);
+
+            // Time range options in missed filter
+            const rangeSelect = document.querySelector('#missedForm select[name="range"]');
+            if (rangeSelect) {
+                rangeSelect.querySelectorAll('option').forEach(opt => {
+                    if (opt.value === '0')  opt.text = t.allTime;
+                    if (opt.value === '1')  opt.text = t.todayOnly;
+                    if (opt.value === '3')  opt.text = t.last3;
+                    if (opt.value === '7')  opt.text = t.last7;
+                    if (opt.value === '30') opt.text = t.last30;
+                });
+            }
+
+            // No missed found text
+            set('txt-no-missed', t.noMissed);
+
+            // Deleted section
+            set('txt-deleted-title', t.deletedTitle);
+            setAll('.th-deleted-name', t.deletedName);
+            setAll('.th-deleted-phone', t.deletedPhone);
+            setAll('.th-deleted-restore', t.deletedRestore);
+
+            // Pagination
+            set('txt-prev', t.previous);
+            set('txt-next', t.next);
+
+            // Delete modal
+            set('txt-modal-title', t.deleteModalTitle);
+            set('txt-modal-body', t.deleteModalBody);
+            set('txt-modal-cancel', t.cancel);
+        }
+
+        // Apply on page load
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                const lang = localStorage.getItem('siteLang') || 'en';
+                translateReportPage(lang);
+            }, 200);
+        });
+
+        // Listen for language change event from layout buttons
+        window.addEventListener('languageChanged', function (e) {
+            translateReportPage(e.detail);
+        });
+    </script>
+
     <script>
         let timeout = null;
 
-        document.getElementById("searchInput").addEventListener("keyup", function () {
+        document.getElementById("searchInput")?.addEventListener("keyup", function () {
 
             clearTimeout(timeout);
 
@@ -591,7 +878,7 @@
         });
     </script>
 
-    <!--Live serach-->
+    <!--Live search-->
     <script>
         let missedTimeout;
 

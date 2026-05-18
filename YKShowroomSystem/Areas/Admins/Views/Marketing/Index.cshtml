@@ -1,0 +1,1984 @@
+﻿@model BL.Services.MarketingReport
+@{
+    Layout = "~/Areas/Admins/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Marketing Dashboard";
+
+    var showroomNames = ViewBag.ShowroomNames as List<string> ?? new List<string>();
+    var currentShowroom = ViewBag.Showroom as string ?? "";
+    var avgRating = ViewBag.AvgRating != null ? ((double)ViewBag.AvgRating).ToString("0.0") : "—";
+    var topSalesperson = ViewBag.TopSalesperson as string ?? "—";
+    var budgetBHD = ViewBag.BudgetBHD != null ? (decimal)ViewBag.BudgetBHD : 2000m;
+
+    var feedbackJson = ViewBag.FeedbackJson as string ?? "[]";
+    var salespersonJson = ViewBag.SalespersonJson as string ?? "{}";
+    var channelMonthlyJson = ViewBag.ChannelMonthlyJson as string ?? "[]";
+}
+
+@section Styles {
+    <style>
+        /* ── Match Reports page style ── */
+        body {
+            background-color: #f5f6f8;
+        }
+
+        .card {
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            background: white;
+        }
+
+        /* KPI CARDS */
+        .mk-kpi-card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            padding: 20px 22px;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .mk-kpi-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                border-radius: 12px 12px 0 0;
+            }
+
+            .mk-kpi-card.c-blue::before {
+                background: #0d6efd;
+            }
+
+            .mk-kpi-card.c-green::before {
+                background: #198754;
+            }
+
+            .mk-kpi-card.c-orange::before {
+                background: #fd7e14;
+            }
+
+            .mk-kpi-card.c-purple::before {
+                background: #6f42c1;
+            }
+
+        .mk-kpi-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: #6c757d;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .mk-kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #212529;
+            line-height: 1;
+        }
+
+            .mk-kpi-value.sm {
+                font-size: 17px;
+                padding-top: 4px;
+            }
+
+        .mk-kpi-sub {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+
+        .mk-kpi-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 28px;
+            opacity: .1;
+        }
+
+        /* SECTION TITLE */
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #212529;
+            margin-bottom: 0;
+        }
+
+        /* Dark mode fix for section titles */
+        body.dark .section-title,
+        body.dark p.section-title {
+            color: #f1f3f5 !important;
+        }
+
+        .section-sub {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        /* CHART BOX */
+        .chart-inner {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .chart-canvas-wrap {
+            position: relative;
+            height: 260px;
+        }
+
+            .chart-canvas-wrap.tall {
+                height: 300px;
+            }
+
+        .chart-hidden {
+            display: none !important;
+        }
+
+        /* TOGGLE */
+        .chart-toggle-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f3f5;
+            border: 1px solid #e9ecef;
+            border-radius: 50px;
+            padding: 4px 12px 4px 10px;
+        }
+
+        .toggle-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #6c757d;
+        }
+
+            .toggle-label.active {
+                color: #0d6efd;
+                font-weight: 600;
+            }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+            .toggle-switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+        .toggle-track {
+            display: block;
+            position: absolute;
+            inset: 0;
+            background: #dee2e6;
+            border-radius: 50px;
+            transition: background .3s;
+        }
+
+        .toggle-thumb {
+            display: block;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 1px 4px rgba(0,0,0,.2);
+            transition: transform .3s;
+        }
+
+        .toggle-switch input:checked ~ .toggle-track {
+            background: #0d6efd;
+        }
+
+            .toggle-switch input:checked ~ .toggle-track .toggle-thumb {
+                transform: translateX(20px);
+            }
+
+        /* BUDGET BARS */
+        .budget-bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .budget-bar-track {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 50px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .budget-bar-fill {
+            height: 100%;
+            border-radius: 50px;
+            transition: width .7s cubic-bezier(.4,0,.2,1);
+        }
+        /* BUDGET PRIORITY BADGES */
+        .bud-priority-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 9px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+
+        .bud-priority-high {
+            background: #d1e7dd;
+            color: #0a5c36;
+        }
+
+        .bud-priority-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .bud-priority-low {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .bud-hint-text {
+            font-size: 11px;
+            color: #6c757d;
+            margin-bottom: 14px;
+            padding-left: 16px;
+        }
+
+        /* BUDGET SUMMARY BOX */
+        .budget-summary-box {
+            margin-top: 16px;
+            background: #e8f4fd;
+            border: 1px solid #b6d4f5;
+            border-radius: 8px;
+            padding: 14px 16px;
+        }
+
+        .budget-summary-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #0c4a85;
+            margin-bottom: 6px;
+        }
+
+        .budget-summary-text {
+            font-size: 13px;
+            color: #185fa5;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        /* PODIUM */
+        .podium {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 12px;
+            padding: 16px 8px 0;
+        }
+
+        .podium-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            max-width: 130px;
+        }
+
+        .podium-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .podium-item.first .podium-avatar {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .podium-item.second .podium-avatar {
+            background: #adb5bd;
+        }
+
+        .podium-item.third .podium-avatar {
+            background: #fd7e14;
+        }
+
+        .podium-name {
+            font-size: 11px;
+            font-weight: 600;
+            text-align: center;
+            color: #212529;
+        }
+
+        .podium-count {
+            font-size: 20px;
+            font-weight: 700;
+            color: #212529;
+        }
+
+        .podium-sub {
+            font-size: 10px;
+            color: #6c757d;
+        }
+
+        .podium-base {
+            width: 100%;
+            border-radius: 6px 6px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            font-size: 18px;
+        }
+
+        .podium-item.first .podium-base {
+            background: #fff3cd;
+            min-height: 65px;
+        }
+
+        .podium-item.second .podium-base {
+            background: #f1f3f5;
+            min-height: 48px;
+        }
+
+        .podium-item.third .podium-base {
+            background: #ffe8d6;
+            min-height: 36px;
+        }
+
+        /* LEADERBOARD TABLE */
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .leaderboard-table th {
+                font-size: 12px;
+                color: #6c757d;
+                font-weight: 500;
+                padding: 10px 14px;
+                border-bottom: 1px solid #e9ecef;
+                text-align: left;
+                background: #f9fafb;
+            }
+
+            .leaderboard-table td {
+                padding: 10px 14px;
+                border-bottom: 1px solid #f1f3f5;
+                font-size: 13px;
+                vertical-align: middle;
+            }
+
+            .leaderboard-table tr:last-child td {
+                border-bottom: none;
+            }
+
+            .leaderboard-table tr:hover td {
+                background: #f9fafb;
+            }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .rank-1 {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .rank-2 {
+            background: #f1f3f5;
+            color: #374151;
+        }
+
+        .rank-3 {
+            background: #ffe8d6;
+            color: #9A3412;
+        }
+
+        .rank-n {
+            background: #f9fafb;
+            color: #6c757d;
+        }
+
+        .perf-bar-mini {
+            height: 5px;
+            border-radius: 50px;
+            background: #0d6efd;
+            transition: width .5s ease;
+        }
+
+        /* REPORT BOX */
+        .report-box {
+            background: #f9fafb;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 18px;
+            line-height: 1.8;
+            font-size: 13px;
+            color: #495057;
+            min-height: 140px;
+        }
+
+        .report-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #c8102e;
+            margin-bottom: 18px;
+        }
+
+            .report-header img {
+                height: 52px;
+                width: auto;
+                object-fit: contain;
+            }
+
+        .report-header-text h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #002B5B;
+            margin: 0 0 2px;
+            letter-spacing: .02em;
+        }
+
+        .report-header-text p {
+            font-size: 11px;
+            color: #6c757d;
+            margin: 0;
+        }
+
+        .report-section-heading {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: #002B5B;
+            border-left: 3px solid #c8102e;
+            padding-left: 8px;
+            margin: 16px 0 8px;
+        }
+
+        .report-body-text {
+            font-size: 13px;
+            color: #343a40;
+            line-height: 1.85;
+            margin: 0 0 6px;
+        }
+
+        .report-highlight {
+            font-weight: 600;
+            color: #002B5B;
+        }
+
+        .report-footer {
+            margin-top: 18px;
+            padding-top: 12px;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+            .report-footer span {
+                font-size: 11px;
+                color: #adb5bd;
+            }
+
+        /* FEEDBACK TABLE — scrollable */
+        .feedback-scroll-wrap {
+            max-height: 420px;
+            overflow-y: auto;
+            border-radius: 0 0 12px 12px;
+        }
+
+            .feedback-scroll-wrap::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .feedback-scroll-wrap::-webkit-scrollbar-track {
+                background: #f1f3f5;
+            }
+
+            .feedback-scroll-wrap::-webkit-scrollbar-thumb {
+                background: #ced4da;
+                border-radius: 50px;
+            }
+
+        .feedback-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .feedback-table thead th {
+                font-size: 12px;
+                color: #6c757d;
+                font-weight: 500;
+                padding: 10px 14px;
+                border-bottom: 1px solid #e9ecef;
+                text-align: left;
+                background: #f9fafb;
+                position: sticky;
+                top: 0;
+                z-index: 1;
+            }
+
+            .feedback-table td {
+                padding: 10px 14px;
+                border-bottom: 1px solid #f1f3f5;
+                font-size: 13px;
+                vertical-align: middle;
+            }
+
+            .feedback-table tr:last-child td {
+                border-bottom: none;
+            }
+
+            .feedback-table tr:hover td {
+                background: #f9fafb;
+            }
+
+        .star-rating {
+            color: #ffc107;
+            letter-spacing: 1px;
+            font-size: 13px;
+        }
+
+        .comment-text {
+            max-width: 220px;
+            font-size: 12px;
+            color: #6c757d;
+            line-height: 1.5;
+        }
+
+        .showroom-tag {
+            background: #f1f3f5;
+            border: 1px solid #e9ecef;
+            border-radius: 50px;
+            padding: 2px 10px;
+            font-size: 11px;
+            color: #495057;
+            white-space: nowrap;
+        }
+
+        .btn-reply {
+            font-size: 12px;
+            padding: 5px 11px;
+            background: transparent;
+            border: 1px solid #dee2e6;
+            color: #6c757d;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all .15s;
+        }
+
+            .btn-reply:hover {
+                background: #0d6efd;
+                border-color: #0d6efd;
+                color: white;
+            }
+
+        .no-data {
+            text-align: center;
+            color: #6c757d;
+            padding: 24px;
+            font-size: 13px;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.35);
+            backdrop-filter: blur(2px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s;
+        }
+
+            .modal-overlay.open {
+                opacity: 1;
+                pointer-events: all;
+            }
+
+        .modal-box {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            width: 440px;
+            max-width: 95vw;
+            box-shadow: 0 8px 40px rgba(0,0,0,.15);
+            transform: translateY(16px);
+            transition: transform .2s;
+        }
+
+        .modal-overlay.open .modal-box {
+            transform: translateY(0);
+        }
+
+        /* SHOWROOM SELECT */
+        .showroom-select {
+            font-size: 13px;
+            color: #212529;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 6px 32px 6px 12px;
+            appearance: none;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236c757d' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            min-width: 170px;
+        }
+
+            .showroom-select:focus {
+                outline: none;
+                border-color: #86b7fe;
+                box-shadow: 0 0 0 3px rgba(13,110,253,.15);
+            }
+
+        /* FILTER */
+        .filter-select, .filter-input {
+            font-size: 13px;
+            color: #212529;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: border-color .2s;
+        }
+
+            .filter-select:focus, .filter-input:focus {
+                outline: none;
+                border-color: #86b7fe;
+            }
+
+        /* FEEDBACK STATS */
+        .fb-stat-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 14px 18px;
+            flex: 1;
+            min-width: 110px;
+        }
+
+        .fb-stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: #6c757d;
+            margin-bottom: 4px;
+        }
+
+        .fb-stat-val {
+            font-size: 22px;
+            font-weight: 700;
+            color: #212529;
+        }
+    </style>
+}
+
+<h4 class="fw-bold mb-4" id="txt-mk-title">Marketing Dashboard</h4>
+
+@if (TempData["Info"] != null)
+{
+    <div class="alert alert-info alert-dismissible fade show mb-3" style="border-radius:10px;font-size:13px;">
+        @TempData["Info"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- ── HEADER ROW ── -->
+<div class="card p-3 shadow-sm mb-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <form method="get" class="d-flex align-items-center gap-2">
+            <span style="font-size:13px;font-weight:500;color:#6c757d;">📍 <span id="txt-mk-showroom-label">Showroom:</span></span>
+            <select name="showroom" class="showroom-select" onchange="this.form.submit()">
+                <option value="" id="txt-mk-all-showrooms">All Showrooms</option>
+                @foreach (var s in showroomNames)
+                {
+                    <option value="@s" selected="@(currentShowroom == s ? "selected" : null)">@s</option>
+                }
+            </select>
+            <input type="hidden" name="from" value="@ViewBag.From" />
+            <input type="hidden" name="to" value="@ViewBag.To" />
+        </form>
+
+    </div>
+</div>
+
+<!-- ── KPI CARDS ── -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="mk-kpi-card c-blue">
+            <div class="mk-kpi-label" id="txt-kpi-visitors">Total Visitors</div>
+            <div class="mk-kpi-value">@Model.TotalVisitors.ToString("N0")</div>
+            <span id="kpi-total-visitors" style="display:none">@Model.TotalVisitors</span>
+            <div class="mk-kpi-sub" id="txt-kpi-visitors-sub">All showrooms / filtered</div>
+            <div class="mk-kpi-icon">👥</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="mk-kpi-card c-orange">
+            <div class="mk-kpi-label" id="txt-kpi-channel">Top Channel</div>
+            <div class="mk-kpi-value sm">@(Model.TopSource == "N/A" ? "—" : Model.TopSource)</div>
+            @{
+                var topSrc = Model.BySource.FirstOrDefault();
+            }
+            @if (topSrc != null)
+            {
+                <div class="mk-kpi-sub">↑ @topSrc.Percentage% <span id="txt-kpi-channel-sub">of visitors</span></div>
+            }
+            <div class="mk-kpi-icon">📱</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="mk-kpi-card c-green">
+            <div class="mk-kpi-label" id="txt-kpi-rating">Avg. Rating</div>
+            <div class="mk-kpi-value">@avgRating ⭐</div>
+            <div class="mk-kpi-sub" id="txt-kpi-rating-sub">From visitor feedback</div>
+            <div class="mk-kpi-icon">⭐</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="mk-kpi-card c-purple">
+            <div class="mk-kpi-label" id="txt-kpi-salesperson">Top Salesperson</div>
+            <div class="mk-kpi-value sm">@topSalesperson</div>
+            <div class="mk-kpi-sub">🏆 <span id="txt-kpi-salesperson-sub">May leaderboard</span></div>
+            <div class="mk-kpi-icon">🏆</div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ── VISITOR SOURCES ── -->
+<div class="row g-3 mb-4">
+
+    <!-- LEFT: Donut -->
+    <div class="col-12 col-md-6">
+        <div class="card p-4 shadow-sm h-100">
+            <div class="d-flex align-items-start justify-content-between mb-3">
+                <div>
+                    <p class="section-title" id="txt-src-title">Visitor Sources</p>
+                    <p class="section-sub" id="txt-src-sub-card">Channel share this month</p>
+                </div>
+            </div>
+            <div class="chart-inner">
+                <div class="chart-canvas-wrap"><canvas id="pieChart"></canvas></div>
+                <div id="pieLegend" style="margin-top:16px;display:flex;flex-direction:column;gap:10px;padding:0 4px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: Line -->
+    <div class="col-12 col-md-6">
+        <div class="card p-4 shadow-sm h-100">
+            <div class="d-flex align-items-start justify-content-between mb-3">
+                <div>
+                    <p class="section-title" id="txt-line-title-card">Growth Trend</p>
+                    <p class="section-sub" id="txt-line-sub-card">Visitor growth by channel </p>
+                </div>
+            </div>
+            <div class="chart-inner">
+                <div class="chart-canvas-wrap tall"><canvas id="lineChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── BUDGET ALLOCATION ── -->
+<div class="card p-4 shadow-sm mb-4">
+    <div class="d-flex align-items-start justify-content-between mb-3 flex-wrap gap-2">
+        <div>
+            <p class="section-title" id="txt-budget-title"> Suggested Budget Allocation</p>
+            <p class="section-sub" id="txt-budget-sub">Based on which social media channels bring the most visitors this month</p>
+        </div>
+        <span style="font-size:13px;font-weight:600;background:#f1f3f5;border:1px solid #e9ecef;border-radius:50px;padding:6px 16px;color:#212529;">
+            Total: BHD <span id="budgetTotalDisplay">2,000</span> / month
+        </span>
+    </div>
+    <div class="mb-3 d-flex align-items-center gap-2 flex-wrap" style="direction:ltr;">
+        <label style="font-size:13px;font-weight:500;color:#495057;" id="txt-budget-label">Adjust monthly budget (BHD):</label>
+        <input type="number" id="budgetInputBox" value="1000" min="100" step="100"
+               style="width:130px;padding:6px 10px;border:1px solid #e9ecef;border-radius:8px;font-size:13px;"
+               oninput="recalcBudget(this.value)" />
+    </div>
+    <div class="chart-inner">
+        <div id="budgetBarsLive"></div>
+    </div>
+    <!-- ── <p style="font-size:11px;color:#adb5bd;margin-top:12px;">
+        💡 Formula: (Visitors from channel ÷ Total visitors) × Monthly budget &nbsp;—&nbsp;
+        Based on Nielsen Marketing Mix research: reallocating budget toward top-performing channels improves ROI by up to 20%.
+    </p>── -->
+</div>
+
+<!-- ── MONTHLY REPORT ── -->
+<div class="card p-4 shadow-sm mb-4">
+    <div class="d-flex align-items-start justify-content-between mb-3 flex-wrap gap-2">
+        <div>
+            <p class="section-title" id="txt-report-title">Monthly Executive Report</p>
+            <p class="section-sub" id="txt-report-sub">Auto-generated summary based on current showroom data</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-dark btn-sm" onclick="generateReport()" id="txt-report-generate">🔄 Generate</button>
+            <button class="btn btn-outline-danger btn-sm" onclick="printReportPDF()" id="txt-report-pdf">📄 PDF</button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="clearReport()" id="txt-report-clear">✕ Clear</button>
+        </div>
+    </div>
+    <div class="report-box" id="reportBox">
+        <em style="color:#adb5bd;" id="txt-report-placeholder">Click "Generate" to auto-create an executive summary.</em>
+    </div>
+</div>
+
+<!-- ── FEEDBACK MANAGEMENT ── -->
+<div class="card p-4 shadow-sm mb-4">
+    <div class="d-flex align-items-start justify-content-between mb-3 flex-wrap gap-2">
+        <div>
+            <p class="section-title" id="txt-fb-title">Feedback Management</p>
+            <p class="section-sub" id="txt-fb-sub">View and respond to visitor ratings and comments</p>
+        </div>
+    </div>
+
+    <!-- Feedback KPIs -->
+    <div class="d-flex gap-3 flex-wrap mb-3" id="feedbackStats"></div>
+
+    <!-- Filters -->
+    <div class="d-flex gap-2 flex-wrap mb-3 align-items-center">
+        <select class="filter-select" id="filterStars" onchange="applyFeedbackFilters()">
+            <option value="all" id="txt-filter-all-ratings">⭐ All Ratings</option>
+            <option value="5">★★★★★ 5 Stars</option>
+            <option value="4">★★★★☆ 4 Stars</option>
+            <option value="3">★★★☆☆ 3 Stars</option>
+            <option value="2">★★☆☆☆ 2 Stars</option>
+            <option value="1">★☆☆☆☆ 1 Star</option>
+        </select>
+        <input type="date" class="filter-input" id="filterFrom" onchange="applyFeedbackFilters()" />
+        <button class="btn btn-sm btn-outline-secondary" onclick="clearFeedbackFilters()" id="txt-filter-clear">✕ Clear</button>
+    </div>
+
+    <!-- Scrollable feedback table -->
+    <div class="feedback-scroll-wrap" style="border:1px solid #e9ecef;border-radius:8px;">
+        <table class="feedback-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th id="txt-fb-th-visitor">Visitor</th>
+                    <th id="txt-fb-th-rating">Rating</th>
+                    <th id="txt-fb-th-comment">Comment</th>
+                    <th id="txt-fb-th-showroom">Showroom</th>
+                    <th id="txt-fb-th-date">Date & Time</th>
+                    <th id="txt-fb-th-action">Action</th>
+                </tr>
+            </thead>
+            <tbody id="feedbackBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ── EMAIL REPLY MODAL ── -->
+<div class="modal-overlay" id="replyModal">
+    <div class="modal-box">
+        <h5 class="fw-semibold mb-1" id="txt-modal-title">📧 Email Reply</h5>
+        <p class="text-muted mb-3" id="replyTo" style="font-size:13px;">To: —</p>
+        <textarea id="replyText" class="form-control mb-3" rows="5" placeholder="Type your response here..."></textarea>
+        <div class="d-flex justify-content-end gap-2">
+            <button class="btn btn-light btn-sm" onclick="closeModal()" id="txt-modal-cancel">Cancel</button>
+            <button class="btn btn-dark btn-sm" onclick="sendReply()" id="txt-modal-send">Send Reply</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        const FEEDBACK_DATA    = @Html.Raw(feedbackJson);
+        const SALESPERSON_DATA = @Html.Raw(salespersonJson);
+        const CHANNEL_MONTHLY  = @Html.Raw(channelMonthlyJson);
+
+        const MONTHS   = ['Dec','Jan','Feb','Mar','Apr','May'];
+        const CHANNELS = CHANNEL_MONTHLY.map(c => c.channel);
+        const BUDGET_TOTAL  = @budgetBHD;
+        const SHOWROOM_NAME = '@Html.Raw(currentShowroom == "" ? "All Showrooms" : currentShowroom)';
+
+        const PALETTE = ['#0d6efd','#fd7e14','#198754','#6f42c1','#dc3545','#20c997','#6c757d','#ffc107'];
+        const channelColor = i => PALETTE[i % PALETTE.length];
+
+        let pieInst = null, lineInst = null;
+        let currentMonth = 'May';
+        let filteredFeedback = [...FEEDBACK_DATA];
+
+        Chart.defaults.font.family = "system-ui, -apple-system, sans-serif";
+        Chart.defaults.font.size   = 12;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initPieChart();
+            initLineChart();
+            recalcBudget(BUDGET_TOTAL);
+            renderFeedback(FEEDBACK_DATA);
+
+            setTimeout(() => {
+                const lang = localStorage.getItem('siteLang') || 'en';
+                translateMKPage(lang);
+            }, 200);
+        });
+
+        /* ═══════════════════════════════════════════════════════
+           HELPER — convert image URL to base64 for jsPDF
+           ═══════════════════════════════════════════════════════ */
+        function _imgToBase64(url) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => {
+                    const c = document.createElement('canvas');
+                    c.width = img.naturalWidth;
+                    c.height = img.naturalHeight;
+                    c.getContext('2d').drawImage(img, 0, 0);
+                    resolve(c.toDataURL('image/png'));
+                };
+                img.onerror = () => resolve(null); // logo failed — skip it
+                img.src = url;
+            });
+        }
+        /* ── TOGGLE ── */
+        function toggleSourceChart(isLine) {
+            document.getElementById('pieWrap').classList.toggle('chart-hidden', isLine);
+            document.getElementById('lineWrap').classList.toggle('chart-hidden', !isLine);
+            document.getElementById('labelPie').classList.toggle('active', !isLine);
+            document.getElementById('labelLine').classList.toggle('active', isLine);
+        }
+        /* ── PIE CHART ── */
+        function initPieChart() {
+            const data  = CHANNEL_MONTHLY.map(c => c.monthlyCounts[5]);
+            const total = data.reduce((s,v) => s+v, 0);
+            if (pieInst) pieInst.destroy();
+            pieInst = new Chart(document.getElementById('pieChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: CHANNELS,
+                    datasets: [{ data, backgroundColor: CHANNELS.map((_,i) => channelColor(i)), borderWidth: 0, hoverOffset: 6 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '65%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: ctx => { const pct = total > 0 ? ((ctx.raw/total)*100).toFixed(1) : 0; return ` ${ctx.label}: ${ctx.raw} (${pct}%)`; } } }
+                    }
+                }
+            });
+
+            /* Build legend under pie */
+            const legendEl = document.getElementById('pieLegend');
+            legendEl.innerHTML = '';
+            CHANNEL_MONTHLY.forEach((c, i) => {
+                const pct = total > 0 ? ((data[i] / total) * 100).toFixed(1) : '0.0';
+                legendEl.innerHTML += `
+            <div style="display:flex;align-items:center;gap:10px;direction:ltr;">
+                        <div style="width:10px;height:10px;border-radius:50%;background:${channelColor(i)};flex-shrink:0;"></div>
+                        <div style="font-size:13px;font-weight:500;color:#212529;flex:1;">${c.channel}</div>
+                        <div style="flex:2;background:#e9ecef;border-radius:50px;height:6px;overflow:hidden;">
+                            <div style="width:${pct}%;height:100%;border-radius:50px;background:${channelColor(i)};transition:width .7s ease;"></div>
+                        </div>
+                        <div style="font-size:13px;font-weight:600;min-width:42px;text-align:right;color:${channelColor(i)};">${pct}%</div>
+                    </div>`;
+            });
+        }
+
+        /* ── LINE CHART ── */
+        function initLineChart() {
+            if (lineInst) lineInst.destroy();
+            lineInst = new Chart(document.getElementById('lineChart'), {
+                type: 'line',
+                data: {
+                    labels: MONTHS,
+                    datasets: CHANNEL_MONTHLY.map((c,i) => ({
+                        label: c.channel, data: c.monthlyCounts,
+                        borderColor: channelColor(i), backgroundColor: channelColor(i)+'22',
+                        borderWidth: 2, pointRadius: 3, fill: false, tension: 0.3
+                    }))
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position:'bottom', labels:{ font:{size:11}, boxWidth:10, color:'#6c757d' } } },
+                    scales: { x:{ grid:{display:false} }, y:{ beginAtZero:true, ticks:{precision:0} } }
+                }
+            });
+        }
+
+        /* ── BUDGET RECALC ── */
+        function recalcBudget(val) {
+            const lang = localStorage.getItem('siteLang') || 'en';
+            const ar = lang === 'ar';
+            const budget = parseFloat(val) || 2000;
+            document.getElementById('budgetTotalDisplay').textContent = Number(budget).toLocaleString();
+
+            // Use ALL channels from real data — no hardcoded filter
+            // Only exclude channels that have ZERO visitors across all 6 months
+            const workingData = CHANNEL_MONTHLY.filter(c =>
+                c.monthlyCounts.reduce((s, v) => s + v, 0) > 0
+            );
+
+            const mayTotals  = workingData.map(c => c.monthlyCounts[5]);
+            const grandTotal = mayTotals.reduce((s, v) => s + v, 0);
+            const el = document.getElementById('budgetBarsLive');
+            if (!el) return;
+
+            if (grandTotal === 0) {
+                el.innerHTML = `<p class="text-muted text-center" style="font-size:13px;padding:12px;">
+                    ${ar ? 'لا توجد بيانات زوار بعد.' : 'No visitor data yet — budget will calculate once responses come in.'}</p>`;
+                return;
+            }
+
+            function getPriority(pct) {
+                if (ar) {
+                    if (pct >= 30) return { label: 'عالية',  cls: 'bud-priority-high',   hint: 'قناة رائدة — زد ميزانية الإعلانات هنا.' };
+                    if (pct >= 10) return { label: 'متوسطة', cls: 'bud-priority-medium', hint: 'قناة مستقرة — حافظ على الاستثمار الحالي.' };
+                    return           { label: 'منخفضة', cls: 'bud-priority-low',    hint: 'عائد ضعيف — فكّر في إعادة توزيع هذه الميزانية.' };
+                } else {
+                    if (pct >= 30) return { label: 'High',   cls: 'bud-priority-high',   hint: 'Top performer — increase ad spend here.' };
+                    if (pct >= 10) return { label: 'Medium', cls: 'bud-priority-medium', hint: 'Stable channel — maintain current investment.' };
+                    return           { label: 'Low',    cls: 'bud-priority-low',    hint: 'Weak return — consider reallocating this budget.' };
+                }
+            }
+
+            const barsHtml = workingData.map((c, i) => {
+                const pct       = ((mayTotals[i] / grandTotal) * 100).toFixed(1);
+                const bhd       = ((mayTotals[i] / grandTotal) * budget).toFixed(0);
+                const p         = getPriority(parseFloat(pct));
+                const colorIdx  = CHANNEL_MONTHLY.indexOf(c);
+                const color     = channelColor(colorIdx >= 0 ? colorIdx : i);
+
+                return `
+                <div class="budget-bar-label" style="direction:ltr;">
+                    <span style="font-weight:500;display:flex;align-items:center;gap:6px;">
+                        <span style="width:10px;height:10px;border-radius:50%;background:${color};display:inline-block;flex-shrink:0;"></span>
+                        ${c.channel}
+                        <span class="bud-priority-badge ${p.cls}">${p.label}</span>
+                    </span>
+                    <span class="text-muted">BHD ${Number(bhd).toLocaleString()} &nbsp;·&nbsp; ${pct}%</span>
+                </div>
+                <div class="budget-bar-track" style="direction:ltr;">
+                    <div class="budget-bar-fill" style="width:${pct}%;background:${color};"></div>
+                </div>
+                <div class="bud-hint-text" style="text-align:${ar ? 'right' : 'left'};">${p.hint}</div>`;
+            }).join('');
+
+            // Summary recommendation
+            const sorted    = [...workingData]
+                .map((c, i) => ({ name: c.channel, visitors: mayTotals[i] }))
+                .sort((a, b) => b.visitors - a.visitors);
+            const topCh     = sorted[0];
+            const bottomCh  = sorted[sorted.length - 1];
+            const topPct    = ((topCh.visitors / grandTotal) * 100).toFixed(1);
+            const bottomPct = ((bottomCh.visitors / grandTotal) * 100).toFixed(1);
+            const topBHD    = ((topCh.visitors / grandTotal) * budget).toFixed(0);
+
+            const summaryHtml = ar ? `
+                <div class="budget-summary-box" style="direction:rtl;text-align:right;">
+                    <div class="budget-summary-title">💡 التوصية</div>
+                    <p class="budget-summary-text">
+                        زد ميزانيتك نحو <strong>${topCh.name}</strong> — فهي تجذب <strong>${topPct}%</strong> من إجمالي الزوار،
+                        مما يقترح تخصيص <strong>BHD ${Number(topBHD).toLocaleString()}</strong> لها هذا الشهر.
+                        فكّر في تقليص الإنفاق على <strong>${bottomCh.name}</strong> (${bottomPct}% من الزوار)
+                        وإعادة توجيه تلك الأموال نحو القنوات الأعلى أداءً.
+                    </p>
+                </div>` : `
+                <div class="budget-summary-box" style="direction:ltr;text-align:left;">
+                    <div class="budget-summary-title">💡 Recommendation</div>
+                    <p class="budget-summary-text">
+                        Increase budget toward <strong>${topCh.name}</strong> — it drives <strong>${topPct}%</strong> of all visitors,
+                        suggesting an allocation of <strong>BHD ${Number(topBHD).toLocaleString()}</strong> this month.
+                        Consider reducing spend on <strong>${bottomCh.name}</strong> (${bottomPct}% of visitors)
+                        and shifting those funds toward higher-performing channels.
+                    </p>
+                </div>`;
+
+            el.innerHTML = barsHtml + summaryHtml;
+        }
+        /* ── FEEDBACK ── */
+        function renderFeedback(data) {
+            filteredFeedback = data;
+            const lang = localStorage.getItem('siteLang') || 'en';
+            const ar = lang === 'ar';
+            const total = data.length;
+            const avg   = total ? (data.reduce((s,f)=>s+f.rating,0)/total).toFixed(1) : '—';
+            const five  = data.filter(f=>f.rating===5).length;
+            const one   = data.filter(f=>f.rating===1).length;
+            document.getElementById('feedbackStats').innerHTML = `
+                <div class="fb-stat-card"><div class="fb-stat-label">${ar ? 'إجمالي التقييمات' : 'Total Reviews'}</div><div class="fb-stat-val">${total}</div></div>
+                <div class="fb-stat-card"><div class="fb-stat-label">${ar ? 'متوسط التقييم' : 'Avg Rating'}</div><div class="fb-stat-val">${avg} ⭐</div></div>
+                <div class="fb-stat-card"><div class="fb-stat-label">${ar ? '5 نجوم' : '5-Star'}</div><div class="fb-stat-val">${five}</div></div>
+                <div class="fb-stat-card"><div class="fb-stat-label">${ar ? '1 نجمة' : '1-Star'}</div><div class="fb-stat-val">${one}</div></div>`;
+            renderFeedbackTable(data);
+        }
+
+        function renderFeedbackTable(data) {
+            const tbody = document.getElementById('feedbackBody');
+            const lang = localStorage.getItem('siteLang') || 'en';
+            const ar = lang === 'ar';
+            if (!data.length) {
+                tbody.innerHTML = `<tr><td colspan="7" class="no-data">${ar ? 'لم يتم العثور على تقييمات.' : 'No feedback found.'}</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = data.map((f,i) => {
+                const stars = '★'.repeat(f.rating) + '☆'.repeat(5-f.rating);
+                const name  = f.visitorName || f.name || (ar ? 'مجهول' : 'Anonymous');
+                const email = f.email || '';
+                const safe  = name.replace(/'/g,"\\'");
+                const safeEmail = email.replace(/'/g,"\\'");
+                const replyLabel = ar ? 'رد' : 'Reply';
+                return `<tr>
+                    <td style="color:#6c757d;font-size:12px;">${i+1}</td>
+                    <td><strong style="font-size:13px;">${name}</strong><br/><small class="text-muted">${email}</small></td>
+                    <td><span class="star-rating">${stars}</span><br/><small class="text-muted">${f.rating}/5</small></td>
+                    <td><div class="comment-text">${f.comment||''}</div></td>
+                    <td><span class="showroom-tag">${f.showroom||''}</span></td>
+                    <td style="font-size:12px;color:#6c757d;white-space:nowrap;">${f.date||''}<br/>${f.time||''}</td>
+                    <td><a href="mailto:${email}" class="btn btn-primary btn-sm"><i class="bi bi-envelope"></i> ${replyLabel}</a></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function applyFeedbackFilters() {
+            const star = document.getElementById('filterStars').value;
+            const from = document.getElementById('filterFrom').value;
+            let data = [...FEEDBACK_DATA];
+            if (star !== 'all') data = data.filter(f => f.rating === parseInt(star));
+            if (from) data = data.filter(f => f.date >= from);
+            filteredFeedback = data;
+            renderFeedbackTable(data);
+        }
+
+        function clearFeedbackFilters() {
+            document.getElementById('filterStars').value = 'all';
+            document.getElementById('filterFrom').value  = '';
+            renderFeedback(FEEDBACK_DATA);
+        }
+
+        function downloadFeedbackCSV() {
+            const rows = [['#','Name','Email','Rating','Comment','Showroom','Date','Time']];
+            filteredFeedback.forEach((f,i) => rows.push([
+                i+1, f.visitorName||f.name, f.email, f.rating,
+                `"${(f.comment||'').replace(/"/g,'""')}"`,
+                f.showroom, f.date, f.time
+            ]));
+            const csv  = rows.map(r => r.join(',')).join('\n');
+            const blob = new Blob([csv], {type:'text/csv'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `feedback_${SHOWROOM_NAME}_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        /* ── MODAL ── */
+        let currentReplyEmail = '';
+        function openReply(name, email) {
+            const lang = localStorage.getItem('siteLang') || 'en';
+            const ar = lang === 'ar';
+            currentReplyEmail = email;
+            document.getElementById('replyTo').textContent = `${ar ? 'إلى' : 'To'}: ${name} <${email}>`;
+            document.getElementById('replyText').value = ar
+                ? `عزيزي/عزيزتي ${name},\n\nشكراً لك على تقييمك. نحن نقدّر زيارتك.\n\n`
+                : `Dear ${name},\n\nThank you for your feedback. We truly appreciate your visit.\n\n`;
+            document.getElementById('replyModal').classList.add('open');
+        }
+        function closeModal() { document.getElementById('replyModal').classList.remove('open'); }
+        document.getElementById('replyModal').addEventListener('click', e => {
+            if (e.target === document.getElementById('replyModal')) closeModal();
+        });
+        function sendReply() {
+            const message = document.getElementById('replyText').value.trim();
+            if (!message) return;
+            const lang = localStorage.getItem('siteLang') || 'en';
+            fetch('@Url.Action("SendReply", "Marketing", new { area = "Admins" })', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `email=${encodeURIComponent(currentReplyEmail)}&message=${encodeURIComponent(message)}`
+            }).then(() => { closeModal(); alert(lang === 'ar' ? '✅ تم إرسال الرد!' : '✅ Reply sent!'); })
+              .catch(() => alert(lang === 'ar' ? 'فشل الإرسال.' : 'Failed to send.'));
+        }
+
+
+        function clearReport() {
+            const lang = localStorage.getItem('siteLang') || 'en';
+            const ar = lang === 'ar';
+            document.getElementById('reportBox').innerHTML =
+                `<em style="color:#adb5bd;">${ar ? 'انقر على "إنشاء" لإنشاء ملخص تنفيذي تلقائياً.' : 'Click "Generate" to auto-create an executive summary.'}</em>`;
+        }
+        /* ── REPORT ── */
+        function generateReport() {
+            const lang = localStorage.getItem('siteLang') || 'en';
+            const ar   = lang === 'ar';
+
+            /* ── visitor numbers ── */
+            // 1. Try to read the real KPI total (Model.TotalVisitors) from the
+            //    hidden span we added in the Razor view.
+            // 2. Fall back to summing May channel data if the span is absent.
+            const kpiEl      = document.getElementById('kpi-total-visitors');
+            const kpiTotal   = kpiEl ? parseInt(kpiEl.textContent.replace(/,/g,''), 10) : null;
+
+            const mayT       = CHANNEL_MONTHLY.map(c => c.monthlyCounts[5]);
+            const aprT       = CHANNEL_MONTHLY.map(c => c.monthlyCounts[4]);
+            const mayChTotal = mayT.reduce((s,v)=>s+v, 0);   // channel-only sum
+            const aprTotal   = aprT.reduce((s,v)=>s+v, 0);
+
+            // Use the real KPI number for the headline; channel sum for %s
+            const displayTotal = kpiTotal !== null && !isNaN(kpiTotal) ? kpiTotal : mayChTotal;
+
+            const growthBase = aprTotal > 0
+                ? (((displayTotal - aprTotal) / aprTotal) * 100).toFixed(1)
+                : '0.0';
+            const growthNum  = parseFloat(growthBase);
+            const growthSign = growthNum > 0 ? '+' : '';
+
+            const topIdx   = mayT.indexOf(Math.max(...mayT));
+            const topCh    = CHANNELS[topIdx] || 'N/A';
+            // % is still based on channel data (that's what we track per channel)
+            const topChPct = mayChTotal > 0 ? ((mayT[topIdx] / mayChTotal) * 100).toFixed(1) : '0';
+
+            /* ── budget ── */
+            const budgetInput   = document.getElementById('budgetInputBox');
+            const currentBudget = parseFloat(budgetInput ? budgetInput.value : '2000') || 2000;
+            const topBHD        = mayChTotal > 0
+                ? ((mayT[topIdx] / mayChTotal) * currentBudget).toFixed(0)
+                : '0';
+
+            /* ── feedback ── */
+            const avgR        = FEEDBACK_DATA.length
+                ? (FEEDBACK_DATA.reduce((s,f)=>s+f.rating,0) / FEEDBACK_DATA.length).toFixed(1)
+                : null;
+            const totalReviews = FEEDBACK_DATA.length;
+            const fiveStars    = FEEDBACK_DATA.filter(f=>f.rating===5).length;
+            const oneStars     = FEEDBACK_DATA.filter(f=>f.rating===1).length;
+
+            /* ── labels ── */
+            const trendLabel = ar
+                ? (growthNum > 0 ? 'ارتفع' : growthNum < 0 ? 'انخفض' : 'بقي ثابتاً')
+                : (growthNum > 0 ? 'increased' : growthNum < 0 ? 'decreased' : 'remained stable');
+
+            let satNote, satDetail;
+            if (!avgR) {
+                satNote   = ar ? 'لا توجد بيانات تقييم بعد.' : 'No feedback data available yet.';
+                satDetail = '';
+            } else if (parseFloat(avgR) >= 4.5) {
+                satNote   = ar ? 'مستوى الرضا ممتاز.' : 'Satisfaction is excellent.';
+                satDetail = ar
+                    ? `${fiveStars} زائر من أصل ${totalReviews} منحوا تقييم خمس نجوم — وهو مؤشر قوي على جودة الخدمة.`
+                    : `${fiveStars} out of ${totalReviews} visitors gave a 5-star rating — a strong signal of service quality.`;
+            } else if (parseFloat(avgR) >= 4) {
+                satNote   = ar ? 'مستوى الرضا جيد.' : 'Satisfaction is good.';
+                satDetail = ar
+                    ? `معظم الزوار راضون. يُنصح بمتابعة ${oneStars} تقييم منخفض لمعرفة سبب عدم الرضا وتحسين التجربة.`
+                    : `Most visitors are happy. Following up on the ${oneStars} low review(s) will help close any gaps in service.`;
+            } else if (parseFloat(avgR) >= 3) {
+                satNote   = ar ? 'مستوى الرضا متوسط.' : 'Satisfaction is average.';
+                satDetail = ar
+                    ? `هناك ${oneStars} تقييم منخفض — مراجعة هذه الحالات وفهم ما أزعج هؤلاء الزوار سيساعد في رفع مستوى الخدمة.`
+                    : `There are ${oneStars} low rating(s) — reading those comments and acting on them is the fastest way to improve the score.`;
+            } else {
+                satNote   = ar ? 'مستوى الرضا يحتاج إلى متابعة عاجلة.' : 'Satisfaction needs urgent attention.';
+                satDetail = ar
+                    ? 'يُوصى بمراجعة فورية لشكاوى الزوار والتحقق من مستوى الخدمة المقدمة في المعرض.'
+                    : 'An immediate review of visitor complaints and on-floor service levels is recommended.';
+            }
+
+            /* ── channel table rows ── */
+            const sortedChannels = [...CHANNEL_MONTHLY]
+                .map((c,i) => ({ name: c.channel, count: mayT[i] }))
+                .filter(c => c.count > 0)
+                .sort((a,b) => b.count - a.count);
+
+            const channelRows = sortedChannels.map(c => {
+                const pct = mayChTotal > 0 ? ((c.count / mayChTotal) * 100).toFixed(1) : '0.0';
+                const bhd = mayChTotal > 0 ? ((c.count / mayChTotal) * currentBudget).toFixed(0) : '0';
+                return `<tr>
+                    <td style="padding:6px 8px;font-size:12px;color:#212529;font-weight:500;">${c.name}</td>
+                    <td style="padding:6px 8px;font-size:12px;text-align:center;color:#495057;">${c.count}</td>
+                    <td style="padding:6px 8px;font-size:12px;text-align:center;color:#495057;">${pct}%</td>
+                    <td style="padding:6px 8px;font-size:12px;text-align:center;font-weight:600;color:#002B5B;">BHD ${Number(bhd).toLocaleString()}</td>
+                </tr>`;
+            }).join('');
+
+            /* ── dates ── */
+            const generatedDate = ar
+                ? new Date().toLocaleDateString('ar-SA',{day:'numeric',month:'long',year:'numeric'})
+                : new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+            const monthYear = ar
+                ? new Date().toLocaleString('ar-SA',{month:'long',year:'numeric'})
+                : new Date().toLocaleString('en-US',{month:'long',year:'numeric'});
+
+            /* ── logo path — adjust to your actual static path ── */
+            const logoSrc = '/images/logo.png';
+
+            /* ── budget plain-language summary ── */
+            // Which channels are "low" (< 10% share) — worth mentioning for reallocation
+            const lowChannels = sortedChannels
+                .filter(c => mayChTotal > 0 && (c.count / mayChTotal) < 0.10)
+                .map(c => c.name);
+            const lowChanText = lowChannels.length > 0
+                ? (ar
+                    ? `في المقابل، القنوات ذات الأداء المنخفض (${lowChannels.join('، ')}) تستقطب عدداً قليلاً من الزوار مقارنةً بحجم الإنفاق عليها؛ لذا يُنصح بتخفيض ميزانيتها وتوجيه الفارق نحو القنوات الأقوى.`
+                    : `On the other hand, the lower-traffic channels (${lowChannels.join(', ')}) are bringing in fewer visitors relative to their spend — shifting some of that budget toward the stronger channels would give better results.`)
+                : '';
+
+            /* ════════════════════════════════════════════════
+               HTML REPORT — ENGLISH
+            ════════════════════════════════════════════════ */
+            const htmlEN = `
+            <div style="direction:ltr;text-align:left;font-family:system-ui,sans-serif;">
+
+                <!-- HEADER -->
+                <div style="display:flex;align-items:center;gap:16px;padding-bottom:14px;border-bottom:2px solid #c8102e;margin-bottom:18px;">
+                    <img src="${logoSrc}" alt="YK Logo"
+                         style="height:52px;width:auto;object-fit:contain;"
+                         onerror="this.style.display='none'" />
+                    <div>
+                        <div style="font-size:15px;font-weight:700;color:#002B5B;margin:0 0 2px;letter-spacing:.02em;">
+                            Y.K. Almoayyed &amp; Sons
+                        </div>
+                        <div style="font-size:11px;color:#6c757d;">
+                            Monthly Executive Marketing Report &mdash; ${SHOWROOM_NAME} | ${monthYear}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1. PERFORMANCE OVERVIEW -->
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+                            color:#002B5B;border-left:3px solid #c8102e;padding-left:8px;margin:16px 0 8px;">
+                    Performance Overview
+                </div>
+                <p style="font-size:13px;color:#343a40;line-height:1.85;margin:0 0 6px;">
+                    In <strong>${monthYear}</strong>, <strong>${SHOWROOM_NAME}</strong> received a total of
+                    <strong style="color:#002B5B;">${displayTotal.toLocaleString()} visitor${displayTotal !== 1 ? 's' : ''}</strong>
+                    across all tracked marketing channels.
+
+                </p>
+
+                <!-- 2. WHERE VISITORS ARE COMING FROM -->
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+                            color:#002B5B;border-left:3px solid #c8102e;padding-left:8px;margin:16px 0 8px;">
+                    Where Visitors Are Coming From
+                </div>
+                <p style="font-size:13px;color:#343a40;line-height:1.85;margin:0 0 10px;">
+                    The channel bringing in the most visitors this month is <strong style="color:#002B5B;">${topCh}</strong>,
+                    which accounts for <strong>${topChPct}%</strong> of all tracked visitors.
+                    This tells us that <strong>${topCh}</strong> is currently the most effective way to reach customers —
+                    meaning more people are discovering the showroom through this channel than any other.
+                </p>
+                <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px;border:1px solid #e9ecef;border-radius:8px;overflow:hidden;">
+                    <thead>
+                        <tr style="background:#f1f3f5;">
+                            <th style="padding:8px 10px;text-align:left;color:#6c757d;font-weight:600;border-bottom:1px solid #dee2e6;">Channel</th>
+                            <th style="padding:8px 10px;text-align:center;color:#6c757d;font-weight:600;border-bottom:1px solid #dee2e6;">Visitors This Month</th>
+                            <th style="padding:8px 10px;text-align:center;color:#6c757d;font-weight:600;border-bottom:1px solid #dee2e6;">Share of Traffic</th>
+                            <th style="padding:8px 10px;text-align:center;color:#6c757d;font-weight:600;border-bottom:1px solid #dee2e6;">Suggested Monthly Budget</th>
+                        </tr>
+                    </thead>
+                    <tbody>${channelRows}</tbody>
+                </table>
+
+                <!-- 3. BUDGET RECOMMENDATION -->
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+                            color:#002B5B;border-left:3px solid #c8102e;padding-left:8px;margin:16px 0 8px;">
+                    Where to Put the Marketing Budget
+                </div>
+                <p style="font-size:13px;color:#343a40;line-height:1.85;margin:0 0 6px;">
+                    With a monthly budget of <strong style="color:#002B5B;">BHD ${Number(currentBudget).toLocaleString()}</strong>,
+                    the table above shows how much to put into each channel based on how many visitors it actually brings in.
+                    The idea is simple: the channels that are working well deserve more of the budget,
+                    while channels with fewer visitors should get less — or be reconsidered entirely.
+                </p>
+                <p style="font-size:13px;color:#343a40;line-height:1.85;margin:0 0 6px;">
+                    Right now, <strong style="color:#002B5B;">${topCh}</strong> is the top performer,
+                    so it is suggested to put <strong>BHD ${Number(topBHD).toLocaleString()}</strong> toward it this month.
+                    ${lowChanText}
+                </p>
+
+                <!-- 4. CUSTOMER FEEDBACK -->
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+                            color:#002B5B;border-left:3px solid #c8102e;padding-left:8px;margin:16px 0 8px;">
+                    Customer Feedback &amp; Satisfaction
+                </div>
+                <p style="font-size:13px;color:#343a40;line-height:1.85;margin:0 0 6px;">
+                    ${avgR
+                        ? `Visitors rated their experience an average of <strong style="color:#002B5B;">${avgR} out of 5</strong>
+                           based on <strong>${totalReviews} review${totalReviews !== 1 ? 's' : ''}</strong>.
+                           ${satNote} ${satDetail}`
+                        : satNote
+                    }
+                </p>
+
+                <!-- 5. RECOMMENDATIONS -->
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+                            color:#002B5B;border-left:3px solid #c8102e;padding-left:8px;margin:16px 0 8px;">
+                    Recommendations
+                </div>
+                <ol style="font-size:13px;color:#343a40;line-height:2.1;padding-left:20px;margin:0;">
+                    <li>Put more of the marketing budget into <strong>${topCh}</strong> — it is bringing in the most visitors and is clearly working.</li>
+                    <li>Keep rewarding and recognising the sales team, since happy staff deliver better service, which leads to better reviews.</li>
+                    <li>${avgR && parseFloat(avgR) < 4
+                        ? `Read through the ${oneStars} low-rated reviews and follow up where possible — small fixes can make a big difference in how customers feel about the showroom.`
+                        : 'Keep asking customers for feedback after every visit — it helps the team know what is working and what can be improved.'
+                    }</li>
+                    <li>Review channels that are bringing in very few visitors and consider stopping or reducing spend on them — that money can be put to better use elsewhere.</li>
+                </ol>
+
+                <!-- FOOTER -->
+                <div style="margin-top:20px;padding-top:12px;border-top:1px solid #dee2e6;
+                            display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
+                    <span style="font-size:11px;color:#adb5bd;">Report generated on ${generatedDate}</span>
+                    <span style="font-size:11px;color:#adb5bd;">Showroom: ${SHOWROOM_NAME} &nbsp;&middot;&nbsp; System: Marketing Dashboard</span>
+                </div>
+            </div>`;
+
+            /* ════════════════════════════════════════════════
+               HTML REPORT — ARABIC
+            ════════════════════════════════════════════════ */
+            const htmlAR = `
+            <div style="direction:rtl;text-align:right;font-family:system-ui,sans-serif;">
+
+                <!-- HEADER -->
+                <div style="display:flex;align-items:center;gap:16px;padding-bottom:14px;border-bottom:2px solid #c8102e;margin-bottom:18px;flex-direction:row-reverse;">
+                    <img src="${logoSrc}" alt="YK Logo"
+                         style="height:52px;width:auto;object-fit:contain;"
+                         onerror="this.style.display='none'" />
+                    <div>
+                        <div style="font-size:15px;font-weight:700;color:#002B5B;margin:0 0 2px;letter-spacing:.02em;">
+                            شركة يوسف خليل المؤيد وأولاده
+                        </div>
+                        <div style="font-size:11px;color:#6c757d;">
+                            التقرير التنفيذي الشهري للتسويق &mdash; ${SHOWROOM_NAME} | ${monthYear}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1. نظرة عامة -->
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+                            color:#002B5B;border-right:3px solid #c8102e;padding-right:8px;margin:16px 0 8px;">
+                    نظرة عامة على الأداء
+                </div>
+                <p style="font-size:13px;color:#343a40;line-height:1.85;margin:0 0 6px;">
+                    خلال شهر <strong>${monthYear}</strong>، استقبل <strong>${SHOWROOM_NAME}</strong>
+                    ما مجموعه <strong style="color:#002B5B;">${displayTotal.toLocaleString()} زائر${displayTotal !== 1 ? '' : ''}</strong>
+                    عبر قنوات التسويق المتتبّعة.
+
+                </p>
+
+                <!-- 2. مصادر الزوار -->
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+                            color:#002B5B;border-right:3px solid #c8102e;padding-right:8px;margin:16px 0 8px;">
+                    من أين يأتي الزوار؟
+                </div>
+                <p style="font-size:13px;color:#343a40;line-height:1.85;margin:0 0 10px;">
+                    القناة الأكثر استقطاباً للزوار هذا الشهر هي <strong style="color:#002B5B;">${topCh}</strong>،
+                    إذ جلبت <strong>${topChPct}%</strong> من إجمالي الزوار المتتبّعين.
+                    هذا يعني أن <strong>${topCh}</strong> هي الطريقة الأكثر فاعلية حالياً للوصول إلى العملاء
+                    وإيصالهم إلى المعرض.
+                </p>
+                <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px;border:1px solid #e9ecef;border-radius:8px;overflow:hidden;" dir="rtl">
+                    <thead>
+                        <tr style="background:#f1f3f5;">
+                            <th style="padding:8px 10px;text-align:right;color:#6c757d;font-weight:600;border-bottom:1px solid #dee2e6;">القناة</th>
+                            <th style="padding:8px 10px;text-align:center;color:#6c757d;font-weight:600;border-bottom:1px solid #dee2e6;">الزوار هذا الشهر</th>
+                            <th style="padding:8px 10px;text-align:center;color:#6c757d;font-weight:600;border-bottom:1px solid #dee2e6;">نسبة الزيارات</th>
+                            <th style="padding:8px 10px;text-align:center;color:#6c757d;font-weight:600;border-bottom:1px solid #dee2e6;">الميزانية المقترحة</th>
+                        </tr>
+                    </thead>
+                    <tbody>${channelRows}</tbody>
+                </table>
+
+                <!-- 3. توزيع الميزانية -->
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+                            color:#002B5B;border-right:3px solid #c8102e;padding-right:8px;margin:16px 0 8px;">
+                    أين توضع ميزانية التسويق؟
+                </div>
+                <p style="font-size:13px;color:#343a40;line-height:1.85;margin:0 0 6px;">
+                    بناءً على ميزانية شهرية قدرها <strong style="color:#002B5B;">BHD ${Number(currentBudget).toLocaleString()}</strong>،
+                    يوضّح الجدول أعلاه المبلغ المقترح لكل قناة حسب عدد الزوار الذين تجلبهم فعلياً.
+                    الفكرة بسيطة: القنوات التي تعمل بشكل جيد تستحق ميزانية أكبر،
+                    أما القنوات ذات الأداء الضعيف فيُنصح بتقليص الإنفاق عليها أو إعادة النظر فيها.
+                </p>
+                <p style="font-size:13px;color:#343a40;line-height:1.85;margin:0 0 6px;">
+                    حالياً، <strong style="color:#002B5B;">${topCh}</strong> هي الأفضل أداءً،
+                    لذا يُقترح تخصيص <strong>BHD ${Number(topBHD).toLocaleString()}</strong> لها هذا الشهر.
+                    ${lowChanText}
+                </p>
+
+                <!-- 4. تقييمات العملاء -->
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+                            color:#002B5B;border-right:3px solid #c8102e;padding-right:8px;margin:16px 0 8px;">
+                    تقييمات العملاء ورضاهم
+                </div>
+                <p style="font-size:13px;color:#343a40;line-height:1.85;margin:0 0 6px;">
+                    ${avgR
+                        ? `قيّم الزوار تجربتهم بمتوسط <strong style="color:#002B5B;">${avgR} من 5</strong>
+                           بناءً على <strong>${totalReviews} تقييم${totalReviews !== 1 ? '' : ''}</strong>.
+                           ${satNote} ${satDetail}`
+                        : satNote
+                    }
+                </p>
+
+                <!-- 5. التوصيات -->
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+                            color:#002B5B;border-right:3px solid #c8102e;padding-right:8px;margin:16px 0 8px;">
+                    التوصيات
+                </div>
+                <ol style="font-size:13px;color:#343a40;line-height:2.1;padding-right:20px;margin:0;">
+                    <li>زيادة ميزانية التسويق لقناة <strong>${topCh}</strong> — فهي تجلب أكبر عدد من الزوار وتحقق أفضل النتائج.</li>
+                    <li>الاستمرار في تحفيز فريق المبيعات ومكافأتهم، لأن الموظف المتحمّس يقدّم خدمة أفضل وهذا ينعكس على تقييمات الزوار.</li>
+                    <li>${avgR && parseFloat(avgR) < 4
+                        ? `قراءة التقييمات المنخفضة (${oneStars} تقييم) والتواصل مع أصحابها — التعديلات الصغيرة تصنع فرقاً كبيراً في انطباع العميل.`
+                        : 'الاستمرار في جمع تقييمات الزوار بعد كل زيارة — يساعد ذلك الفريق على معرفة ما يعمل بشكل جيد وما يحتاج إلى تحسين.'
+                    }</li>
+                    <li>مراجعة القنوات التي تجلب زواراً قليلين جداً وتقليص الإنفاق عليها — يمكن توجيه تلك الميزانية نحو قنوات أكثر فاعلية.</li>
+                </ol>
+
+                <!-- FOOTER -->
+                <div style="margin-top:20px;padding-top:12px;border-top:1px solid #dee2e6;
+                            display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
+                    <span style="font-size:11px;color:#adb5bd;">المعرض: ${SHOWROOM_NAME} &nbsp;&middot;&nbsp; النظام: لوحة التسويق</span>
+                    <span style="font-size:11px;color:#adb5bd;">تاريخ الإنشاء: ${generatedDate}</span>
+                </div>
+            </div>`;
+
+            document.getElementById('reportBox').innerHTML = ar ? htmlAR : htmlEN;
+        }
+
+        /* — Builds the PDF */
+        async function printReportPDF() {
+            const { jsPDF } = window.jspdf;
+            const lang = localStorage.getItem('siteLang') || 'en';
+
+
+            /* ── gather same data as generateReport ── */
+            const kpiEl      = document.getElementById('kpi-total-visitors');
+            const kpiTotal   = kpiEl ? parseInt(kpiEl.textContent.replace(/,/g,''), 10) : null;
+            const mayT       = CHANNEL_MONTHLY.map(c => c.monthlyCounts[5]);
+            const aprT       = CHANNEL_MONTHLY.map(c => c.monthlyCounts[4]);
+            const mayChTotal = mayT.reduce((s,v)=>s+v, 0);
+            const aprTotal   = aprT.reduce((s,v)=>s+v, 0);
+            const displayTotal = kpiTotal !== null && !isNaN(kpiTotal) ? kpiTotal : mayChTotal;
+            const growthBase = aprTotal > 0
+                ? (((displayTotal - aprTotal) / aprTotal) * 100).toFixed(1)
+                : '0.0';
+            const growthNum  = parseFloat(growthBase);
+            const growthSign = growthNum > 0 ? '+' : '';
+            const topIdx     = mayT.indexOf(Math.max(...mayT));
+            const topCh      = CHANNELS[topIdx] || 'N/A';
+            const topChPct   = mayChTotal > 0 ? ((mayT[topIdx]/mayChTotal)*100).toFixed(1) : '0';
+            const budgetInput   = document.getElementById('budgetInputBox');
+            const currentBudget = parseFloat(budgetInput ? budgetInput.value : '2000') || 2000;
+            const topBHD        = mayChTotal > 0 ? ((mayT[topIdx]/mayChTotal)*currentBudget).toFixed(0) : '0';
+            const avgR        = FEEDBACK_DATA.length
+                ? (FEEDBACK_DATA.reduce((s,f)=>s+f.rating,0)/FEEDBACK_DATA.length).toFixed(1)
+                : null;
+            const totalReviews = FEEDBACK_DATA.length;
+
+            const trendWord = growthNum > 0 ? 'increased' : growthNum < 0 ? 'decreased' : 'remained stable';
+
+            const monthYear     = new Date().toLocaleString('en-US',{month:'long',year:'numeric'});
+            const generatedDate = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+
+            /* ── sorted channels for table ── */
+            const sortedChannels = [...CHANNEL_MONTHLY]
+                .map((c,i) => ({ name: c.channel, count: mayT[i] }))
+                .filter(c => c.count > 0)
+                .sort((a,b) => b.count - a.count);
+
+            /* ── low channels ── */
+            const lowChannels = sortedChannels
+                .filter(c => mayChTotal > 0 && (c.count/mayChTotal) < 0.10)
+                .map(c => c.name);
+
+            /* ── load logo ── */
+            const logoBase64 = await _imgToBase64('/images/logo.png');
+
+            /* ── build PDF ── */
+            const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+            const PW = 210, PH = 297;
+            const ML = 14, MR = 14, MT = 22, textWidth = PW - ML - MR;
+            let y = MT;
+
+            const NAVY = [0, 43, 91];
+            const RED  = [200, 16, 46];
+            const GRAY = [108, 117, 125];
+            const DARK = [50, 58, 64];
+
+            /* helper: add new page when near bottom */
+            function checkPage(needed) {
+                if (y + needed > PH - 20) {
+                    doc.addPage();
+                    y = MT;
+                }
+            }
+
+            /* helper: section heading */
+            function sectionHead(label) {
+                checkPage(12);
+                doc.setFillColor(...RED);
+                doc.rect(ML, y, 2.5, 7, 'F');
+                doc.setFont('helvetica','bold');
+                doc.setFontSize(8);
+                doc.setTextColor(...NAVY);
+                doc.text(label.toUpperCase(), ML + 5, y + 5.5);
+                y += 10;
+            }
+
+            /* helper: body paragraph */
+            function bodyPara(text) {
+                doc.setFont('helvetica','normal');
+                doc.setFontSize(9);
+                doc.setTextColor(...DARK);
+                const lines = doc.splitTextToSize(text, textWidth);
+                checkPage(lines.length * 5 + 4);
+                doc.text(lines, ML, y);
+                y += lines.length * 5 + 4;
+            }
+
+            /* ── HEADER BAR ── */
+            doc.setFillColor(...NAVY);
+            doc.rect(0, 0, PW, 22, 'F');
+            doc.setDrawColor(...RED);
+            doc.setLineWidth(1);
+            doc.line(0, 22, PW, 22);
+
+            if (logoBase64) {
+                doc.addImage(logoBase64, 'PNG', ML, 2, 16, 16);
+            }
+            doc.setFont('helvetica','bold');
+            doc.setFontSize(12);
+            doc.setTextColor(255,255,255);
+            doc.text('Y.K. Almoayyed & Sons', logoBase64 ? ML + 19 : ML, 11);
+            doc.setFont('helvetica','normal');
+            doc.setFontSize(8);
+            doc.setTextColor(200,210,225);
+            doc.text(`Monthly Executive Marketing Report  |  ${SHOWROOM_NAME}  |  ${monthYear}`, logoBase64 ? ML + 19 : ML, 17);
+
+            y = 32; // start below header
+
+            /* ── 1. PERFORMANCE OVERVIEW ── */
+            sectionHead('Performance Overview');
+            bodyPara(
+                `In ${monthYear}, ${SHOWROOM_NAME} received ${displayTotal.toLocaleString()} visitor${displayTotal!==1?'s':''}. ` +
+                `Compared to April (${aprTotal.toLocaleString()}), traffic ${trendWord} by ${growthSign}${growthBase}%. ` +
+                (growthNum > 0
+                    ? 'This growth shows the current marketing channels are reaching the right audience.'
+                    : growthNum < 0
+                    ? 'This drop is worth investigating - certain channels may need a refresh or timing shift.'
+                    : 'Traffic held steady, indicating consistent marketing performance.')
+            );
+
+            /* ── 2. WHERE VISITORS ARE COMING FROM ── */
+            sectionHead('Where Visitors Are Coming From');
+            bodyPara(
+                `The top channel this month is ${topCh} (${topChPct}% of all visitors), ` +
+                `making it the most effective way to reach customers right now. ` +
+                `The table below shows the full breakdown:`
+            );
+            y += 2;
+
+            /* channel table */
+            const colX   = [ML, ML+52, ML+90, ML+122, ML+160];
+            const colW   = [50, 36,    30,    36,      30    ];
+            const headers = ['Channel','Visitors','Share','Suggested Budget',''];
+
+            checkPage(10 + sortedChannels.length * 8);
+
+            // header row
+            doc.setFillColor(241,243,245);
+            doc.rect(ML, y, textWidth, 8, 'F');
+            doc.setFont('helvetica','bold');
+            doc.setFontSize(8);
+            doc.setTextColor(...GRAY);
+            ['Channel','Visitors This Month','Share','Suggested Budget'].forEach((h,i) => {
+                doc.text(h, colX[i]+1, y+5.5);
+            });
+            y += 8;
+
+            sortedChannels.forEach((c,idx) => {
+                if (idx % 2 === 0) {
+                    doc.setFillColor(249,250,251);
+                    doc.rect(ML, y, textWidth, 7, 'F');
+                }
+                const pct = mayChTotal > 0 ? ((c.count/mayChTotal)*100).toFixed(1) : '0.0';
+                const bhd = mayChTotal > 0 ? ((c.count/mayChTotal)*currentBudget).toFixed(0) : '0';
+                doc.setFont('helvetica','normal');
+                doc.setFontSize(8.5);
+                doc.setTextColor(...DARK);
+                doc.text(c.name,              colX[0]+1, y+4.8);
+                doc.text(String(c.count),     colX[1]+18, y+4.8, {align:'right'});
+                doc.text(`${pct}%`,           colX[2]+14, y+4.8, {align:'right'});
+                doc.setFont('helvetica','bold');
+                doc.setTextColor(...NAVY);
+                doc.text(`BHD ${Number(bhd).toLocaleString()}`, colX[3]+32, y+4.8, {align:'right'});
+                doc.setTextColor(...DARK);
+                y += 7;
+            });
+            y += 4;
+
+            /* ── 3. BUDGET ── */
+            sectionHead('Where to Put the Marketing Budget');
+            bodyPara(
+                `With a monthly budget of BHD ${Number(currentBudget).toLocaleString()}, ` +
+                `the idea is to put more money into the channels that are actually bringing people in. ` +
+                `${topCh} is the top performer, so the suggested spend is BHD ${Number(topBHD).toLocaleString()} this month.` +
+                (lowChannels.length > 0
+                    ? ` Channels with fewer visitors (${lowChannels.join(', ')}) should get less budget or be reviewed.`
+                    : '')
+            );
+
+            /* ── 4. CUSTOMER FEEDBACK ── */
+            sectionHead('Customer Feedback & Satisfaction');
+            if (avgR) {
+                const oneStars = FEEDBACK_DATA.filter(f=>f.rating===1).length;
+                const sat = parseFloat(avgR) >= 4 ? 'good' : parseFloat(avgR) >= 3 ? 'average' : 'below expectations';
+                bodyPara(
+                    `Visitors rated their experience ${avgR}/5 across ${totalReviews} review${totalReviews!==1?'s':''}. ` +
+                    `Satisfaction is ${sat}. ` +
+                    (parseFloat(avgR) < 4 && oneStars > 0
+                        ? `There are ${oneStars} low rating(s) worth reviewing to understand what went wrong and how to fix it.`
+                        : 'Keep collecting feedback after every visit to monitor service quality.')
+                );
+            } else {
+                bodyPara('No visitor feedback data is available yet for this period.');
+            }
+
+            /* ── 5. RECOMMENDATIONS ── */
+            sectionHead('Recommendations');
+            const recs = [
+                `Put more of the marketing budget into ${topCh} — it is bringing in the most visitors.`,
+                `Keep rewarding the sales team — happy staff deliver better service and better reviews.`,
+                avgR && parseFloat(avgR) < 4
+                    ? `Read through the low-rated reviews and follow up — small fixes can make a big difference.`
+                    : `Continue collecting visitor feedback after every visit to track what is working.`,
+                `Review channels with very few visitors and consider reducing spend on them.`
+            ];
+            recs.forEach((r, i) => {
+                checkPage(10);
+                doc.setFont('helvetica','bold');
+                doc.setFontSize(9);
+                doc.setTextColor(...NAVY);
+                doc.text(`${i+1}.`, ML, y);
+                doc.setFont('helvetica','normal');
+                doc.setTextColor(...DARK);
+                const lines = doc.splitTextToSize(r, textWidth - 7);
+                doc.text(lines, ML + 7, y);
+                y += lines.length * 5 + 3;
+            });
+
+            /* ── FOOTER ── */
+            doc.setDrawColor(220,220,220);
+            doc.setLineWidth(0.3);
+            doc.line(ML, PH - 14, PW - MR, PH - 14);
+            doc.setFont('helvetica','normal');
+            doc.setFontSize(7);
+            doc.setTextColor(180,180,180);
+            doc.text(`Generated on ${generatedDate}`, ML, PH - 9);
+            doc.text(`Showroom: ${SHOWROOM_NAME}  |  System: Marketing Dashboard`, PW - MR, PH - 9, {align:'right'});
+
+            doc.save(`YK_Marketing_Report_${SHOWROOM_NAME.replace(/\s+/g,'_')}_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+        /* ══════════════════════════════════════════════════════
+           TRANSLATION SYSTEM
+           ══════════════════════════════════════════════════════ */
+        const mkTranslations = {
+            en: {
+                pageTitle:          "Marketing Dashboard",
+                showroomLabel:      "Showroom:",
+                allShowrooms:       "All Showrooms",
+                pdfBtn:             "📄 PDF",
+                excelBtn:           "Excel",
+                kpiVisitors:        "Total Visitors",
+                kpiVisitorsSub:     "All showrooms / filtered",
+                kpiChannel:         "Top Channel",
+                kpiChannelSub:      "of visitors",
+                kpiRating:          "Avg. Rating",
+                kpiRatingSub:       "From visitor feedback",
+                kpiSalesperson:     "Top Salesperson",
+                kpiSalespersonSub:  "May leaderboard",
+                srcTitle:           "Visitor Sources",
+                srcSub:             "Channel breakdown and growth trends — toggle between views",
+                togglePie:          "Pie",
+                toggleLine:         "Line",
+                pieLabel:           "Channel Share — Current Month",
+                lineLabel:          "Visitor Growth by Channel",
+                reportTitle:        "Monthly Executive Report",
+                reportSub:          "Auto-generated summary based on current showroom data",
+                reportGenerate:     "🔄 Generate",
+                reportPdf:          "📄 PDF",
+                reportPlaceholder:  'Click "Generate" to auto-create an executive summary.',
+                fbTitle:            "Feedback Management",
+                fbSub:              "View and respond to visitor ratings and comments",
+                filterAllRatings:   "⭐ All Ratings",
+                filterClear:        "✕ Clear",
+                filterCsv:          "Download CSV",
+                fbThVisitor:        "Visitor",
+                fbThRating:         "Rating",
+                fbThComment:        "Comment",
+                fbThShowroom:       "Showroom",
+                fbThDate:           "Date & Time",
+                fbThAction:         "Action",
+                modalTitle:         "📧 Email Reply",
+                modalCancel:        "Cancel",
+                modalSend:          "Send Reply",
+                reportClear:        "✕ Clear",
+        budgetTitle:        "Suggested Budget Allocation",
+        budgetSub:          "Based on which social media channels bring the most visitors this month",
+        budgetLabel:        "Adjust monthly budget (BHD):",
+        budgetTotal:        "Total: BHD",
+        lineTitleCard:  "Growth Trend",
+        lineSubCard:    "Visitor growth by channel ",
+        srcSubCard:     "Channel share this month"
+            },
+            ar: {
+                pageTitle:          "لوحة التسويق",
+                showroomLabel:      "المعرض:",
+                allShowrooms:       "جميع المعارض",
+                pdfBtn:             "📄 PDF",
+                excelBtn:           "Excel",
+                kpiVisitors:        "إجمالي الزوار",
+                kpiVisitorsSub:     "جميع المعارض / مفلترة",
+                kpiChannel:         "أعلى قناة",
+                kpiChannelSub:      "من الزوار",
+                kpiRating:          "متوسط التقييم",
+                kpiRatingSub:       "من تقييمات الزوار",
+                kpiSalesperson:     "أفضل موظف مبيعات",
+                kpiSalespersonSub:  "قائمة مايو",
+                srcTitle:           "مصادر الزوار",
+                srcSub:             "توزيع القنوات واتجاهات النمو — تبديل بين العروض",
+                togglePie:          "دائري",
+                toggleLine:         "خطي",
+                pieLabel:           "حصة القنوات — الشهر الحالي",
+                lineLabel:          "نمو الزوار حسب القناة —",
+                reportTitle:        "التقرير التنفيذي الشهري",
+                reportSub:          "ملخص يُنشأ تلقائياً بناءً على بيانات المعرض الحالي",
+                reportGenerate:     "🔄 إنشاء",
+                reportPdf:          "📄 PDF",
+                reportPlaceholder:  'انقر على "إنشاء" لإنشاء ملخص تنفيذي تلقائياً.',
+                fbTitle:            "إدارة التقييمات",
+                fbSub:              "عرض تقييمات الزوار وتعليقاتهم والرد عليها",
+                filterAllRatings:   "⭐ جميع التقييمات",
+                filterClear:        "✕ مسح",
+                filterCsv:          "تحميل CSV",
+                fbThVisitor:        "الزائر",
+                fbThRating:         "التقييم",
+                fbThComment:        "التعليق",
+                fbThShowroom:       "المعرض",
+                fbThDate:           "التاريخ والوقت",
+                fbThAction:         "الإجراء",
+                modalTitle:         "📧 رد بريد إلكتروني",
+                modalCancel:        "إلغاء",
+                modalSend:          "إرسال الرد",
+                reportClear:        "✕ مسح",
+        budgetTitle:        " توزيع الميزانية المقترحة",
+        budgetSub:          "بناءً على القنوات التي تجلب أكثر الزوار هذا الشهر",
+        budgetLabel:        "تعديل الميزانية الشهرية (BHD):",
+        budgetTotal:        "الإجمالي: BHD",
+        lineTitleCard:  "اتجاه النمو",
+        srcSubCard:     "حصة القنوات هذا الشهر"
+            }
+        };
+
+        function translateMKPage(lang) {
+            const t = mkTranslations[lang];
+            if (!t) return;
+            const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+
+            set('txt-mk-title',            t.pageTitle);
+            set('txt-mk-showroom-label',   t.showroomLabel);
+            set('txt-mk-all-showrooms',    t.allShowrooms);
+            set('txt-mk-date-range',       t.dateRange);
+            set('txt-mk-pdf-btn',          t.pdfBtn);
+            set('txt-mk-excel-btn',        t.excelBtn);
+            set('txt-kpi-visitors',        t.kpiVisitors);
+            set('txt-kpi-visitors-sub',    t.kpiVisitorsSub);
+            set('txt-kpi-channel',         t.kpiChannel);
+            set('txt-kpi-channel-sub',     t.kpiChannelSub);
+            set('txt-kpi-rating',          t.kpiRating);
+            set('txt-kpi-rating-sub',      t.kpiRatingSub);
+            set('txt-kpi-salesperson',     t.kpiSalesperson);
+            set('txt-kpi-salesperson-sub', t.kpiSalespersonSub);
+            set('txt-src-title',           t.srcTitle);
+            set('txt-src-sub',             t.srcSub);
+            set('txt-toggle-pie',          t.togglePie);
+            set('txt-toggle-line',         t.toggleLine);
+            set('txt-pie-label',           t.pieLabel);
+            set('txt-line-label',          t.lineLabel);
+            set('txt-report-title',        t.reportTitle);
+            set('txt-report-sub',          t.reportSub);
+            set('txt-report-generate',     t.reportGenerate);
+            set('txt-report-pdf',          t.reportPdf);
+            set('txt-report-word',         t.reportWord);   // ✅ NEW
+            set('txt-report-excel',        t.reportExcel);
+            const placeholder = document.getElementById('txt-report-placeholder');
+            if (placeholder) placeholder.innerText = t.reportPlaceholder;
+            set('txt-fb-title',            t.fbTitle);
+            set('txt-fb-sub',              t.fbSub);
+            set('txt-filter-all-ratings',  t.filterAllRatings);
+            set('txt-filter-clear',        t.filterClear);
+            set('txt-filter-csv',          t.filterCsv);
+            set('txt-fb-th-visitor',       t.fbThVisitor);
+            set('txt-fb-th-rating',        t.fbThRating);
+            set('txt-fb-th-comment',       t.fbThComment);
+            set('txt-fb-th-showroom',      t.fbThShowroom);
+            set('txt-fb-th-date',          t.fbThDate);
+            set('txt-fb-th-action',        t.fbThAction);
+            set('txt-modal-title',         t.modalTitle);
+            set('txt-modal-cancel',        t.modalCancel);
+            set('txt-modal-send',          t.modalSend);
+            set('txt-report-clear',        t.reportClear);
+            set('txt-budget-title',        t.budgetTitle);
+            set('txt-budget-sub',          t.budgetSub);
+            set('txt-budget-label',        t.budgetLabel);
+            set('txt-line-title-card', t.lineTitleCard);
+        set('txt-line-sub-card',   t.lineSubCard);
+        set('txt-src-sub-card',    t.srcSubCard);
+
+            const budgetInput = document.getElementById('budgetInputBox');
+            recalcBudget(budgetInput ? budgetInput.value : BUDGET_TOTAL);
+            renderFeedback(filteredFeedback.length ? filteredFeedback : FEEDBACK_DATA);
+        }
+
+        window.addEventListener('languageChanged', function (e) {
+            translateMKPage(e.detail);
+        });
+    </script>
+}

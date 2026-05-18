@@ -16,6 +16,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<AdminService>();
+builder.Services.AddScoped<IMarketingAnalysisService,MarketingAnalysisService>();
 
 builder.Services.AddHttpClient("groq", client =>
 {

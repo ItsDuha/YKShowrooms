@@ -3,7 +3,6 @@
 <head>
     <meta charset="utf-8" />
     <title>@ViewData["Title"] - Showrooms Service</title>
-
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Bootstrap -->
@@ -16,9 +15,15 @@
         body {
             background: #f5f6f8;
             font-family: 'Segoe UI', sans-serif;
+            transition: background 0.3s, color 0.3s;
         }
 
-        /* NAVBAR */
+            body.rtl {
+                direction: rtl;
+                text-align: right;
+            }
+
+        /* ── NAVBAR ── */
         .navbar-custom {
             background: #0b1b3f;
         }
@@ -28,31 +33,194 @@
                 font-weight: bold;
             }
 
-        /* FOOTER */
+        /* ── FOOTER ── */
         .footer {
             text-align: center;
             padding: 15px;
             color: #888;
             font-size: 14px;
         }
+
+        /* ── THEME TOGGLE SWITCH ── */
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 56px;
+            height: 28px;
+            cursor: pointer;
+            margin: 0;
+        }
+
+            .theme-switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+        .theme-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #888;
+            border-radius: 28px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+        }
+            /* Sun icon — shown in light mode */
+            .theme-slider::before {
+                content: '☀️';
+                position: absolute;
+                font-size: 14px;
+                width: 22px;
+                height: 22px;
+                left: 3px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                background: white;
+                transition: 0.3s;
+                line-height: 1;
+            }
+        /* Moon icon — shown in dark mode */
+        .theme-switch input:checked + .theme-slider {
+            background: #4a6cf7;
+        }
+
+            .theme-switch input:checked + .theme-slider::before {
+                content: '🌙';
+                transform: translateX(28px);
+                background: #1e1e1e;
+            }
+
+        /* ── DARK MODE STYLES ── */
+        body.dark-mode {
+            background: #0A0A0A;
+            color: #f0f0f0;
+        }
+
+            body.dark-mode .navbar-custom {
+                background: #0a1428;
+            }
+
+            body.dark-mode .card {
+                background: #16213e;
+                border-color: #2a2a4a;
+                color: #f0f0f0;
+            }
+                /* Fix: headings inside cards */
+                body.dark-mode .card h1,
+                body.dark-mode .card h2,
+                body.dark-mode .card h3,
+                body.dark-mode .card h4,
+                body.dark-mode .card h5 {
+                    color: #ffffff !important;
+                }
+            /* Fix: muted text */
+            body.dark-mode .text-muted {
+                color: #b0b8cc !important;
+            }
+            /* Fix: form labels */
+            body.dark-mode .form-label,
+            body.dark-mode label {
+                color: #d0d8e8 !important;
+            }
+            /* Fix: inputs and selects */
+            body.dark-mode input,
+            body.dark-mode select,
+            body.dark-mode textarea {
+                background: #0f3460 !important;
+                color: #f0f0f0 !important;
+                border-color: #2a4a7a !important;
+            }
+
+                body.dark-mode input::placeholder,
+                body.dark-mode textarea::placeholder {
+                    color: #7a90b0 !important;
+                }
+                /* Fix: select dropdown options */
+                body.dark-mode select option {
+                    background: #16213e;
+                    color: #f0f0f0;
+                }
+            /* Fix: primary button */
+            body.dark-mode .btn-primary {
+                background: #4a6cf7;
+                border-color: #4a6cf7;
+                color: #ffffff;
+            }
+            /* Fix: validation error text */
+            body.dark-mode .text-danger,
+            body.dark-mode span[id$="-error"] {
+                color: #ff8a8a !important;
+            }
+            /* Fix: footer */
+            body.dark-mode .footer {
+                color: #6a7a9a;
+            }
+            /* Fix: star rating */
+            body.dark-mode .star {
+                color: #4a5a7a !important;
+            }
+
+                body.dark-mode .star.selected,
+                body.dark-mode .star:hover {
+                    color: #f5c518 !important;
+                }
+            /* Fix: general text that might be dark */
+            body.dark-mode p,
+            body.dark-mode span,
+            body.dark-mode div {
+                color: inherit;
+            }
+
+            body.dark-mode #langBtn {
+                background: #1e2a4a !important;
+                color: #f0f0f0 !important;
+                border-color: #2a4a7a !important;
+            }
     </style>
 </head>
-
 <body>
 
     <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-custom px-3">
-        <span class="navbar-brand">Showrooms Service</span>
+    <nav class="navbar navbar-expand-lg navbar-custom px-3" style="direction:ltr;">
+        <span class="navbar-brand" id="navbarBrand" style="direction:rtl; display:inline-block;">Showrooms Service</span>
+
+        <!-- Controls: Language toggle + Dark/Light mode toggle -->
+        <div class="ms-auto d-flex align-items-center" style="gap:12px; padding-right:16px; direction:ltr;">
+
+
+            <!-- Language Button — same style as login page -->
+            <button onclick="toggleLanguage()" id="langBtn"
+                    style="background:white;border:2px solid #ccc;border-radius:25px;
+                padding:6px 16px;font-size:14px;font-weight:bold;
+                cursor:pointer;display:flex;align-items:center;gap:6px;
+                box-shadow:0 2px 8px rgba(0,0,0,0.2);color:#0b1b3f;">
+                🌐 <span id="langBtnLabel">English</span>
+
+            </button>
+
+            <!-- Dark/Light mode toggle -->
+            <label class="theme-switch" id="theme-toggle" title="Toggle Dark Mode">
+                <input type="checkbox" id="theme-checkbox" />
+                <span class="theme-slider"></span>
+            </label>
+
+        </div>
     </nav>
 
-    <!--CONTENT -->
+    <!-- CONTENT -->
     <div class="container mt-4">
         @RenderBody()
     </div>
 
     <!-- FOOTER -->
     <div class="footer">
-        © @DateTime.Now.Year Showrooms Service
+        &copy; @DateTime.Now.Year Showrooms Service
     </div>
 
     <!-- Scripts -->
@@ -60,5 +228,114 @@
 
     @RenderSection("Scripts", required: false)
 
+    <script>
+        // DARK MODE CODE HERE
+        // Get checkbox
+        const themeCheckbox = document.getElementById("theme-checkbox");
+
+        // Load saved mode
+        if (localStorage.getItem("darkMode") === "enabled") {
+
+        document.body.classList.add("dark-mode");
+
+        themeCheckbox.checked = true;
+        }
+
+        // Toggle dark mode
+        themeCheckbox.addEventListener("change", function () {
+
+        document.body.classList.toggle("dark-mode");
+
+        // Save mode
+        if (document.body.classList.contains("dark-mode")) {
+
+        localStorage.setItem("darkMode", "enabled");
+
+        } else {
+
+        localStorage.removeItem("darkMode");
+        }
+
+        });
+
+        // ───────── LANGUAGE TOGGLE ─────────
+
+        let isArabic = false;
+
+        function toggleLanguage() {
+
+        isArabic = !isArabic;
+
+        document.body.classList.toggle("rtl");
+
+        const langLabel = document.getElementById("langBtnLabel");
+
+        const navbarBrand = document.getElementById("navbarBrand");
+
+        // Feedback page elements
+        const feedbackTitle = document.getElementById("feedbackTitle");
+
+        const feedbackSubtitle = document.getElementById("feedbackSubtitle");
+
+        const commentBox = document.getElementById("commentBox");
+
+        const submitBtn = document.getElementById("submitBtn");
+
+        const thankYouTitle = document.getElementById("thankYouTitle");
+
+        const thankYouSubtitle = document.getElementById("thankYouSubtitle");
+
+        if (isArabic) {
+        if (thankYouTitle) {
+
+        thankYouTitle.innerText = "شكراً على ملاحظاتك!";
+
+        thankYouSubtitle.innerText = "نحن نقدّر وقتك";
+        }
+
+        langLabel.innerText = "العربية";
+
+        navbarBrand.innerText = "خدمة صالات العرض";
+
+        // Feedback page translation
+        if (feedbackTitle) {
+
+        feedbackTitle.innerText = "قيّم تجربتك";
+
+        feedbackSubtitle.innerText = "نحن نقدّر ملاحظاتك";
+
+        commentBox.placeholder = "أخبرنا عن تجربتك...";
+
+        submitBtn.innerText = "إرسال التقييم";
+        }
+
+        } else {
+
+        langLabel.innerText = "English";
+
+        navbarBrand.innerText = "Showrooms Service";
+        if (thankYouTitle) {
+
+        thankYouTitle.innerText = "Thank you for your feedback!";
+
+        thankYouSubtitle.innerText = "We appreciate your time";
+        }
+
+        // Feedback page translation
+        if (feedbackTitle) {
+
+        feedbackTitle.innerText = "Rate your experience";
+
+        feedbackSubtitle.innerText = "We value your feedback";
+
+        commentBox.placeholder = "Tell us about your experience...";
+
+        submitBtn.innerText = "Submit Feedback";
+        }
+        }
+        }
+
+
+    </script>
 </body>
 </html>
