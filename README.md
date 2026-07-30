@@ -28,8 +28,6 @@ A centralized web-based platform designed to digitize and manage customer walk-i
 
 ### 📱 Visitor video
 
-https://github.com/user-attachments/assets/5c1729b7-8a9d-4262-b358-35472b549d14
-
 <video src="https://github.com/user-attachments/assets/5c1729b7-8a9d-4262-b358-35472b549d14" controls="controls" width="100%"></video>
 
 ---
