@@ -26,7 +26,7 @@ A centralized web-based platform designed to digitize and manage customer walk-i
 
 ## 📹 Video Walkthroughs
 
-### 📱 Visitor Portal Demo
+### 📱 Visitor video
 
 https://github.com/user-attachments/assets/5c1729b7-8a9d-4262-b358-35472b549d14
 
@@ -34,7 +34,7 @@ https://github.com/user-attachments/assets/5c1729b7-8a9d-4262-b358-35472b549d14
 
 ---
 
-### 💻 Admin Dashboard Demo
+### 💻 Admin Dashboard video
 
 https://github.com/user-attachments/assets/f66a05bd-ed8a-4446-a92a-ec2277d5a837
 
