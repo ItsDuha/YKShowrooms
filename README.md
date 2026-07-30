@@ -45,7 +45,7 @@ A centralized web-based platform designed to digitize and manage customer walk-i
 
 * **Digital Check-In:** Simple form for visitors to submit their details upon arrival.
 
-* **Multi Language Support: Full support for both English and Arabic.
+* **Multi Language Support:** Full support for both English and Arabic.
 
 * **Feedback System:** Star-rating and comment submission post-visit.
 
