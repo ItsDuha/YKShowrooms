@@ -41,7 +41,7 @@ A centralized web-based platform designed to digitize and manage customer walk-i
 ## ✨ Key Features
 
 
-### 👤 Visitor Portal
+### 👤 Visitor 
 
 * **Digital Check-In:** Simple form for visitors to submit their details upon arrival.
 
@@ -50,7 +50,7 @@ A centralized web-based platform designed to digitize and manage customer walk-i
 * **Feedback System:** Star-rating and comment submission post-visit.
 
 
-### 🛡️ Admin Portal
+### 🛡️ Admin 
 
 * **Real-Time Footfall Analytics:** Dashboard cards showing daily, weekly, and monthly visitor counts.
 
